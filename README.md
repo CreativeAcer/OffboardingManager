@@ -14,7 +14,7 @@ The tool automatically adapts to your system architecture:
 - ✅ **ARM64**: LDAP-based access (Windows 11 ARM)
 
 ## Features
-- 🖥️ Modern WPF interface using Mourik corporate styling
+- 🖥️ Modern WPF interface using styling
 - 🔒 Secure authentication for both AD and O365
 - 🔄 Automatic architecture detection and adaptation
 - 📊 Real-time task execution feedback
