@@ -47,12 +47,12 @@ The tool automatically adapts to your system architecture:
 git clone https://github.com/CreativeAcer/OffboardingManager.git
 
 # Navigate to the directory
-cd ADUserOffboarding
+cd OffboardingManager
 ```
 
 ## Project Structure
 ```plaintext
-/ADUserOffboarding/
+/OffboardingManager/
 ├── Start-Offboarding.ps1           # Main script
 ├── Launch-Offboarding.ps1          # Launcher script
 ├── Config/                         # Configuration files
