@@ -1,0 +1,29 @@
+/ADUserOffboarding/
+├── Start-Offboarding.ps1
+├── Launch-Offboarding.ps1
+├── Config/
+│   ├── Colors.ps1
+│   ├── Fonts.ps1
+│   └── Settings.ps1
+├── Functions/
+│   ├── Environment.ps1
+│   ├── LDAP/
+│   │   ├── LDAPConnection.ps1
+│   │   └── LDAPUsers.ps1
+│   └── UI/
+│       ├── LoginDialog.ps1
+│       ├── MainWindow.ps1
+│       └── OnPremHandlers.ps1
+│       └── O365Handlers.ps1
+│       └── XAMLHelper.ps1
+│       └── EasterEgg.ps1
+├── XAML/
+│   ├── LoginWindow.xaml
+│   └── MainWindow.xaml
+├── Logs/
+│   └── error_log.txt
+└── docs/
+    └── images/
+        ├── MainWindow2.png    # Main banner (800x400)
+        ├── Login.png          # Login screen (400x300)
+        └── MainWindow.png     # Main interface (800x600)

@@ -1,0 +1,103 @@
+﻿<Window 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AD Login" Height="520" Width="440" 
+        WindowStartupLocation="CenterScreen"
+        Background="$($colors.Background)">
+    <Window.Resources>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Background" Value="$($colors.InputBg)"/>
+            <Setter Property="BorderBrush" Value="$($colors.BorderColor)"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="36"/>
+        </Style>
+        <Style TargetType="PasswordBox">
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Background" Value="$($colors.InputBg)"/>
+            <Setter Property="BorderBrush" Value="$($colors.BorderColor)"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="36"/>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="$($colors.Text)"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="$($colors.Primary)"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.9"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="AD Login" 
+                  FontSize="24" 
+                  FontWeight="Bold" 
+                  Margin="0,0,0,20"
+                  Foreground="$($colors.Text)"/>
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                <Label Content="Domain"/>
+                <TextBox x:Name="txtDomain"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="1" Margin="0,0,0,15">
+                <Label Content="Domain Controller"/>
+                <TextBox x:Name="txtDC"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" Margin="0,0,0,15">
+                <Label Content="Username"/>
+                <TextBox x:Name="txtUsername"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="3" Margin="0,0,0,20">
+                <Label Content="Password"/>
+                <PasswordBox x:Name="txtPassword"/>
+            </StackPanel>
+
+            <Button Grid.Row="4" 
+                    x:Name="btnLogin" 
+                    Content="Login" 
+                    HorizontalAlignment="Stretch" 
+                    Padding="15,8"
+                    Background="$($colors.Secondary)"
+                    Foreground="$($colors.Text)"
+                    FontWeight="SemiBold"
+                    BorderThickness="0"
+                    Margin="0,10,0,0"/>
+        </Grid>
+    </Grid>
+</Window>
