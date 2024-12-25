@@ -18,10 +18,17 @@ Add-Type -AssemblyName System.DirectoryServices
 Add-Type -AssemblyName System.DirectoryServices.AccountManagement
 
 # Script root path determination
-$script:BasePath = $PSScriptRoot
-if (-not $script:BasePath) {
-    $script:BasePath = Split-Path $MyInvocation.MyCommand.Path
-}
+# $script:BasePath = $PSScriptRoot
+# if (-not $script:BasePath) {
+#     $script:BasePath = Split-Path $MyInvocation.MyCommand.Path
+# }
+
+# Import utilities
+. "$PSScriptRoot\Functions\Utilities\PathUtils.ps1"
+
+$currentPath = Get-BasePath
+$script:BasePath = Split-Path -Parent (Split-Path -Parent $currentPath)  # Move two folders higher
+        
 
 # Import configurations
 . "$script:BasePath\Config\Colors.ps1"
@@ -39,6 +46,7 @@ if (-not $script:BasePath) {
 . "$script:BasePath\Functions\UI\OnPremHandlers.ps1"
 . "$script:BasePath\Functions\UI\O365Handlers.ps1"
 . "$script:BasePath\Functions\UI\ReportHandlers.ps1"
+. "$script:BasePath\Functions\Logging\Write-ActivityLog.ps1"
 #. "$script:BasePath\Functions\UI\EasterEgg.ps1"
 
 # Error handling function

@@ -33,18 +33,18 @@ function Initialize-ReportsTab {
     }
 }
 
-function Get-BasePath {
-    try {
-        # Dynamically determine the base path
-        $BasePath = $PSScriptRoot
-        if (-not $BasePath) {
-            $BasePath = Split-Path -Parent $MyInvocation.MyCommand.Path
-        }
-        return $BasePath
-    } catch {
-        throw "Unable to determine the base path: $($_.Exception.Message)"
-    }
-}
+# function Get-BasePath {
+#     try {
+#         # Dynamically determine the base path
+#         $BasePath = $PSScriptRoot
+#         if (-not $BasePath) {
+#             $BasePath = Split-Path -Parent $MyInvocation.MyCommand.Path
+#         }
+#         return $BasePath
+#     } catch {
+#         throw "Unable to determine the base path: $($_.Exception.Message)"
+#     }
+# }
 
 function Generate-Reports {
     param (
@@ -64,11 +64,7 @@ function Generate-Reports {
         $format = $script:cmbReportFormat.SelectedItem.Content
         $results = @()
 
-        # Dynamically determine the base path and move two folders higher
-        $BasePath = $PSScriptRoot
-        if (-not $BasePath) {
-            $BasePath = Split-Path -Parent $MyInvocation.MyCommand.Path
-        }
+        $BasePath = Get-BasePath
         $BasePath = Split-Path -Parent (Split-Path -Parent $BasePath)  # Move two folders higher
         Write-Output "BasePath resolved to: $BasePath"
 
