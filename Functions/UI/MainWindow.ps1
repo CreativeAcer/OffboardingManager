@@ -26,19 +26,69 @@ function Show-MainWindow {
         Write-Host "Getting main UI elements..."
         Update-LoadingMessage -LoadingWindow $loadingWindow -Message "Setting up controls..."
         
+<<<<<<< HEAD
         Initialize-MainWindowControls -Window $MainWindow -Credential $Credential -LoadingWindow $loadingWindow
+=======
+        # Get existing elements
+        $txtSearch = $MainWindow.FindName("txtSearch")
+        $lstUsers = $MainWindow.FindName("lstUsers")
+        $txtUserInfo = $MainWindow.FindName("txtUserInfo")
+
+        Write-Host "Initializing OnPrem tab..."
+        Update-LoadingMessage -LoadingWindow $loadingWindow -Message "Initializing On-Premises components..."
+        Initialize-OnPremTab -Window $MainWindow -Credential $Credential
+
+        Write-Host "Initializing O365 tab..."
+        Update-LoadingMessage -LoadingWindow $loadingWindow -Message "Initializing Office 365 components..."
+        Initialize-O365Tab -Window $MainWindow -Credential $Credential
+
+        Write-Host "Setting up event handlers..."
+        Update-LoadingMessage -LoadingWindow $loadingWindow -Message "Configuring event handlers..."
+        
+        # Event handlers for main window functionality
+        $txtSearch.Add_TextChanged({
+            Update-UserList -SearchText $txtSearch.Text -ListBox $lstUsers -Credential $Credential
+        })
+>>>>>>> 7ebd8f2a419167473355fd3250cadcbc7706ccc7
         
         Update-LoadingMessage -LoadingWindow $loadingWindow -Message "Ready!"
         Start-Sleep -Milliseconds 500
         $loadingWindow.Close()
         
+<<<<<<< HEAD
+=======
+        Write-Host "Populating initial user list..."
+        Update-LoadingMessage -LoadingWindow $loadingWindow -Message "Loading user list..."
+        Update-UserList -ListBox $lstUsers -Credential $Credential
+        
+        $MainWindow.WindowStyle = 'SingleBorderWindow'
+        $MainWindow.Focusable = $true
+
+        Update-LoadingMessage -LoadingWindow $loadingWindow -Message "Ready!"
+        Start-Sleep -Milliseconds 500  # Brief pause to show ready message
+        
+        # Close loading window and show main window
+        $loadingWindow.Close()
+        
+        Write-Host "Showing main window..."
+        $MainWindow.Focus()
+>>>>>>> 7ebd8f2a419167473355fd3250cadcbc7706ccc7
         $MainWindow.ShowDialog()
     }
     catch {
         if ($loadingWindow) {
             $loadingWindow.Close()
         }
+<<<<<<< HEAD
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "MainWindow"
+=======
+        Write-Error "Error in MainWindow: $_"
+        Write-Host "Full exception details:"
+        Write-Host $_.Exception.GetType().FullName
+        Write-Host $_.Exception.Message
+        Write-Host $_.ScriptStackTrace
+        
+>>>>>>> 7ebd8f2a419167473355fd3250cadcbc7706ccc7
         [System.Windows.MessageBox]::Show(
             "Failed to initialize application: $($_.Exception.Message)", 
             "Error", 
@@ -46,6 +96,7 @@ function Show-MainWindow {
             [System.Windows.MessageBoxImage]::Error)
     }
 }
+<<<<<<< HEAD
 
 # function Show-MainWindow {
 #     param (
@@ -131,6 +182,8 @@ function Show-MainWindow {
 #             [System.Windows.MessageBoxImage]::Error)
 #     }
 # }
+=======
+>>>>>>> 7ebd8f2a419167473355fd3250cadcbc7706ccc7
 
 # function Update-UserList {
 #     param (
@@ -139,6 +192,7 @@ function Show-MainWindow {
 #         [string]$SearchText = ""
 #     )
     
+<<<<<<< HEAD
 #     # Show loading indicator in the listbox
 #     $ListBox.Items.Clear()
 #     $ListBox.Items.Add("Loading users...")
@@ -191,6 +245,60 @@ function Show-MainWindow {
 #         $ListBox.IsEnabled = $true
 #     }
 # }
+=======
+    # Show loading indicator in the listbox
+    $ListBox.Items.Clear()
+    $ListBox.Items.Add("Loading users...")
+    $ListBox.IsEnabled = $false
+    
+    try {
+        if ($script:UseADModule) {
+            $Filter = "Enabled -eq '$true' -and LockedOut -eq '$false' -and Mail -like '*'"
+            
+            if ($SearchText) {
+                $Filter = "Enabled -eq '$true' -and LockedOut -eq '$false' -and Mail -like '*' -and UserPrincipalName -like '*$SearchText*'"
+            }
+
+            Write-Host "Using AD Module filter: $Filter"
+            
+            $Users = Get-ADUser -Credential $Credential -Filter $Filter -Properties UserPrincipalName |
+                    Sort-Object UserPrincipalName
+            
+            $ListBox.Items.Clear()
+            foreach ($User in $Users) {
+                $ListBox.Items.Add($User.UserPrincipalName)
+            }
+        }
+        else {
+            $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential
+            $filter = "(&(objectClass=user)(!userAccountControl:1.2.840.113556.1.4.803:=2)(!(userAccountControl:1.2.840.113556.1.4.803:=16))(mail=*))"
+
+            if ($SearchText) {
+                $filter = "(&(objectClass=user)(!userAccountControl:1.2.840.113556.1.4.803:=2)(!(userAccountControl:1.2.840.113556.1.4.803:=16))(mail=*)(userPrincipalName=*$SearchText*))"
+            }
+
+            Write-Host "Using LDAP filter: $filter"
+            
+            $Users = Get-LDAPUsers -Directory $directory -SearchFilter $filter
+            
+            $ListBox.Items.Clear()
+            foreach ($User in $Users) {
+                if ($User.Properties["userPrincipalName"]) {
+                    $ListBox.Items.Add($User.Properties["userPrincipalName"][0])
+                }
+            }
+        }
+    }
+    catch {
+        Write-Error "Failed to update user list: $_"
+        $ListBox.Items.Clear()
+        $ListBox.Items.Add("Error loading users")
+    }
+    finally {
+        $ListBox.IsEnabled = $true
+    }
+}
+>>>>>>> 7ebd8f2a419167473355fd3250cadcbc7706ccc7
 
 # function Update-SelectedUser {
 #     param (
