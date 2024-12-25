@@ -13,8 +13,14 @@
 │   └── UI/
 │       ├── LoginDialog.ps1
 │       ├── MainWindow.ps1
+        ├── MainWindow/
+│       │   ├── Initialize-MainWindow.ps1
+│       │   ├── Update-UserList.ps1
+│       │   ├── Update-SelectedUser.ps1
+│       │   └── Show-UserDetails.ps1
 │       └── OnPremHandlers.ps1
 │       └── O365Handlers.ps1
+│       └── ReportHandlers.ps1
 │       └── XAMLHelper.ps1
 │       └── EasterEgg.ps1
 ├── XAML/
@@ -24,6 +30,6 @@
 │   └── error_log.txt
 └── docs/
     └── images/
-        ├── MainWindow2.png    # Main banner (800x400)
-        ├── Login.png          # Login screen (400x300)
-        └── MainWindow.png     # Main interface (800x600)
+        ├── MainWindow2.png    # Main banner
+        ├── Login.png          # Login screen
+        └── MainWindow.png     # Main interface

@@ -33,10 +33,12 @@ if (-not $script:BasePath) {
 . "$script:BasePath\Functions\LDAP\LDAPConnection.ps1"
 . "$script:BasePath\Functions\LDAP\LDAPUsers.ps1"
 . "$script:BasePath\Functions\UI\XamlHelper.ps1"
+. "$script:BasePath\Functions\UI\LoadingScreen.ps1"
 . "$script:BasePath\Functions\UI\LoginDialog.ps1"
 . "$script:BasePath\Functions\UI\MainWindow.ps1"
 . "$script:BasePath\Functions\UI\OnPremHandlers.ps1"
 . "$script:BasePath\Functions\UI\O365Handlers.ps1"
+. "$script:BasePath\Functions\UI\ReportHandlers.ps1"
 #. "$script:BasePath\Functions\UI\EasterEgg.ps1"
 
 # Error handling function
@@ -81,28 +83,44 @@ try {
     if (Test-Environment) {
         Write-Host "Environment check passed."
         
-        # Show login dialog
-        if (Show-LoginDialog) {
-            Write-Host "Login successful."
+        # Show loading screen for initial setup
+        $loadingWindow = Show-LoadingScreen -Message "Initializing environment..."
+        $loadingWindow.Show()
+        
+        try {
+            # Show login dialog
+            Update-LoadingMessage -LoadingWindow $loadingWindow -Message "Preparing login..."
+            Start-Sleep -Milliseconds 500  # Brief pause for smooth transition
+            $loadingWindow.Close()
             
-            # Create credential object
-            $Credential = New-Object System.Management.Automation.PSCredential($script:Username, $script:Password)
-            
-            try {
-                # Show main window
-                Show-MainWindow -Credential $Credential
+            if (Show-LoginDialog) {
+                Write-Host "Login successful."
+                
+                # Create credential object
+                $Credential = New-Object System.Management.Automation.PSCredential($script:Username, $script:Password)
+                
+                try {
+                    # Show main window
+                    Show-MainWindow -Credential $Credential
+                }
+                catch {
+                    Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "MainWindow"
+                    [System.Windows.MessageBox]::Show(
+                        "An error occurred while running the main application: $($_.Exception.Message)", 
+                        "Error", 
+                        [System.Windows.MessageBoxButton]::OK, 
+                        [System.Windows.MessageBoxImage]::Error)
+                }
             }
-            catch {
-                Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "MainWindow"
-                [System.Windows.MessageBox]::Show(
-                    "An error occurred while running the main application: $($_.Exception.Message)", 
-                    "Error", 
-                    [System.Windows.MessageBoxButton]::OK, 
-                    [System.Windows.MessageBoxImage]::Error)
+            else {
+                Write-Host "Login cancelled or failed."
             }
         }
-        else {
-            Write-Host "Login cancelled or failed."
+        catch {
+            if ($loadingWindow) {
+                $loadingWindow.Close()
+            }
+            throw
         }
     }
     else {

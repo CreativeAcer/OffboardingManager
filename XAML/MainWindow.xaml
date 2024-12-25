@@ -277,6 +277,84 @@
                     </Border>
                 </Grid>
             </TabItem>
+            <TabItem Header="Reports">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Border Grid.Column="0" 
+                            BorderBrush="$($colors.BorderColor)" 
+                            BorderThickness="1" 
+                            CornerRadius="8"
+                            Margin="0,10,10,0">
+                        <Grid Margin="20">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Text="Generate Reports" 
+                                    FontWeight="SemiBold" 
+                                    FontSize="16" 
+                                    Margin="0,0,0,15"/>
+                            
+                            <StackPanel Grid.Row="1" Margin="0,0,0,15">
+                                <CheckBox Name="chkOffboardingReport" 
+                                        Content="Offboarding Activity Report" 
+                                        Margin="0,0,0,10"
+                                        ToolTip="Generate a report of all offboarding activities"/>
+                                        
+                                <CheckBox Name="chkLicenseReport" 
+                                        Content="License Usage Report" 
+                                        Margin="0,0,0,10"
+                                        ToolTip="Generate a report of O365 license usage"/>
+                                        
+                                <!-- Report Format Selection -->
+                                <TextBlock Text="Export Format:" 
+                                        Margin="0,10,0,5"/>
+                                <ComboBox Name="cmbReportFormat" 
+                                        Margin="0,0,0,10">
+                                    <ComboBoxItem Content="CSV"/>
+                                    <ComboBoxItem Content="Excel"/>
+                                    <ComboBoxItem Content="PDF"/>
+                                </ComboBox>
+                                
+                                <!-- Date Range Selection -->
+                                <TextBlock Text="Date Range:" 
+                                        Margin="0,10,0,5"/>
+                                <DatePicker Name="dpStartDate" 
+                                        Margin="0,0,0,5"/>
+                                <DatePicker Name="dpEndDate" 
+                                        Margin="0,0,0,10"/>
+                            </StackPanel>
+                            
+                            <Button Grid.Row="2" 
+                                    Name="btnGenerateReport" 
+                                    Content="Generate Selected Reports" 
+                                    Padding="15,8"
+                                    Background="$($colors.Secondary)"
+                                    Foreground="$($colors.Text)"
+                                    FontWeight="SemiBold"
+                                    BorderThickness="0"/>
+                        </Grid>
+                    </Border>
+                    
+                    <Border Grid.Column="1" 
+                            BorderBrush="$($colors.BorderColor)" 
+                            BorderThickness="1" 
+                            CornerRadius="8"
+                            Margin="10,10,0,0">
+                        <ScrollViewer Margin="20">
+                            <TextBlock Name="txtReportResults" 
+                                    TextWrapping="Wrap" 
+                                    LineHeight="24"/>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+            </TabItem>
         </TabControl>
        <!-- <Canvas x:Name="EasterEggCanvas" Panel.ZIndex="999" Visibility="Collapsed" 
                 Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window}}" 
