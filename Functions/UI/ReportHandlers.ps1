@@ -14,15 +14,33 @@ function Initialize-ReportsTab {
         $script:dpStartDate = $Window.FindName("dpStartDate")
         $script:dpEndDate = $Window.FindName("dpEndDate")
         $script:btnGenerateReport = $Window.FindName("btnGenerateReport")
+        $script:btnExportReport = $Window.FindName("btnExportReport")
         $script:txtReportResults = $Window.FindName("txtReportResults")
+
+        # Initialize format combo box
+        $script:cmbReportFormat.Items.Clear()
+        $script:cmbReportFormat.Items.Add("CSV")
+        $script:cmbReportFormat.SelectedIndex = 0
 
         # Set default dates
         $script:dpStartDate.SelectedDate = (Get-Date).AddDays(-30)
         $script:dpEndDate.SelectedDate = Get-Date
 
+        # Store current report data for export
+        $script:currentReportData = $null
+
         # Add click handler for generate button
         $script:btnGenerateReport.Add_Click({
+            $script:btnExportReport.IsEnabled = $false
+            $script:txtReportResults.Text = "Generating report, please wait..."
             Generate-Reports -Credential $Credential
+        })
+
+        # Add click handler for export button
+        $script:btnExportReport.Add_Click({
+            if ($script:currentReportData) {
+                Export-ReportData
+            }
         })
 
         Write-Host "Reports Tab initialization completed"
@@ -33,221 +51,229 @@ function Initialize-ReportsTab {
     }
 }
 
-# function Get-BasePath {
-#     try {
-#         # Dynamically determine the base path
-#         $BasePath = $PSScriptRoot
-#         if (-not $BasePath) {
-#             $BasePath = Split-Path -Parent $MyInvocation.MyCommand.Path
-#         }
-#         return $BasePath
-#     } catch {
-#         throw "Unable to determine the base path: $($_.Exception.Message)"
-#     }
-# }
-
 function Generate-Reports {
     param (
         [System.Management.Automation.PSCredential]$Credential
     )
 
     try {
-        # Ensure at least one report is selected
         if (-not ($script:chkOffboardingReport.IsChecked -or $script:chkLicenseReport.IsChecked)) {
             $script:txtReportResults.Text = "Please select at least one report to generate."
             return
         }
 
-        # Get user-selected parameters and normalize date ranges
-        $startDate = [datetime]::ParseExact($script:dpStartDate.SelectedDate.ToString("yyyy-MM-dd 00:00:00"), "yyyy-MM-dd HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
-        $endDate = [datetime]::ParseExact($script:dpEndDate.SelectedDate.ToString("yyyy-MM-dd 23:59:59"), "yyyy-MM-dd HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
-        $format = $script:cmbReportFormat.SelectedItem.Content
-        $results = @()
-
-        $BasePath = Get-BasePath
-        $BasePath = Split-Path -Parent (Split-Path -Parent $BasePath)  # Move two folders higher
-        Write-Output "BasePath resolved to: $BasePath"
-
-        # Ensure the reports directory exists
-        $reportsPath = Join-Path -Path $BasePath -ChildPath "Reports"
-        if (-not (Test-Path $reportsPath)) {
-            New-Item -ItemType Directory -Path $reportsPath -Force | Out-Null
-            Write-Output "Created reports directory: $reportsPath"
-        }
-
-        # Generate a timestamp for report files
-        $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-
-        # Retrieve log files and process them
-        $logFilesPath = Join-Path -Path $BasePath -ChildPath "Logs"
-        $logFiles = Get-ChildItem -Path $logFilesPath -Filter "*.log"
-
-        foreach ($file in $logFiles) {
-            Write-Output "Processing file: $($file.FullName)"
-            foreach ($line in (Get-Content -Path $file.FullName -Encoding UTF8)) {
-                Write-Output "Processing line: $line"
-                # Add your line processing logic here
+        # Check Graph connection if License Report is selected
+        if ($script:chkLicenseReport.IsChecked) {
+            try {
+                $context = Get-MgContext -ErrorAction Stop
+                if (-not $context) {
+                    $script:txtReportResults.Text = "Please connect to Office 365 in the O365 tab first before generating license reports."
+                    return
+                }
+            }
+            catch {
+                $script:txtReportResults.Text = "Please connect to Office 365 in the O365 tab first before generating license reports."
+                return
             }
         }
 
-        # Generate reports based on user selection
-        if ($script:chkOffboardingReport.IsChecked) {
-            $results += Generate-OffboardingReport -StartDate $startDate -EndDate $endDate -Format $format -Timestamp $timestamp
-        }
-
+        $results = @()
+        
         if ($script:chkLicenseReport.IsChecked) {
-            $results += Generate-LicenseReport -Format $format -Timestamp $timestamp
+            $licenseReport = Generate-LicenseReport
+            $results += $licenseReport
+            $script:currentReportData = $licenseReport
         }
 
-        # Display the results in the UI
+        if ($script:chkOffboardingReport.IsChecked) {
+            $startDate = [datetime]::ParseExact($script:dpStartDate.SelectedDate.ToString("yyyy-MM-dd 00:00:00"), "yyyy-MM-dd HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
+            $endDate = [datetime]::ParseExact($script:dpEndDate.SelectedDate.ToString("yyyy-MM-dd 23:59:59"), "yyyy-MM-dd HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
+            
+            $offboardingReport = Generate-OffboardingReport -StartDate $startDate -EndDate $endDate
+            $results += $offboardingReport
+            $script:currentReportData = $offboardingReport
+        }
+
+        # Enable export button if we have data
+        $script:btnExportReport.IsEnabled = $true
+        
+        # Display results
         $script:txtReportResults.Text = $results -join "`n`n"
-    } catch {
-        # Handle errors gracefully
+    }
+    catch {
         $script:txtReportResults.Text = "Error generating reports: $($_.Exception.Message)"
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Reports-Generation"
     }
 }
 
-
-
-function Generate-OffboardingReport {
-    param (
-        [DateTime]$StartDate,
-        [DateTime]$EndDate,
-        [string]$Format,
-        [string]$Timestamp
-    )
-
+function Generate-LicenseReport {
     try {
-        # Dynamically determine base path
-        $BasePath = Get-BasePath
-        $BasePath = Split-Path -Parent (Split-Path -Parent $BasePath)  # Move two folders higher
-        Write-Output "BasePath resolved to: $BasePath"
+        Write-Host "Retrieving license information..."
+        $licenseData = @()
 
-        # Define paths for logs and reports
-        $reportPath = Join-Path -Path $BasePath -ChildPath "Reports\OffboardingReport_$Timestamp.$($Format.ToLower())"
-        $logPath = Join-Path -Path $BasePath -ChildPath "Logs\OffboardingActivities"
-
-        # Ensure directories exist
-        if (-not (Test-Path $logPath)) {
-            throw "Log directory not found: $logPath"
-        }
-        if (-not (Test-Path (Split-Path -Parent $reportPath))) {
-            New-Item -ItemType Directory -Path (Split-Path -Parent $reportPath) -Force | Out-Null
+        # Get all SKUs first
+        $skus = Get-MgSubscribedSku -All
+        $skuLookup = @{}
+        foreach ($sku in $skus) {
+            $skuLookup[$sku.SkuId] = $sku.SkuPartNumber
         }
 
-        $activities = @()
-
-        # Get log files matching the date range
-        $logFiles = Get-ChildItem -Path $logPath -Filter "*.log" |
-            Where-Object {
-                $_.BaseName -match "^\d{8}$" -and (
-                    $logDate = [DateTime]::ParseExact($_.BaseName, "yyyyMMdd", [System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::None) -ne $null
-                ) -and ($logDate -ge $StartDate -and $logDate -le $EndDate)
-            }
-
-        if ($logFiles.Count -eq 0) {
-            Write-Output "No log files found in the specified date range ($StartDate to $EndDate)."
-            return "No log files found in the specified date range."
-        }
-
-        Write-Output "Log files to process: $($logFiles.FullName)"
-
-        foreach ($file in $logFiles) {
-            Write-Output "Processing file: $($file.FullName)"
-    
-            foreach ($line in (Get-Content -Path $file.FullName -Encoding UTF8)) {
-                if ([string]::IsNullOrWhiteSpace($line)) { continue }
-    
-                try {
-                    if ($line -match "\|") {
-                        # Parse pipe-delimited format
-                        $parts = $line -split "\|"
-                        $activity = [PSCustomObject]@{
-                            Timestamp = $parts[0].Trim()
-                            UserEmail = $parts[1]
-                            Action = $parts[2]
-                            Result = $parts[3]
-                            Platform = $parts[4]
-                        }
-    
-                        # Debug parsed activity
-                        Write-Output "Parsed activity: $($activity | Out-String)"
-    
-                        # Convert and filter by date
-                        $activityDate = [DateTime]::ParseExact($activity.Timestamp, "yyyy-MM-dd HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
-                        if ($activityDate -ge $startDate -and $activityDate -le $endDate) {
-                            Write-Output "Activity matches date range: $($activity | Out-String)"
-                            $activities += $activity
-                        } else {
-                            Write-Output "Activity outside date range: $activityDate"
-                        }
-                    } else {
-                        Write-Output "Skipping line (not pipe-delimited): $line"
+        # Get all licensed users
+        $users = Get-MgUser -All -Property Id, DisplayName, UserPrincipalName, AssignedLicenses
+        
+        foreach ($user in $users) {
+            if ($user.AssignedLicenses) {
+                foreach ($license in $user.AssignedLicenses) {
+                    $licenseName = $skuLookup[$license.SkuId]
+                    if (-not $licenseName) {
+                        $licenseName = "Unknown License ($($license.SkuId))"
                     }
-                } catch {
-                    Write-Output "Error processing line: $_"
+                    
+                    $licenseData += [PSCustomObject]@{
+                        DisplayName = $user.DisplayName
+                        UserPrincipalName = $user.UserPrincipalName
+                        LicenseName = $licenseName
+                        Status = "Active"
+                    }
                 }
             }
         }
 
-        if ($activities.Count -gt 0) {
-            $activities | Select-Object Timestamp, UserEmail, Action, Result, Platform |
-            Export-Csv -Path $reportPath -NoTypeInformation
-            return "Report generated with $($activities.Count) entries at $reportPath"
+        # Format the display output
+        $displayText = @"
+License Report
+Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+
+Total Licensed Users: $($licenseData.Count)
+
+License Distribution:
+$($licenseData | Group-Object LicenseName | ForEach-Object {
+    "  $($_.Name): $($_.Count) users"
+})
+
+Detailed User List:
+$($licenseData | ForEach-Object {
+    "User: $($_.DisplayName)
+    Email: $($_.UserPrincipalName)
+    License: $($_.LicenseName)
+    Status: $($_.Status)
+    " + "-" * 50
+})
+"@
+
+        return @{
+            DisplayText = $displayText
+            Data = $licenseData
+            Type = "License"
         }
-        return "No activities found in date range"
-    } catch {
-        Write-Output "Error: $($_.Exception.Message)"
-        return "Error generating report: $($_.Exception.Message)"
+    }
+    catch {
+        Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "License-Report"
+        return "Error generating License Report: $($_.Exception.Message)"
     }
 }
 
-
-function Generate-LicenseReport {
+function Generate-OffboardingReport {
     param (
-        [string]$Format,
-        [string]$Timestamp
+        [DateTime]$StartDate,
+        [DateTime]$EndDate
     )
 
     try {
-        # Dynamically determine base path
+        Write-Host "Generating offboarding report..."
+        
         $BasePath = Get-BasePath
-        $BasePath = Split-Path -Parent (Split-Path -Parent $BasePath)  # Move two folders higher
-        Write-Output "BasePath resolved to: $BasePath"
+        $BasePath = Split-Path -Parent (Split-Path -Parent $BasePath) # Move two folders higher
+        $logPath = Join-Path $BasePath "Logs"
+        $activities = @()
 
-        # Define the report path
+        $logFiles = Get-ChildItem -Path $logPath -Filter "*.log"
+        
+        foreach ($file in $logFiles) {
+            foreach ($line in (Get-Content $file.FullName)) {
+                if ([string]::IsNullOrWhiteSpace($line)) { continue }
+
+                try {
+                    if ($line -match "\|") {
+                        $parts = $line -split "\|"
+                        if ($parts.Count -ge 5) {
+                            $activity = [PSCustomObject]@{
+                                Timestamp = $parts[0].Trim()
+                                UserEmail = $parts[1]
+                                Action = $parts[2]
+                                Result = $parts[3]
+                                Platform = $parts[4]
+                            }
+
+                            $activityDate = [DateTime]::ParseExact($activity.Timestamp, "yyyy-MM-dd HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
+                            if ($activityDate -ge $StartDate -and $activityDate -le $EndDate) {
+                                $activities += $activity
+                            }
+                        }
+                    }
+                }
+                catch {
+                    Write-Host "Error processing log line: $_"
+                    continue
+                }
+            }
+        }
+
+        # Format the display output
+        $displayText = @"
+Offboarding Activity Report
+Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+Date Range: $($StartDate.ToString("yyyy-MM-dd")) to $($EndDate.ToString("yyyy-MM-dd"))
+
+Total Activities: $($activities.Count)
+
+Activity Summary:
+$($activities | Group-Object Action | ForEach-Object {
+    "  $($_.Name): $($_.Count) actions"
+})
+
+Detailed Activity List:
+$($activities | ForEach-Object {
+    "Timestamp: $($_.Timestamp)
+    User: $($_.UserEmail)
+    Action: $($_.Action)
+    Result: $($_.Result)
+    Platform: $($_.Platform)
+    " + "-" * 50
+})
+"@
+
+        return @{
+            DisplayText = $displayText
+            Data = $activities
+            Type = "Offboarding"
+        }
+    }
+    catch {
+        Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Offboarding-Report"
+        return "Error generating Offboarding Report: $($_.Exception.Message)"
+    }
+}
+
+function Export-ReportData {
+    try {
+        $BasePath = Get-BasePath
+        $BasePath = Split-Path -Parent (Split-Path -Parent $BasePath) # Move two folders higher
+        $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
         $reportDirectory = Join-Path $BasePath "Reports"
-        $reportPath = Join-Path $reportDirectory "LicenseReport_$Timestamp.$($Format.ToLower())"
-
-        # Ensure the report directory exists
+        
         if (-not (Test-Path $reportDirectory)) {
             New-Item -ItemType Directory -Path $reportDirectory -Force | Out-Null
-            Write-Output "Created report directory: $reportDirectory"
         }
 
-        # Placeholder for license information retrieval and report generation logic
-        Write-Output "Generating license report..."
+        $format = $script:cmbReportFormat.SelectedItem
+        $reportPath = Join-Path $reportDirectory "$($script:currentReportData.Type)Report_$timestamp.$($format.ToLower())"
 
-        # Example: Create a dummy report for demonstration purposes
-        $licenseData = @(
-            [PSCustomObject]@{ Name = "User1"; License = "E5"; Status = "Active" },
-            [PSCustomObject]@{ Name = "User2"; License = "E3"; Status = "Inactive" }
-        )
-
-        # Export data to the chosen format
-        if ($Format.ToLower() -eq "csv") {
-            $licenseData | Export-Csv -Path $reportPath -NoTypeInformation
-        } elseif ($Format.ToLower() -eq "json") {
-            $licenseData | ConvertTo-Json -Depth 2 | Out-File -FilePath $reportPath -Encoding UTF8
-        } else {
-            throw "Unsupported format: $Format. Please use 'csv' or 'json'."
-        }
-
-        Write-Output "Report generated successfully at: $reportPath"
-        return "Generated License Report: $reportPath"
-    } catch {
-        Write-Output "Error: $($_.Exception.Message)"
-        return "Error generating License Report: $($_.Exception.Message)"
+        $script:currentReportData.Data | Export-Csv -Path $reportPath -NoTypeInformation
+        $script:txtReportResults.Text += "`n`nReport exported to: $reportPath"
+    }
+    catch {
+        Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Report-Export"
+        $script:txtReportResults.Text += "`n`nError exporting report: $($_.Exception.Message)"
     }
 }

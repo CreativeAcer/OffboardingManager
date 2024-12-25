@@ -294,6 +294,7 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             
                             <TextBlock Text="Generate Reports" 
@@ -304,23 +305,12 @@
                             <StackPanel Grid.Row="1" Margin="0,0,0,15">
                                 <CheckBox Name="chkOffboardingReport" 
                                         Content="Offboarding Activity Report" 
-                                        Margin="0,0,0,10"
-                                        ToolTip="Generate a report of all offboarding activities"/>
+                                        Margin="0,0,0,10"/>
                                         
                                 <CheckBox Name="chkLicenseReport" 
                                         Content="License Usage Report" 
-                                        Margin="0,0,0,10"
-                                        ToolTip="Generate a report of O365 license usage"/>
-                                        
-                                <!-- Report Format Selection -->
-                                <TextBlock Text="Export Format:" 
-                                        Margin="0,10,0,5"/>
-                                <ComboBox Name="cmbReportFormat" 
-                                        Margin="0,0,0,10">
-                                    <ComboBoxItem Content="CSV"/>
-                                    <ComboBoxItem Content="PDF"/>
-                                </ComboBox>
-                                
+                                        Margin="0,0,0,10"/>
+
                                 <!-- Date Range Selection -->
                                 <TextBlock Text="Date Range:" 
                                         Margin="0,10,0,5"/>
@@ -328,16 +318,32 @@
                                         Margin="0,0,0,5"/>
                                 <DatePicker Name="dpEndDate" 
                                         Margin="0,0,0,10"/>
+                                        
+                                <TextBlock Text="Export Format:" 
+                                        Margin="0,10,0,5"/>
+                                <ComboBox Name="cmbReportFormat" 
+                                        Margin="0,0,0,10"/>
                             </StackPanel>
                             
-                            <Button Grid.Row="2" 
-                                    Name="btnGenerateReport" 
-                                    Content="Generate Selected Reports" 
-                                    Padding="15,8"
-                                    Background="$($colors.Secondary)"
-                                    Foreground="$($colors.Text)"
-                                    FontWeight="SemiBold"
-                                    BorderThickness="0"/>
+                            <StackPanel Grid.Row="2" Margin="0,0,0,10">
+                                <Button Name="btnGenerateReport" 
+                                        Content="Generate Report" 
+                                        Padding="15,8"
+                                        Background="$($colors.Secondary)"
+                                        Foreground="$($colors.Text)"
+                                        FontWeight="SemiBold"
+                                        Margin="0,0,0,10"
+                                        BorderThickness="0"/>
+
+                                <Button Name="btnExportReport" 
+                                        Content="Export Report" 
+                                        Padding="15,8"
+                                        Background="$($colors.Primary)"
+                                        Foreground="White"
+                                        FontWeight="SemiBold"
+                                        BorderThickness="0"
+                                        IsEnabled="False"/>
+                            </StackPanel>
                         </Grid>
                     </Border>
                     
