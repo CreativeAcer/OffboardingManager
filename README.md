@@ -1,11 +1,13 @@
 # AD User Offboarding Tool
 
 <div align="center">
-    <img src="./Docs/Images/MainWindow2.png" alt="AD User Offboarding Tool" width="800"/>
+    <img src="./Docs/Images/MainWindow.png" alt="AD User Offboarding Tool" width="800"/>
 </div>
 
 ## About
 A PowerShell-based GUI tool for managing user offboarding in both Active Directory and Office 365 environments. Designed to work across multiple Windows architectures including x86, x64, and ARM.
+
+This script is still being developed, so changes occur frequently and features are added over time.
 
 ## Architecture Support
 The tool automatically adapts to your system architecture:
@@ -17,10 +19,12 @@ The tool automatically adapts to your system architecture:
 - 🖥️ Modern WPF interface using styling
 - 🔒 Secure authentication for both AD and O365
 - 🔄 Automatic architecture detection and adaptation
-- 📊 Real-time task execution feedback
+- 📊 Real-time task execution feedback and report export
 - ⚡ Support for both AD Module and LDAP approaches
 
 ## Screenshots
+
+Screenshots can be outdated due to features being added!
 
 <div align="center">
     <img src="./Docs/Images/Login.png" alt="Login Screen" width="400"/>
@@ -28,8 +32,18 @@ The tool automatically adapts to your system architecture:
 </div>
 
 <div align="center">
-    <img src="./Docs/Images/MainWindow.png" alt="Main Interface" width="800"/>
-    <p><em>Main Interface</em></p>
+    <img src="./Docs/Images/OnPrem.png" alt="onprem Screen" width="400"/>
+    <p><em>On Premise options</em></p>
+</div>
+
+<div align="center">
+    <img src="./Docs/Images/O365.png" alt="O365 Screen" width="400"/>
+    <p><em>O365 Options</em></p>
+</div>
+
+<div align="center">
+    <img src="./Docs/Images/reporting.png" alt="Report Screen" width="400"/>
+    <p><em>Reporting</em></p>
 </div>
 
 ## Prerequisites
@@ -53,32 +67,44 @@ cd ADUserOffboarding
 ## Project Structure
 ```plaintext
 /ADUserOffboarding/
-├── Start-Offboarding.ps1           # Main script
-├── Launch-Offboarding.ps1          # Launcher script
-├── Config/                         # Configuration files
-│   ├── Colors.ps1                  # Color scheme
-│   ├── Fonts.ps1                   # Font definitions
-│   └── Settings.ps1                # Global settings
-├── Functions/                      # Core functionality
-│   ├── Environment.ps1             # Architecture detection
-│   ├── LDAP/                       # LDAP support
+├── Start-Offboarding.ps1
+├── Launch-Offboarding.ps1
+├── Create-OffboardingShortcut.ps1
+├── Create-Shortcut.bat
+├── Config/
+│   ├── Colors.ps1
+│   ├── Fonts.ps1
+│   └── Settings.ps1
+├── Functions/
+│   ├── Environment.ps1
+│   ├── LDAP/
 │   │   ├── LDAPConnection.ps1
 │   │   └── LDAPUsers.ps1
-│   └── UI/                        # UI functionality
-│       ├── LoginDialog.ps1
-│       ├── MainWindow.ps1
-│       ├── OnPremHandlers.ps1
-│       ├── O365Handlers.ps1
-│       ├── XAMLHelper.ps1
-│       └── EasterEgg.ps1          # well not yet
-├── XAML/                          # UI definitions
+│   ├── UI/
+│   │   ├── LoginDialog.ps1
+│   │   ├── MainWindow.ps1
+│   │   ├── MainWindow/
+│   │   │   ├── Initialize-MainWindow.ps1
+│   │   │   ├── Update-UserList.ps1
+│   │   │   ├── Update-SelectedUser.ps1
+│   │   │   └── Show-UserDetails.ps1
+│   │   └── OnPremHandlers.ps1
+│   │   └── O365Handlers.ps1
+│   │   └── ReportHandlers.ps1
+│   │   └── XAMLHelper.ps1
+│   │   └── EasterEgg.ps1
+│   └── Logging/
+│       └── Write-ActivityLog.ps1
+├── XAML/
 │   ├── LoginWindow.xaml
 │   └── MainWindow.xaml
-├── Logs/                         # Application logs
+├── Logs/
 │   └── error_log.txt
-└── docs/                         # Documentation
-└── images/                   # Screenshots
-├── MainWindow2.png       # Main banner
-├── Login.png            # Login screen
-└── MainWindow.png       # Main interface
+├── Reports/
+│   └── date.csv
+└── docs/
+    └── images/
+        ├── MainWindow2.png    # Main banner
+        ├── Login.png          # Login screen
+        └── MainWindow.png     # Main interface
 ```
