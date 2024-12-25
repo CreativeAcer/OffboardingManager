@@ -1,6 +1,8 @@
 /ADUserOffboarding/
 ├── Start-Offboarding.ps1
 ├── Launch-Offboarding.ps1
+├── Create-OffboardingShortcut.ps1
+├── Create-Shortcut.bat
 ├── Config/
 │   ├── Colors.ps1
 │   ├── Fonts.ps1
@@ -10,24 +12,28 @@
 │   ├── LDAP/
 │   │   ├── LDAPConnection.ps1
 │   │   └── LDAPUsers.ps1
-│   └── UI/
-│       ├── LoginDialog.ps1
-│       ├── MainWindow.ps1
-        ├── MainWindow/
-│       │   ├── Initialize-MainWindow.ps1
-│       │   ├── Update-UserList.ps1
-│       │   ├── Update-SelectedUser.ps1
-│       │   └── Show-UserDetails.ps1
-│       └── OnPremHandlers.ps1
-│       └── O365Handlers.ps1
-│       └── ReportHandlers.ps1
-│       └── XAMLHelper.ps1
-│       └── EasterEgg.ps1
+│   ├── UI/
+│   │   ├── LoginDialog.ps1
+│   │   ├── MainWindow.ps1
+│   │   ├── MainWindow/
+│   │   │   ├── Initialize-MainWindow.ps1
+│   │   │   ├── Update-UserList.ps1
+│   │   │   ├── Update-SelectedUser.ps1
+│   │   │   └── Show-UserDetails.ps1
+│   │   └── OnPremHandlers.ps1
+│   │   └── O365Handlers.ps1
+│   │   └── ReportHandlers.ps1
+│   │   └── XAMLHelper.ps1
+│   │   └── EasterEgg.ps1
+│   └── Logging/
+│       └── Write-ActivityLog.ps1
 ├── XAML/
 │   ├── LoginWindow.xaml
 │   └── MainWindow.xaml
 ├── Logs/
 │   └── error_log.txt
+├── Reports/
+│   └── date.csv
 └── docs/
     └── images/
         ├── MainWindow2.png    # Main banner

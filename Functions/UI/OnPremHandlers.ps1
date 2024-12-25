@@ -65,10 +65,13 @@ function Start-OnPremTasks {
     if ($script:chkOnPrem1.IsChecked) {
         try {
             $result = Disable-UserAccount -UserPrincipalName $userPrincipalName -Credential $Credential
+            Write-ActivityLog -UserEmail $userEmail -Action "Disable AD Account" -Result $result -Platform "OnPrem"
             $results += "Account Disable Task: $result"
         }
         catch {
-            $results += "Account Disable Task Failed: $($_.Exception.Message)"
+            $errorMessage = "Account Disable Task Failed: $($_.Exception.Message)"
+            Write-ActivityLog -UserEmail $userEmail -Action "Disable AD Account" -Result $errorMessage -Platform "OnPrem"
+            $results += $errorMessage
             $errorOccurred = $true
         }
     }
@@ -77,10 +80,13 @@ function Start-OnPremTasks {
     if ($script:chkOnPrem2.IsChecked) {
         try {
             $result = Remove-UserGroups -UserPrincipalName $userPrincipalName -Credential $Credential
+            Write-ActivityLog -UserEmail $userEmail -Action "Remove Group Memberships" -Result $result -Platform "OnPrem"
             $results += "Group Removal Task: $result"
         }
         catch {
-            $results += "Group Removal Task Failed: $($_.Exception.Message)"
+            $errorMessage = "Group Removal Task Failed: $($_.Exception.Message)"
+            Write-ActivityLog -UserEmail $userEmail -Action "Remove Group Memberships" -Result $errorMessage -Platform "OnPrem"
+            $results += $errorMessage
             $errorOccurred = $true
         }
     }
@@ -89,10 +95,13 @@ function Start-OnPremTasks {
     if ($script:chkOnPrem3.IsChecked) {
         try {
             $result = Move-UserToDisabledOU -UserPrincipalName $userPrincipalName -Credential $Credential
+            Write-ActivityLog -UserEmail $userEmail -Action "Move to Disabled OU" -Result $result -Platform "OnPrem"
             $results += "OU Move Task: $result"
         }
         catch {
-            $results += "OU Move Task Failed: $($_.Exception.Message)"
+            $errorMessage = "OU Move Task Failed: $($_.Exception.Message)"
+            Write-ActivityLog -UserEmail $userEmail -Action "Move to Disabled OU" -Result $errorMessage -Platform "OnPrem"
+            $results += $errorMessage
             $errorOccurred = $true
         }
     }

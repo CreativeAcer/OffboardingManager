@@ -318,7 +318,6 @@
                                 <ComboBox Name="cmbReportFormat" 
                                         Margin="0,0,0,10">
                                     <ComboBoxItem Content="CSV"/>
-                                    <ComboBoxItem Content="Excel"/>
                                     <ComboBoxItem Content="PDF"/>
                                 </ComboBox>
                                 
