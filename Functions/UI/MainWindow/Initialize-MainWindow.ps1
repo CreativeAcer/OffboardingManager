@@ -44,25 +44,30 @@ function Initialize-MainWindowControls {
     Write-Host "Getting main UI elements..."
     Update-LoadingMessage -LoadingWindow $LoadingWindow -Message "Setting up controls..."
     
-    # Get existing elements
-    $txtSearch = $Window.FindName("txtSearch")
-    $lstUsers = $Window.FindName("lstUsers")
-    $txtUserInfo = $Window.FindName("txtUserInfo")
+    # Store controls in script scope for access across functions
+    $script:txtSearch = $Window.FindName("txtSearch")
+    $script:lstUsers = $Window.FindName("lstUsers")
+    $script:txtUserInfo = $Window.FindName("txtUserInfo")
 
     # Initialize tabs
     Initialize-Tabs -Window $Window -Credential $Credential -LoadingWindow $LoadingWindow
 
     # Set up event handlers
-    Set-MainWindowEventHandlers -Window $Window -Controls @{
-        Search = $txtSearch
-        UserList = $lstUsers
-        UserInfo = $txtUserInfo
-    } -Credential $Credential
+    $script:txtSearch.Add_TextChanged({
+        Update-UserList -SearchText $script:txtSearch.Text -ListBox $script:lstUsers -Credential $Credential
+    })
+    
+    $script:lstUsers.Add_SelectionChanged({
+        if ($script:lstUsers.SelectedItem) {
+            Update-SelectedUser -UserPrincipalName $script:lstUsers.SelectedItem -Credential $Credential
+            Show-UserDetails -UserPrincipalName $script:lstUsers.SelectedItem -TextBlock $script:txtUserInfo -Credential $Credential
+        }
+    })
     
     # Initial data load
     Write-Host "Populating initial user list..."
     Update-LoadingMessage -LoadingWindow $LoadingWindow -Message "Loading user list..."
-    Update-UserList -ListBox $lstUsers -Credential $Credential
+    Update-UserList -ListBox $script:lstUsers -Credential $Credential
     
     $Window.WindowStyle = 'SingleBorderWindow'
     $Window.Focusable = $true
