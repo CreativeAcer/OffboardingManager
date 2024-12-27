@@ -63,6 +63,11 @@ function Generate-Reports {
             return
         }
 
+        if ($script:chkLicenseReport.IsChecked -and -not ($script:DemoMode -or $script:O365Connected)) {
+            $script:txtReportResults.Text = "Please connect to O365 first before generating license reports."
+            return
+        }
+
         # Get user-selected parameters and normalize date ranges
         $startDate = [datetime]::ParseExact($script:dpStartDate.SelectedDate.ToString("yyyy-MM-dd 00:00:00"), "yyyy-MM-dd HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
         $endDate = [datetime]::ParseExact($script:dpEndDate.SelectedDate.ToString("yyyy-MM-dd 23:59:59"), "yyyy-MM-dd HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
@@ -108,9 +113,12 @@ function Generate-Reports {
             $script:currentOffboardingReport = $offboardingReport
         }
 
+
         if ($script:chkLicenseReport.IsChecked) {
             # Get user details
-            $selectedUserUPN = if ($script:UseADModule) {
+            $selectedUserUPN = if ($script:DemoMode) {
+                $script:SelectedUser.UserPrincipalName  
+            } elseif ($script:UseADModule) {
                 $script:SelectedUser.mail
             } else {
                 $script:SelectedUser.Properties["mail"][0]
@@ -152,6 +160,61 @@ function Generate-LicenseReport {
         [string]$Timestamp,
         [string]$UserPrincipalName
     )
+
+    if ($script:DemoMode) {
+        try {
+            Write-Host "Retrieving mock license information..."
+            $licenseData = @()
+            
+            $mockUsers = Get-MockO365Users
+            $mockLicenses = Get-MockO365Licenses
+            
+            foreach ($user in $mockUsers) {
+                foreach ($license in $user.AssignedLicenses) {
+                    $sku = $mockLicenses.Skus | Where-Object { $_.SkuId -eq $license.SkuId }
+                    $licenseData += [PSCustomObject]@{
+                        DisplayName = $user.DisplayName
+                        UserPrincipalName = $user.UserPrincipalName
+                        LicenseName = $sku.DisplayName
+                        Status = "Active"
+                    }
+                }
+            }
+
+            # Format the display output
+            $displayText = @"
+License Report (Demo Mode)
+Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+
+Total Licensed Users: $($licenseData.Count)
+
+License Distribution:
+$($licenseData | Group-Object LicenseName | ForEach-Object {
+    "  $($_.Name): $($_.Count) users"
+})
+
+Detailed User List:
+$($licenseData | ForEach-Object {
+    "User: $($_.DisplayName)
+    Email: $($_.UserPrincipalName)
+    License: $($_.LicenseName)
+    Status: $($_.Status)
+    " + "-" * 50
+})
+"@
+
+            return @{
+                DisplayText = $displayText
+                Data = $licenseData
+                Type = "License"
+            }
+        }
+        catch {
+            Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "License-Report-Demo"
+            return "Error generating License Report (Demo): $($_.Exception.Message)"
+        }
+    }
+    else {
 
     try {
         Write-Host "Retrieving license information for user: $UserPrincipalName"
@@ -205,6 +268,7 @@ $($licenseData | ForEach-Object {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "License-Report"
         return "Error generating License Report: $($_.Exception.Message)"
     }
+}
 }
 
 

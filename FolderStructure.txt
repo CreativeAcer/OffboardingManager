@@ -12,6 +12,9 @@
 │   ├── LDAP/
 │   │   ├── LDAPConnection.ps1
 │   │   └── LDAPUsers.ps1
+│   ├── Utilities/
+│   │   ├── Mockdata.ps1
+│   │   └── PathUtils.ps1
 │   ├── UI/
 │   │   ├── LoginDialog.ps1
 │   │   ├── MainWindow.ps1

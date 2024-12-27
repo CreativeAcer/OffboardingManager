@@ -40,13 +40,19 @@ function Start-OnPremTasks {
     }
 
     # Get user details based on the connection method
-    $userEmail = if ($script:UseADModule) {
+    $userEmail = if ($script:DemoMode) {
+        $script:SelectedUser.EmailAddress
+    }
+    elseif ($script:UseADModule) {
         $script:SelectedUser.mail
     } else {
         $script:SelectedUser.Properties["mail"][0]
     }
 
-    $userPrincipalName = if ($script:UseADModule) {
+    $userPrincipalName = if ($script:DemoMode) {
+        $script:SelectedUser.UserPrincipalName
+    }
+    elseif ($script:UseADModule) {
         $script:SelectedUser.UserPrincipalName
     } else {
         $script:SelectedUser.Properties["userPrincipalName"][0]
@@ -130,97 +136,175 @@ function Disable-UserAccount {
         [string]$UserPrincipalName,
         [System.Management.Automation.PSCredential]$Credential
     )
-
+ 
     Write-Host "SIMULATION: Would disable account for: $UserPrincipalName"
-
-    if ($script:UseADModule) {
-        # Commented out actual action
-        #Disable-ADAccount -Identity $UserPrincipalName -Credential $Credential
-        return "[SIMULATION] Would disable account using AD Module: Account would be disabled"
+    if ($script:DemoMode) {
+        try {
+            Write-ActivityLog -UserEmail $UserPrincipalName -Action "Account Disable" -Result "Starting account disable process (Demo)" -Platform "OnPrem"
+            return "[SIMULATION] Would disable account for demo user: $UserPrincipalName"
+        }
+        catch {
+            throw "Demo account disable simulation failed: $($_.Exception.Message)"
+        }
+    }
+    elseif ($script:UseADModule) {
+        try {
+            $user = Get-ADUser -Identity $UserPrincipalName -Properties DisplayName -Credential $Credential
+            Write-ActivityLog -UserEmail $UserPrincipalName -Action "Account Disable" -Result "Starting account disable process" -Platform "OnPrem"
+            
+            # Commented out actual action
+            #Disable-ADAccount -Identity $UserPrincipalName -Credential $Credential
+            #Write-ActivityLog -UserEmail $UserPrincipalName -Action "Account Disable" -Result "Account successfully disabled" -Platform "OnPrem"
+            
+            return "[SIMULATION] Would disable account using AD Module: Account would be disabled"
+        }
+        catch {
+            throw "Account disable simulation failed: $($_.Exception.Message)"
+        }
     }
     else {
-        $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential
-        $filter = "(&(objectClass=user)(userPrincipalName=$UserPrincipalName))"
-        $user = Get-LDAPUsers -Directory $directory -SearchFilter $filter | Select-Object -First 1
-        
-        if ($user) {
-            # Commented out actual action
-            #$userEntry = $user.GetDirectoryEntry()
-            #$userEntry.InvokeSet("userAccountControl", 514)  # Disabled account flag
-            #$userEntry.CommitChanges()
-            return "[SIMULATION] Would disable account using LDAP: Account would be set to disabled state"
+        try {
+            $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential
+            $filter = "(&(objectClass=user)(userPrincipalName=$UserPrincipalName))"
+            $user = Get-LDAPUsers -Directory $directory -SearchFilter $filter | Select-Object -First 1
+            
+            if ($user) {
+                Write-ActivityLog -UserEmail $UserPrincipalName -Action "Account Disable" -Result "Starting account disable process" -Platform "OnPrem"
+                
+                # Commented out actual action
+                #$userEntry = $user.GetDirectoryEntry()
+                #$userEntry.InvokeSet("userAccountControl", 514)  # Disabled account flag
+                #$userEntry.CommitChanges()
+                #Write-ActivityLog -UserEmail $UserPrincipalName -Action "Account Disable" -Result "Account successfully disabled" -Platform "OnPrem"
+                
+                return "[SIMULATION] Would disable account using LDAP: Account would be set to disabled state"
+            }
+            throw "User not found"
         }
-        throw "User not found"
+        catch {
+            throw "Account disable simulation failed (LDAP): $($_.Exception.Message)"
+        }
     }
-}
+ }
 
 function Remove-UserGroups {
     param (
         [string]$UserPrincipalName,
         [System.Management.Automation.PSCredential]$Credential
     )
-
-    Write-Host "SIMULATION: Would remove group memberships for: $UserPrincipalName"
-
-    if ($script:UseADModule) {
-        $user = Get-ADUser -Identity $UserPrincipalName -Properties MemberOf -Credential $Credential
-        $groups = $user.MemberOf | Where-Object { $_ -notmatch "Domain Users" }
-        
-        # Commented out actual action
-        #foreach ($group in $groups) {
-        #    Remove-ADGroupMember -Identity $group -Members $user -Confirm:$false -Credential $Credential
-        #}
-        return "[SIMULATION] Would remove membership from $($groups.Count) groups using AD Module"
+ 
+    Write-Host "[SIMULATION]: Would remove group memberships for: $UserPrincipalName"
+    if ($script:DemoMode) {
+        try {
+            Write-ActivityLog -UserEmail $UserPrincipalName -Action "Group Membership Backup" -Result "Groups to remove: $($groups -join '; ')" -Platform "OnPrem"
+            return "[SIMULATION]: Would remove group memberships for: $UserPrincipalName"
+        }
+        catch {
+            throw "Demo account disable simulation failed: $($_.Exception.Message)"
+        }
     }
-    else {
-        $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential
-        $filter = "(&(objectClass=user)(userPrincipalName=$UserPrincipalName))"
-        $user = Get-LDAPUsers -Directory $directory -SearchFilter $filter | Select-Object -First 1
-        
-        if ($user) {
-            $userEntry = $user.GetDirectoryEntry()
-            $groups = $userEntry.memberOf | Where-Object { $_ -notmatch "Domain Users" }
+    elseif ($script:UseADModule) {
+        try {
+            $user = Get-ADUser -Identity $UserPrincipalName -Properties MemberOf, DisplayName -Credential $Credential
+            $groups = $user.MemberOf | Where-Object { $_ -notmatch "Domain Users" }
+            
+            Write-ActivityLog -UserEmail $UserPrincipalName -Action "Group Membership Backup" -Result "Groups to remove: $($groups -join '; ')" -Platform "OnPrem"
             
             # Commented out actual action
             #foreach ($group in $groups) {
-            #    $groupEntry = [ADSI]"LDAP://$group"
-            #    $groupEntry.Remove("member", $userEntry.distinguishedName[0])
-            #    $groupEntry.CommitChanges()
+            #    Remove-ADGroupMember -Identity $group -Members $user -Confirm:$false -Credential $Credential
+            #    Write-ActivityLog -UserEmail $UserPrincipalName -Action "Group Removal" -Result "Removed from: $group" -Platform "OnPrem"
             #}
-            return "[SIMULATION] Would remove membership from $($groups.Count) groups using LDAP"
+            return "[SIMULATION] Would remove membership from $($groups.Count) groups using AD Module"
         }
-        throw "User not found"
+        catch {
+            throw "Group removal simulation failed: $($_.Exception.Message)"
+        }
     }
-}
+    else {
+        try {
+            $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential
+            $filter = "(&(objectClass=user)(userPrincipalName=$UserPrincipalName))"
+            $user = Get-LDAPUsers -Directory $directory -SearchFilter $filter | Select-Object -First 1
+            
+            if ($user) {
+                $userEntry = $user.GetDirectoryEntry()
+                $groups = $userEntry.memberOf | Where-Object { $_ -notmatch "Domain Users" }
+                
+                Write-ActivityLog -UserEmail $UserPrincipalName -Action "Group Membership Backup" -Result "Groups to remove: $($groups -join '; ')" -Platform "OnPrem"
+                
+                # Commented out actual action
+                #foreach ($group in $groups) {
+                #    $groupEntry = [ADSI]"LDAP://$group"
+                #    $groupEntry.Remove("member", $userEntry.distinguishedName[0])
+                #    $groupEntry.CommitChanges()
+                #    Write-ActivityLog -UserEmail $UserPrincipalName -Action "Group Removal" -Result "Removed from: $group" -Platform "OnPrem"
+                #}
+                return "[SIMULATION] Would remove membership from $($groups.Count) groups using LDAP"
+            }
+            throw "User not found"
+        }
+        catch {
+            throw "Group removal simulation failed (LDAP): $($_.Exception.Message)"
+        }
+    }
+ }
 
-function Move-UserToDisabledOU {
+ function Move-UserToDisabledOU {
     param (
         [string]$UserPrincipalName,
         [System.Management.Automation.PSCredential]$Credential
     )
-
+ 
     Write-Host "SIMULATION: Would move user to Disabled OU: $UserPrincipalName"
-
+ 
     # You should customize this OU path for your environment
     $disabledOU = "OU=Disabled Users,DC=yourdomain,DC=com"
-
-    if ($script:UseADModule) {
-        $user = Get-ADUser -Identity $UserPrincipalName -Credential $Credential
-        # Commented out actual action
-        #Move-ADObject -Identity $user.DistinguishedName -TargetPath $disabledOU -Credential $Credential
-        return "[SIMULATION] Would move user to $disabledOU using AD Module"
+ 
+    if ($script:DemoMode) {
+        try {
+            Write-ActivityLog -UserEmail $UserPrincipalName -Action "Move to Disabled OU" -Result "Starting OU move process" -Platform "OnPrem"
+            return "SIMULATION: Would move user to Disabled OU: $UserPrincipalName"
+        }
+        catch {
+            throw "Demo account disable simulation failed: $($_.Exception.Message)"
+        }
+    }
+    elseif ($script:UseADModule) {
+        try {
+            $user = Get-ADUser -Identity $UserPrincipalName -Properties DisplayName -Credential $Credential
+            Write-ActivityLog -UserEmail $UserPrincipalName -Action "Move to Disabled OU" -Result "Starting OU move process" -Platform "OnPrem"
+            
+            # Commented out actual action
+            #Move-ADObject -Identity $user.DistinguishedName -TargetPath $disabledOU -Credential $Credential
+            #Write-ActivityLog -UserEmail $UserPrincipalName -Action "Move to Disabled OU" -Result "Successfully moved to $disabledOU" -Platform "OnPrem"
+            
+            return "[SIMULATION] Would move user to $disabledOU using AD Module"
+        }
+        catch {
+            throw "OU move simulation failed: $($_.Exception.Message)"
+        }
     }
     else {
-        $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential
-        $filter = "(&(objectClass=user)(userPrincipalName=$UserPrincipalName))"
-        $user = Get-LDAPUsers -Directory $directory -SearchFilter $filter | Select-Object -First 1
-        
-        if ($user) {
-            # Commented out actual action
-            #$userEntry = $user.GetDirectoryEntry()
-            #$userEntry.psbase.MoveTo([ADSI]"LDAP://$disabledOU")
-            return "[SIMULATION] Would move user to $disabledOU using LDAP"
+        try {
+            $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential
+            $filter = "(&(objectClass=user)(userPrincipalName=$UserPrincipalName))"
+            $user = Get-LDAPUsers -Directory $directory -SearchFilter $filter | Select-Object -First 1
+            
+            if ($user) {
+                Write-ActivityLog -UserEmail $UserPrincipalName -Action "Move to Disabled OU" -Result "Starting OU move process" -Platform "OnPrem"
+                
+                # Commented out actual action
+                #$userEntry = $user.GetDirectoryEntry()
+                #$userEntry.psbase.MoveTo([ADSI]"LDAP://$disabledOU")
+                #Write-ActivityLog -UserEmail $UserPrincipalName -Action "Move to Disabled OU" -Result "Successfully moved to $disabledOU" -Platform "OnPrem"
+                
+                return "[SIMULATION] Would move user to $disabledOU using LDAP"
+            }
+            throw "User not found"
         }
-        throw "User not found"
+        catch {
+            throw "OU move simulation failed (LDAP): $($_.Exception.Message)"
+        }
     }
-}
+ }

@@ -35,9 +35,23 @@ function Initialize-O365Tab {
         $script:chkO365Status.ToolTip = "Retrieves the current O365 status for the selected user"
 
         Write-Host "Adding click handlers for O365 buttons"
+
+        # Configure UI based on demo mode
+        if ($script:DemoMode) {
+            $script:btnConnectO365.Content = "Connect to O365 (Demo)"
+            $script:O365Connected = $false
+        }
         
         # Add click handler for connect button
         $script:btnConnectO365.Add_Click({
+            if ($script:DemoMode) {
+                $script:O365Connected = $true
+                $script:btnConnectO365.IsEnabled = $false
+                $script:chkO365Status.IsEnabled = $true
+                $script:btnRunO365.IsEnabled = $true
+                $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
+                return
+            }
             try {
                 $script:txtO365Results.Text = "Checking Microsoft Graph module..."
 
@@ -99,11 +113,21 @@ function Start-O365Tasks {
             return
         }
 
+        if (-not ($script:DemoMode -or $script:O365Connected)) {
+            $script:txtO365Results.Text = "Please connect to O365 first."
+            return
+        }
+
         # Get user details
-        $userEmail = if ($script:UseADModule) {
-            $script:SelectedUser.mail
-        } else {
-            $script:SelectedUser.Properties["mail"][0]
+        $userEmail = if ($script:DemoMode) {
+            $script:SelectedUser.EmailAddress
+        }
+        else {
+            if ($script:UseADModule) {
+                $script:SelectedUser.mail
+            } else {
+                $script:SelectedUser.Properties["mail"][0]
+            }
         }
 
         if (-not $userEmail) {
@@ -115,16 +139,27 @@ function Start-O365Tasks {
 
         # Execute selected tasks
         if ($script:chkO365Status.IsChecked) {
-            try {
-                $o365User = Get-MgUser -Filter "mail eq '$userEmail'" -Property displayName, userPrincipalName, accountEnabled, mail
-                $results += "O365 Status for $($o365User.DisplayName):`n"
+            if ($script:DemoMode) {
+                $o365User = Get-MockO365User -UserPrincipalName $userEmail
+                $results += "O365 Status for $($o365User.DisplayName) (Demo):`n"
                 $results += "- User Principal Name: $($o365User.UserPrincipalName)`n"
                 $results += "- Email: $($o365User.Mail)`n"
                 $results += "- Account Enabled: $($o365User.AccountEnabled)`n"
+                $results += "- Licenses: Office 365 E5`n"
             }
-            catch {
-                $results += "Error retrieving O365 status: $($_.Exception.Message)`n"
+            else {
+                try {
+                    $o365User = Get-MgUser -Filter "mail eq '$userEmail'" -Property displayName, userPrincipalName, accountEnabled, mail
+                    $results += "O365 Status for $($o365User.DisplayName):`n"
+                    $results += "- User Principal Name: $($o365User.UserPrincipalName)`n"
+                    $results += "- Email: $($o365User.Mail)`n"
+                    $results += "- Account Enabled: $($o365User.AccountEnabled)`n"
+                }
+                catch {
+                    $results += "Error retrieving O365 status: $($_.Exception.Message)`n"
+                }
             }
+            
         }
 
         if ($results.Count -eq 0) {

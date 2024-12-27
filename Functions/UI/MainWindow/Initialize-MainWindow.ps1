@@ -40,6 +40,10 @@ function Initialize-MainWindowControls {
         [System.Management.Automation.PSCredential]$Credential,
         $LoadingWindow
     )
+
+    if ($script:DemoMode) {
+        $Window.Title += " (DEMO MODE)"
+    }
     
     Write-Host "Getting main UI elements..."
     Update-LoadingMessage -LoadingWindow $LoadingWindow -Message "Setting up controls..."

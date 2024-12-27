@@ -4,6 +4,34 @@ function Show-UserDetails {
         [System.Windows.Controls.TextBlock]$TextBlock,
         [System.Management.Automation.PSCredential]$Credential
     )
+
+    if ($script:DemoMode) {
+        $User = Get-MockUser -UserPrincipalName $UserPrincipalName
+        
+        $Details = @"
+Name: $($User.DisplayName)
+User Principal Name: $($User.UserPrincipalName)
+Enabled: $($User.Enabled)
+Last Logon: $($User.LastLogonDate)
+Created: $($User.Created)
+Modified: $($User.Modified)
+Email: $($User.EmailAddress)
+Department: $($User.Department)
+Title: $($User.Title)
+Manager: $($User.Manager)
+Office: $($User.Office)
+Phone: $($User.OfficePhone)
+Mobile: $($User.MobilePhone)
+Account Expires: $($User.AccountExpirationDate)
+Password Last Set: $($User.PasswordLastSet)
+Password Never Expires: $($User.PasswordNeverExpires)
+Account Locked Out: $($User.LockedOut)
+Member Of:
+$($User.MemberOf | ForEach-Object { "- $_" } | Out-String)
+"@
+    }
+    else {
+        # Your existing AD/LDAP code
     
     if ($script:UseADModule) {
         $User = Get-ADUser -Credential $Credential -Filter {UserPrincipalName -eq $UserPrincipalName} -Properties *
@@ -60,6 +88,7 @@ Member Of:
 $($User.Properties["memberOf"] | ForEach-Object { "- $_" } | Out-String)
 "@
     }
+}
     
     $TextBlock.Text = $Details
 }

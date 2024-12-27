@@ -10,6 +10,7 @@
     $txtDC = $LoginWindow.FindName("txtDC")
     $txtUsername = $LoginWindow.FindName("txtUsername")
     $txtPassword = $LoginWindow.FindName("txtPassword")
+    $chkDemoMode = $LoginWindow.FindName("chkDemoMode")
     $btnLogin = $LoginWindow.FindName("btnLogin")
     
     $txtDomain.Text = $env:USERDNSDOMAIN
@@ -22,6 +23,14 @@
         $script:DomainController = $txtDC.Text
         $script:Username = $txtUsername.Text
         $script:Password = $txtPassword.SecurePassword
+        $script:DemoMode = $chkDemoMode.IsChecked
+        
+        # Skip validation if in demo mode
+        if ($script:DemoMode) {
+            $LoginWindow.DialogResult = $true
+            $LoginWindow.Close()
+            return
+        }
         
         try {
             $Credential = New-Object System.Management.Automation.PSCredential($Username, $Password)

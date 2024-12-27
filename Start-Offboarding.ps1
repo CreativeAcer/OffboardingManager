@@ -17,18 +17,20 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.DirectoryServices
 Add-Type -AssemblyName System.DirectoryServices.AccountManagement
 
-# Script root path determination
-# $script:BasePath = $PSScriptRoot
-# if (-not $script:BasePath) {
-#     $script:BasePath = Split-Path $MyInvocation.MyCommand.Path
-# }
+#Check if a previous proces is running
+try {
+    if (Get-Process -Name "powershell" -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -eq "AD User Offboarding" -or $_.MainWindowTitle -eq "AD User Offboarding (DEMO MODE)"}) {
+        Stop-Process -Name "powershell" -Force
+    }
+} catch {
+    Write-Host "No previous instance found"
+}
 
 # Import utilities
 . "$PSScriptRoot\Functions\Utilities\PathUtils.ps1"
-
 $currentPath = Get-BasePath
 $script:BasePath = Split-Path -Parent (Split-Path -Parent $currentPath)  # Move two folders higher
-        
+. "$script:BasePath\Functions\Utilities\MockData.ps1"     
 
 # Import configurations
 . "$script:BasePath\Config\Colors.ps1"
@@ -103,9 +105,15 @@ try {
             
             if (Show-LoginDialog) {
                 Write-Host "Login successful."
-                
-                # Create credential object
-                $Credential = New-Object System.Management.Automation.PSCredential($script:Username, $script:Password)
+                if ($script:DemoMode) {
+                    # Create a dummy credential for demo mode
+                    $securePassword = ConvertTo-SecureString "DemoPassword" -AsPlainText -Force
+                    $Credential = New-Object System.Management.Automation.PSCredential("DemoUser", $securePassword)
+                }
+                else {
+                    # Normal credential creation
+                    $Credential = New-Object System.Management.Automation.PSCredential($script:Username, $script:Password)
+                }
                 
                 try {
                     # Show main window
