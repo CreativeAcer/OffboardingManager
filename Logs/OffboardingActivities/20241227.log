@@ -1,2 +1,8 @@
 ﻿2024-12-27 21:33:15|jane.smith@company.com|Move to Disabled OU|Starting OU move process|OnPrem
 2024-12-27 21:33:15|jane.smith@company.com|Move to Disabled OU|SIMULATION: Would move user to Disabled OU: jane.smith@company.com|OnPrem
+2024-12-27 21:52:55|jane.smith@company.com|Account Disable|Starting account disable process (Demo)|OnPrem
+2024-12-27 21:52:55|jane.smith@company.com|Disable AD Account|[SIMULATION] Would disable account for demo user: jane.smith@company.com|OnPrem
+2024-12-27 22:03:58|jane.smith@company.com|Account Disable|Starting account disable process (Demo)|OnPrem
+2024-12-27 22:03:58|jane.smith@company.com|Disable AD Account|[SIMULATION] Would disable account for demo user: jane.smith@company.com|OnPrem
+2024-12-27 22:03:58|jane.smith@company.com|Move to Disabled OU|Starting OU move process|OnPrem
+2024-12-27 22:03:58|jane.smith@company.com|Move to Disabled OU|SIMULATION: Would move user to Disabled OU: jane.smith@company.com|OnPrem
