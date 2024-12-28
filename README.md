@@ -33,6 +33,10 @@ The tool automatically adapts to your system architecture:
 
 ### O365 Features
 - Microsoft Graph integration
+- Mailbox Management
+  - Convert to shared mailbox
+  - Mail forwarding
+  - Configure auto reply
 - License management reporting
 - User status verification
 - Secure connection handling
@@ -169,9 +173,6 @@ Feel free to submit issues, fork the repository and create pull requests for any
   - **O365 Management**
     - Connect to Microsoft Graph
     - Mailbox Management
-      - Convert to shared mailbox
-      - Mail forwarding
-      - Configure auto reply
     - View license status
   - **Report Generation**
     - Generate activity reports
