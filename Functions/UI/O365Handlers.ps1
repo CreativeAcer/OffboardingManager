@@ -12,6 +12,13 @@ function Initialize-O365Tab {
         $script:btnRunO365 = $Window.FindName("btnRunO365")
         $script:chkO365Status = $Window.FindName("chkO365Status")
         $script:txtO365Results = $Window.FindName("txtO365Results")
+        #Mailboxmanagement
+        $script:chkConvertShared = $Window.FindName("chkConvertShared")
+        $script:chkSetForwarding = $Window.FindName("chkSetForwarding")
+        $script:chkAutoReply = $Window.FindName("chkAutoReply")
+        #$script:txtForwardingEmail = $Window.FindName("txtForwardingEmail")
+        $script:cmbForwardingUser = $Window.FindName("cmbForwardingUser")
+        $script:txtAutoReplyMessage = $Window.FindName("txtAutoReplyMessage")
         $script:mainWindow = $Window
 
         # Initially disable execution controls until connected
@@ -41,7 +48,8 @@ function Initialize-O365Tab {
             $script:btnConnectO365.Content = "Connect to O365 (Demo)"
             $script:O365Connected = $false
         }
-        
+        # Add AD users to forwarding dropdown
+        Update-ForwardingUserList
         # Add click handler for connect button
         $script:btnConnectO365.Add_Click({
             if ($script:DemoMode) {
@@ -49,6 +57,11 @@ function Initialize-O365Tab {
                 $script:btnConnectO365.IsEnabled = $false
                 $script:chkO365Status.IsEnabled = $true
                 $script:btnRunO365.IsEnabled = $true
+                $script:chkConvertShared.IsEnabled = $true
+                $script:chkSetForwarding.IsEnabled = $true
+                $script:chkAutoReply.IsEnabled = $true
+                #$script:txtForwardingEmail.IsEnabled = $true
+                #$script:txtAutoReplyMessage.IsEnabled = $true
                 $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
                 return
             }
@@ -76,6 +89,12 @@ function Initialize-O365Tab {
                 $script:btnRunO365.IsEnabled = $true
                 $script:chkO365Status.IsEnabled = $true
                 $script:btnConnectO365.IsEnabled = $false
+                $script:chkConvertShared.IsEnabled = $true
+                $script:chkSetForwarding.IsEnabled = $true
+                $script:chkAutoReply.IsEnabled = $true
+                $script:O365Connected = $true
+                #$script:txtForwardingEmail.IsEnabled = $true
+                #$script:txtAutoReplyMessage.IsEnabled = $true
             }
             catch {
                 $script:txtO365Results.Text = "Error connecting to Microsoft Graph: $($_.Exception.Message)"
@@ -84,7 +103,13 @@ function Initialize-O365Tab {
                 # Ensure controls remain disabled on error
                 $script:btnRunO365.IsEnabled = $false
                 $script:chkO365Status.IsEnabled = $false
-                $script:btnConnectO365.IsEnabled = $true
+                $script:chkConvertShared.IsEnabled = $false
+                $script:chkSetForwarding.IsEnabled = $false
+                $script:chkAutoReply.IsEnabled = $false
+                $script:txtForwardingEmail.IsEnabled = $false
+                $script:O365Connected = $false
+                #$script:txtAutoReplyMessage.IsEnabled = $false
+                #$script:btnConnectO365.IsEnabled = $true
             }
         })
 
@@ -98,6 +123,35 @@ function Initialize-O365Tab {
     catch {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "O365-TabInit"
         throw
+    }
+}
+
+function Update-ForwardingUserList {
+    $script:cmbForwardingUser.Items.Clear()
+    
+    if ($script:DemoMode) {
+        # Add mock users from our demo data
+        $mockUsers = Get-MockUsers
+        foreach($user in $mockUsers) {
+            $script:cmbForwardingUser.Items.Add($user.UserPrincipalName)
+        }
+    }
+    else {
+        # Add users from the main list
+        if ($script:UseADModule) {
+            foreach($item in $script:Users) {
+                $script:cmbForwardingUser.Items.Add($item.UserPrincipalName)
+            }
+        } else {
+            foreach($item in $script:Users) {
+                if ($item.Properties["userPrincipalName"]) {
+                    $script:cmbForwardingUser.Items.Add($item.Properties["userPrincipalName"][0])
+                }
+                
+            }
+        }
+        
+        
     }
 }
 
@@ -160,6 +214,18 @@ function Start-O365Tasks {
                 }
             }
             
+        }
+
+        if ($script:chkConvertShared.IsChecked -or $script:chkSetForwarding.IsChecked -or $script:chkAutoReply.IsChecked) {
+            $mailboxResult = Set-O365MailboxManagement `
+                -UserPrincipalName $userEmail `
+                -ConvertToShared $script:chkConvertShared.IsChecked `
+                -SetForwarding $script:chkSetForwarding.IsChecked `
+                -ForwardingEmail $script:txtForwardingEmail.Text `
+                -SetAutoReply $script:chkAutoReply.IsChecked `
+                -AutoReplyMessage $script:txtAutoReplyMessage.Text
+        
+            $results += $mailboxResult + "`n"
         }
 
         if ($results.Count -eq 0) {

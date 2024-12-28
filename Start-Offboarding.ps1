@@ -30,7 +30,8 @@ try {
 . "$PSScriptRoot\Functions\Utilities\PathUtils.ps1"
 $currentPath = Get-BasePath
 $script:BasePath = Split-Path -Parent (Split-Path -Parent $currentPath)  # Move two folders higher
-. "$script:BasePath\Functions\Utilities\MockData.ps1"     
+. "$script:BasePath\Functions\Utilities\MockData.ps1"  
+#. "$script:BasePath\Functions\Utilities\Converters.ps1"    
 
 # Import configurations
 . "$script:BasePath\Config\Colors.ps1"
@@ -44,6 +45,7 @@ $script:BasePath = Split-Path -Parent (Split-Path -Parent $currentPath)  # Move 
 . "$script:BasePath\Functions\UI\XamlHelper.ps1"
 . "$script:BasePath\Functions\UI\LoadingScreen.ps1"
 . "$script:BasePath\Functions\UI\LoginDialog.ps1"
+. "$script:BasePath\Functions\UI\O365\MailboxManagement.ps1"
 . "$script:BasePath\Functions\UI\MainWindow.ps1"
 . "$script:BasePath\Functions\UI\OnPremHandlers.ps1"
 . "$script:BasePath\Functions\UI\O365Handlers.ps1"

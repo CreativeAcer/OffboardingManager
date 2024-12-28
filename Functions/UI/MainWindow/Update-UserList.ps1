@@ -12,16 +12,16 @@ function Update-UserList {
     
     try {
         if ($script:DemoMode) {
-            $Users = Get-MockUsers
+            $script:Users = Get-MockUsers
             if ($SearchText) {
-                $Users = $Users | Where-Object { 
+                $script:Users = $script:Users | Where-Object { 
                     $_.UserPrincipalName -like "*$SearchText*" -or 
                     $_.DisplayName -like "*$SearchText*" 
                 }
             }
             
             $ListBox.Items.Clear()
-            foreach ($User in $Users) {
+            foreach ($User in $script:Users) {
                 $ListBox.Items.Add($User.UserPrincipalName)
             }
         }
@@ -35,11 +35,11 @@ function Update-UserList {
     
                 Write-Host "Using AD Module filter: $Filter"
                 
-                $Users = Get-ADUser -Credential $Credential -Filter $Filter -Properties UserPrincipalName |
+                $script:Users = Get-ADUser -Credential $Credential -Filter $Filter -Properties UserPrincipalName |
                         Sort-Object UserPrincipalName
                 
                 $ListBox.Items.Clear()
-                foreach ($User in $Users) {
+                foreach ($User in $script:Users) {
                     $ListBox.Items.Add($User.UserPrincipalName)
                 }
             }
@@ -53,10 +53,10 @@ function Update-UserList {
     
                 Write-Host "Using LDAP filter: $filter"
                 
-                $Users = Get-LDAPUsers -Directory $directory -SearchFilter $filter
+                $script:Users = Get-LDAPUsers -Directory $directory -SearchFilter $filter
                 
                 $ListBox.Items.Clear()
-                foreach ($User in $Users) {
+                foreach ($User in $script:Users) {
                     if ($User.Properties["userPrincipalName"]) {
                         $ListBox.Items.Add($User.Properties["userPrincipalName"][0])
                     }

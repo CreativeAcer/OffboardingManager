@@ -107,9 +107,52 @@ cd ADUserOffboarding
 - [x] Demo Mode Implementation
 - [x] Reporting System
 - [x] Activity Logging
-- [ ] Advanced O365 Features (Coming Soon)
+- [ ] Advanced O365 Features (In Development)
 - [ ] Bulk Operations (Planned)
-- [ ] Enhanced Reporting Features (In Development)
+- [ ] Enhanced Reporting Features (Comming Soon)
+
+## Backlog
+These items might change the scope of this project
+### General functionality
+- [ ] (bulk)Creation of user
+### Teams & SharePoint
+- [ ] Remove from Teams groups
+- [ ] Transfer Teams ownership
+- [ ] Archive Teams channels
+- [ ] Remove SharePoint permissions
+- [ ] Transfer OneDrive ownership
+- [ ] Back up OneDrive content
+
+### License Management
+- [ ] License reassignment
+- [ ] License cost analysis
+- [ ] License usage optimization
+- [ ] Product-specific disabling
+- [ ] Bulk license management
+
+### Security & Compliance
+- [ ] Revoke app permissions
+- [ ] Remove MFA devices
+- [ ] Clear mobile device list
+- [ ] Export mailbox audit logs
+- [ ] Set litigation hold
+- [ ] Generate security reports
+
+### Device Management
+- [ ] Remove from Intune
+- [ ] Wipe enrolled devices
+- [ ] Revoke certificates
+- [ ] Remove Azure AD devices
+- [ ] Clear cached credentials
+- [ ] Device compliance report
+
+### Automation Features
+- [ ] Scheduled offboarding
+- [ ] Conditional task execution
+- [ ] Custom workflow builder
+- [ ] Email notifications
+- [ ] Manager approvals
+- [ ] Integration with ticketing systems
 
 ## Contributing
 Feel free to submit issues, fork the repository and create pull requests for any improvements.
@@ -125,6 +168,10 @@ Feel free to submit issues, fork the repository and create pull requests for any
     - Move to disabled OU
   - **O365 Management**
     - Connect to Microsoft Graph
+    - Mailbox Management
+      - Convert to shared mailbox
+      - Mail forwarding
+      - Configure auto reply
     - View license status
   - **Report Generation**
     - Generate activity reports
@@ -185,15 +232,17 @@ Feel free to submit issues, fork the repository and create pull requests for any
 │   ├── UI/
 │   │   ├── LoginDialog.ps1
 │   │   ├── MainWindow.ps1
+│   │   ├── O365/              # O365 specific functions
+│   │   │   └── MailboxManagement.ps1
 │   │   ├── MainWindow/
 │   │   │   ├── Initialize-MainWindow.ps1
 │   │   │   ├── Update-UserList.ps1
 │   │   │   ├── Update-SelectedUser.ps1
 │   │   │   └── Show-UserDetails.ps1
-│   │   └── OnPremHandlers.ps1
-│   │   └── O365Handlers.ps1
-│   │   └── ReportHandlers.ps1
-│   │   └── XAMLHelper.ps1
+│   │   ├── OnPremHandlers.ps1
+│   │   ├── O365Handlers.ps1
+│   │   ├── ReportHandlers.ps1
+│   │   ├── XAMLHelper.ps1
 │   │   └── EasterEgg.ps1
 │   └── Logging/
 │       └── Write-ActivityLog.ps1

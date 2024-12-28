@@ -88,6 +88,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <!-- Converters -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -249,6 +251,59 @@
                                         Content="Retrieve O365 Status" 
                                         Margin="0,0,0,10"
                                         IsEnabled="False"/>
+                                
+                                <TextBlock Text="Mailbox Management" 
+                                        FontWeight="SemiBold" 
+                                        Margin="0,0,0,10"/>
+                                        
+                                <CheckBox Name="chkConvertShared" 
+                                        Content="Convert to Shared Mailbox" 
+                                        Margin="0,0,0,5"
+                                        IsEnabled="False"
+                                        ToolTip="Convert user mailbox to shared mailbox"/>
+                                        
+                                <CheckBox Name="chkSetForwarding" 
+                                        Content="Set Mail Forwarding" 
+                                        Margin="0,0,0,5"
+                                        IsEnabled="False"
+                                        ToolTip="Forward emails to another address"/>
+
+                                <CheckBox Name="chkAutoReply" 
+                                        Content="Set Auto-Reply" 
+                                        Margin="0,0,0,5"
+                                        IsEnabled="False"
+                                        ToolTip="Configure automatic reply message"/>
+                                        
+                                <!-- Forwarding Email Input -->
+                                <TextBlock Text="Forwarding Email Address:" 
+                                        Margin="20,5,0,5"
+                                        Visibility="{Binding IsChecked, ElementName=chkSetForwarding, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <!--<TextBox Name="txtForwardingEmail"
+                                        Margin="20,5,0,10"
+                                        IsEnabled="{Binding IsChecked, ElementName=chkSetForwarding}"
+                                        Opacity="{Binding IsChecked, ElementName=chkSetForwarding}"
+                                        Visibility="{Binding IsChecked, ElementName=chkSetForwarding, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        ToolTip="Enter forwarding email address"/>-->
+                                <ComboBox Name="cmbForwardingUser"
+                                        Margin="20,0,0,10"
+                                        IsEnabled="{Binding IsChecked, ElementName=chkSetForwarding}"
+                                        Visibility="{Binding IsChecked, ElementName=chkSetForwarding, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        ToolTip="Select user to forward emails to"/>
+                                        
+                                <!-- Auto-Reply Message Input -->
+                                <TextBlock Text="Auto-Reply Message:" 
+                                        Margin="20,5,0,5"
+                                        Visibility="{Binding IsChecked, ElementName=chkAutoReply, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+    
+                                <TextBox Name="txtAutoReplyMessage"
+                                        Margin="20,5,0,10"
+                                        Height="60"
+                                        TextWrapping="Wrap"
+                                        AcceptsReturn="True"
+                                        IsEnabled="{Binding IsChecked, ElementName=chkAutoReply}"
+                                        Opacity="{Binding IsChecked, ElementName=chkAutoReply}"
+                                        Visibility="{Binding IsChecked, ElementName=chkAutoReply, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        ToolTip="Enter auto-reply message"/>
                                 
                                 <!-- Execute button - initially disabled -->
                                 <Button Name="btnRunO365" 
