@@ -173,6 +173,7 @@ Feel free to submit issues, fork the repository and create pull requests for any
   - **O365 Management**
     - Connect to Microsoft Graph
     - Mailbox Management
+    - Teams and SharePoint Management
     - View license status
   - **Report Generation**
     - Generate activity reports
@@ -233,6 +234,7 @@ Feel free to submit issues, fork the repository and create pull requests for any
 │   ├── UI/
 │   │   ├── LoginDialog.ps1
 │   │   ├── MainWindow.ps1
+│   │   │   ├── TeamsManagement.ps1
 │   │   ├── O365/              # O365 specific functions
 │   │   │   └── MailboxManagement.ps1
 │   │   ├── MainWindow/

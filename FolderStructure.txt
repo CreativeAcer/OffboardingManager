@@ -20,6 +20,7 @@
 │   │   ├── MainWindow.ps1
 │   │   ├── O365/              # O365 specific functions
 │   │   │   └── MailboxManagement.ps1
+│   │   │   ├── TeamsManagement.ps1
 │   │   ├── MainWindow/
 │   │   │   ├── Initialize-MainWindow.ps1
 │   │   │   ├── Update-UserList.ps1

@@ -7,7 +7,7 @@
         ResizeMode="NoResize" 
         WindowStyle="None"
         Topmost="True"
-        Background="#FBBA07">
+        Background="#0F172A">
     <Border BorderThickness="1" 
             BorderBrush="#dee2e6">
         <Grid Margin="20">

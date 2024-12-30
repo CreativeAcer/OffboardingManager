@@ -223,90 +223,120 @@
                             BorderThickness="1" 
                             CornerRadius="8"
                             Margin="0,10,10,0">
-                        <Grid Margin="20">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            
-                            <TextBlock Text="O365 Tasks" 
-                                    FontWeight="SemiBold" 
-                                    FontSize="16" 
-                                    Margin="0,0,0,15"/>
-                            
-                            <StackPanel Grid.Row="1" Margin="0,0,0,15">
-                                <!-- Connect button -->
-                                <Button Name="btnConnectO365" 
-                                        Content="Connect to O365" 
-                                        Margin="0,0,0,10"
-                                        Padding="15,8"
-                                        Background="$($colors.Secondary)"
-                                        Foreground="$($colors.Text)"
-                                        FontWeight="SemiBold"
-                                        BorderThickness="0"/>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <Grid Margin="20">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
                                 
-                                <!-- Task checkbox - initially disabled -->
-                                <CheckBox Name="chkO365Status" 
-                                        Content="Retrieve O365 Status" 
-                                        Margin="0,0,0,10"
-                                        IsEnabled="False"/>
-                                
-                                <TextBlock Text="Mailbox Management" 
+                                <StackPanel Grid.Row="0" Margin="0,0,0,15">
+                                    <TextBlock Text="O365 Tasks" 
                                         FontWeight="SemiBold" 
-                                        Margin="0,0,0,10"/>
-                                        
-                                <CheckBox Name="chkConvertShared" 
-                                        Content="Convert to Shared Mailbox" 
-                                        Margin="0,0,0,5"
-                                        IsEnabled="False"
-                                        ToolTip="Convert user mailbox to shared mailbox"/>
-                                        
-                                <CheckBox Name="chkSetForwarding" 
-                                        Content="Set Mail Forwarding" 
-                                        Margin="0,0,0,5"
-                                        IsEnabled="False"
-                                        ToolTip="Forward emails to another address"/>
+                                        FontSize="16" 
+                                        Margin="0,0,0,15"/>
+                                    <!-- Connect button -->
+                                    <Button Name="btnConnectO365" 
+                                            Content="Connect to O365" 
+                                            Margin="0,0,0,10"
+                                            Padding="15,8"
+                                            Background="$($colors.Secondary)"
+                                            Foreground="$($colors.Text)"
+                                            FontWeight="SemiBold"
+                                            BorderThickness="0"/>
+                                    
+                                    <!-- Task checkbox - initially disabled -->
+                                    <CheckBox Name="chkO365Status" 
+                                            Content="Retrieve O365 Status" 
+                                            Margin="0,0,0,10"
+                                            IsEnabled="False"/>
+                                </StackPanel>
 
-                                <CheckBox Name="chkAutoReply" 
-                                        Content="Set Auto-Reply" 
-                                        Margin="0,0,0,5"
-                                        IsEnabled="False"
-                                        ToolTip="Configure automatic reply message"/>
-                                        
-                                <!-- Forwarding Email Input -->
-                                <TextBlock Text="Forwarding Email Address:" 
-                                        Margin="20,5,0,5"
-                                        Visibility="{Binding IsChecked, ElementName=chkSetForwarding, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                <!--<TextBox Name="txtForwardingEmail"
-                                        Margin="20,5,0,10"
-                                        IsEnabled="{Binding IsChecked, ElementName=chkSetForwarding}"
-                                        Opacity="{Binding IsChecked, ElementName=chkSetForwarding}"
-                                        Visibility="{Binding IsChecked, ElementName=chkSetForwarding, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                        ToolTip="Enter forwarding email address"/>-->
-                                <ComboBox Name="cmbForwardingUser"
-                                        Margin="20,0,0,10"
-                                        IsEnabled="{Binding IsChecked, ElementName=chkSetForwarding}"
-                                        Visibility="{Binding IsChecked, ElementName=chkSetForwarding, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                        ToolTip="Select user to forward emails to"/>
-                                        
-                                <!-- Auto-Reply Message Input -->
-                                <TextBlock Text="Auto-Reply Message:" 
-                                        Margin="20,5,0,5"
-                                        Visibility="{Binding IsChecked, ElementName=chkAutoReply, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-    
-                                <TextBox Name="txtAutoReplyMessage"
-                                        Margin="20,5,0,10"
-                                        Height="60"
-                                        TextWrapping="Wrap"
-                                        AcceptsReturn="True"
-                                        IsEnabled="{Binding IsChecked, ElementName=chkAutoReply}"
-                                        Opacity="{Binding IsChecked, ElementName=chkAutoReply}"
-                                        Visibility="{Binding IsChecked, ElementName=chkAutoReply, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                        ToolTip="Enter auto-reply message"/>
-                                
-                                <!-- Execute button - initially disabled -->
-                                <Button Name="btnRunO365" 
+                                <!-- Mailbox Management Section -->
+                                <StackPanel Grid.Row="1" Margin="0,0,0,15">
+                                    <TextBlock Text="Mailbox Management" 
+                                            FontWeight="SemiBold" 
+                                            Margin="0,0,0,10"/>                                            
+                                    <CheckBox Name="chkConvertShared" 
+                                            Content="Convert to Shared Mailbox" 
+                                            Margin="0,0,0,5"
+                                            IsEnabled="False"
+                                            ToolTip="Convert user mailbox to shared mailbox"/>
+                                            
+                                    <CheckBox Name="chkSetForwarding" 
+                                            Content="Set Mail Forwarding" 
+                                            Margin="0,0,0,5"
+                                            IsEnabled="False"
+                                            ToolTip="Forward emails to another address"/>
+
+                                    <CheckBox Name="chkAutoReply" 
+                                            Content="Set Auto-Reply" 
+                                            Margin="0,0,0,5"
+                                            IsEnabled="False"
+                                            ToolTip="Configure automatic reply message"/>
+                                            
+                                    <!-- Forwarding Email Input -->
+                                    <TextBlock Text="Forwarding Email Address:" 
+                                            Margin="20,5,0,5"
+                                            Visibility="{Binding IsChecked, ElementName=chkSetForwarding, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    <ComboBox Name="cmbForwardingUser"
+                                            Margin="20,0,0,10"
+                                            IsEnabled="{Binding IsChecked, ElementName=chkSetForwarding}"
+                                            Visibility="{Binding IsChecked, ElementName=chkSetForwarding, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                            ToolTip="Select user to forward emails to"/>
+                                            
+                                    <!-- Auto-Reply Message Input -->
+                                    <TextBlock Text="Auto-Reply Message:" 
+                                            Margin="20,5,0,5"
+                                            Visibility="{Binding IsChecked, ElementName=chkAutoReply, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        
+                                    <TextBox Name="txtAutoReplyMessage"
+                                            Margin="20,5,0,10"
+                                            Height="60"
+                                            TextWrapping="Wrap"
+                                            AcceptsReturn="True"
+                                            IsEnabled="{Binding IsChecked, ElementName=chkAutoReply}"
+                                            Opacity="{Binding IsChecked, ElementName=chkAutoReply}"
+                                            Visibility="{Binding IsChecked, ElementName=chkAutoReply, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                            ToolTip="Enter auto-reply message"/>
+                                </StackPanel>
+
+                                <!-- Teams & SharePoint Management Section -->
+                                <StackPanel Grid.Row="2" Margin="0,0,0,15">
+                                    <TextBlock Text="Teams - SharePoint Management" 
+                                            FontWeight="SemiBold" 
+                                            Margin="0,0,0,10"/>
+                                            
+                                    <CheckBox Name="chkRemoveTeams" 
+                                            Content="Remove from Teams Groups" 
+                                            Margin="0,0,0,5"
+                                            ToolTip="Remove user from all Teams groups"/>
+
+                                    <!-- Teams Owner Transfer -->
+                                    <CheckBox Name="chkTransferTeams" 
+                                            Content="Transfer Teams Ownership" 
+                                            Margin="0,0,0,5"
+                                            ToolTip="Transfer Teams ownership to another user"/>
+                                            
+                                    <TextBlock Text="Transfer ownership to:" 
+                                            Margin="20,5,0,5"
+                                            Visibility="{Binding IsChecked, ElementName=chkTransferTeams, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    <ComboBox Name="cmbTeamsOwner"
+                                            Margin="20,0,0,10"
+                                            IsEnabled="{Binding IsChecked, ElementName=chkTransferTeams}"
+                                            Visibility="{Binding IsChecked, ElementName=chkTransferTeams, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                            ToolTip="Select user to transfer Teams ownership to"/>
+
+                                    <CheckBox Name="chkRemoveSharePoint" 
+                                            Content="Remove SharePoint Permissions" 
+                                            Margin="0,0,0,5"
+                                            ToolTip="Remove user from all SharePoint sites"/>
+                                </StackPanel>
+                                <!-- Execute Button - initially disabled -->
+                                <Button Grid.Row="3" 
+                                        Name="btnRunO365" 
                                         Content="Run Selected Tasks" 
                                         Padding="15,8"
                                         Background="$($colors.Secondary)"
@@ -315,8 +345,8 @@
                                         BorderThickness="0"
                                         IsEnabled="False"
                                         Margin="0,10,0,0"/>
-                            </StackPanel>
-                        </Grid>
+                            </Grid>
+                        </ScrollViewer>
                     </Border>
                     
                     <Border Grid.Column="1" 

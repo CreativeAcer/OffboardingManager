@@ -46,6 +46,7 @@ $script:BasePath = Split-Path -Parent (Split-Path -Parent $currentPath)  # Move 
 . "$script:BasePath\Functions\UI\LoadingScreen.ps1"
 . "$script:BasePath\Functions\UI\LoginDialog.ps1"
 . "$script:BasePath\Functions\UI\O365\MailboxManagement.ps1"
+. "$script:BasePath\Functions\UI\O365\TeamsManagement.ps1"
 . "$script:BasePath\Functions\UI\MainWindow.ps1"
 . "$script:BasePath\Functions\UI\OnPremHandlers.ps1"
 . "$script:BasePath\Functions\UI\O365Handlers.ps1"

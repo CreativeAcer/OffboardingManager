@@ -16,9 +16,13 @@ function Initialize-O365Tab {
         $script:chkConvertShared = $Window.FindName("chkConvertShared")
         $script:chkSetForwarding = $Window.FindName("chkSetForwarding")
         $script:chkAutoReply = $Window.FindName("chkAutoReply")
-        #$script:txtForwardingEmail = $Window.FindName("txtForwardingEmail")
         $script:cmbForwardingUser = $Window.FindName("cmbForwardingUser")
         $script:txtAutoReplyMessage = $Window.FindName("txtAutoReplyMessage")
+        #Teams & SharePoint
+        $script:chkRemoveTeams = $Window.FindName("chkRemoveTeams")
+        $script:chkTransferTeams = $Window.FindName("chkTransferTeams")
+        $script:cmbTeamsOwner = $Window.FindName("cmbTeamsOwner")
+        $script:chkRemoveSharePoint = $Window.FindName("chkRemoveSharePoint")
         $script:mainWindow = $Window
 
         # Initially disable execution controls until connected
@@ -50,6 +54,9 @@ function Initialize-O365Tab {
         }
         # Add AD users to forwarding dropdown
         Update-ForwardingUserList
+        # Add AD users to teamsowner dropdown
+        Update-TeamsOwnerList
+
         # Add click handler for connect button
         $script:btnConnectO365.Add_Click({
             if ($script:DemoMode) {
@@ -60,8 +67,6 @@ function Initialize-O365Tab {
                 $script:chkConvertShared.IsEnabled = $true
                 $script:chkSetForwarding.IsEnabled = $true
                 $script:chkAutoReply.IsEnabled = $true
-                #$script:txtForwardingEmail.IsEnabled = $true
-                #$script:txtAutoReplyMessage.IsEnabled = $true
                 $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
                 return
             }
@@ -93,8 +98,6 @@ function Initialize-O365Tab {
                 $script:chkSetForwarding.IsEnabled = $true
                 $script:chkAutoReply.IsEnabled = $true
                 $script:O365Connected = $true
-                #$script:txtForwardingEmail.IsEnabled = $true
-                #$script:txtAutoReplyMessage.IsEnabled = $true
             }
             catch {
                 $script:txtO365Results.Text = "Error connecting to Microsoft Graph: $($_.Exception.Message)"
@@ -108,8 +111,6 @@ function Initialize-O365Tab {
                 $script:chkAutoReply.IsEnabled = $false
                 $script:txtForwardingEmail.IsEnabled = $false
                 $script:O365Connected = $false
-                #$script:txtAutoReplyMessage.IsEnabled = $false
-                #$script:btnConnectO365.IsEnabled = $true
             }
         })
 
@@ -152,6 +153,32 @@ function Update-ForwardingUserList {
         }
         
         
+    }
+}
+
+function Update-TeamsOwnerList {
+    $script:cmbTeamsOwner.Items.Clear()
+    
+    if ($script:DemoMode) {
+        $mockUsers = Get-MockUsers
+        foreach($user in $mockUsers) {
+            $script:cmbTeamsOwner.Items.Add($user.UserPrincipalName)
+        }
+    }
+    else {
+        # Add users from the main list
+        if ($script:UseADModule) {
+            foreach($item in $script:Users) {
+                $script:cmbTeamsOwner.Items.Add($item.UserPrincipalName)
+            }
+        } else {
+            foreach($item in $script:Users) {
+                if ($item.Properties["userPrincipalName"]) {
+                    $script:cmbTeamsOwner.Items.Add($item.Properties["userPrincipalName"][0])
+                }
+                
+            }
+        }
     }
 }
 
@@ -226,6 +253,17 @@ function Start-O365Tasks {
                 -AutoReplyMessage $script:txtAutoReplyMessage.Text
         
             $results += $mailboxResult + "`n"
+        }
+
+        if ($script:chkRemoveTeams.IsChecked -or $script:chkTransferTeams.IsChecked -or $script:chkRemoveSharePoint.IsChecked) {
+            $teamsResult = Set-TeamsManagement `
+                -UserPrincipalName $userEmail `
+                -RemoveFromTeams $script:chkRemoveTeams.IsChecked `
+                -TransferOwnership $script:chkTransferTeams.IsChecked `
+                -NewOwner $script:cmbTeamsOwner.SelectedItem `
+                -RemoveSharePoint $script:chkRemoveSharePoint.IsChecked
+        
+            $results += $teamsResult + "`n"
         }
 
         if ($results.Count -eq 0) {
