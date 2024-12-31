@@ -8,6 +8,7 @@
 A PowerShell-based GUI tool for managing user offboarding in both Active Directory and Office 365 environments. Designed to work across multiple Windows architectures including x86, x64, and ARM. Features a demo mode for testing and training purposes.
 
 This script is actively being developed, with frequent updates and new features.
+And offcourse - sometimes some features might not be fully tested yet, if you find something don't hesitate to create an issue.
 
 ## Architecture Support
 The tool automatically adapts to your system architecture:
@@ -120,18 +121,18 @@ These items might change the scope of this project
 ### General functionality
 - [ ] (bulk)Creation of user
 ### Teams & SharePoint
-- [ ] Remove from Teams groups
-- [ ] Transfer Teams ownership
+- [x] Remove from Teams groups
+- [x] Transfer Teams ownership
 - [ ] Archive Teams channels
-- [ ] Remove SharePoint permissions
+- [x] Remove SharePoint permissions
 - [ ] Transfer OneDrive ownership
 - [ ] Back up OneDrive content
 
 ### License Management
-- [ ] License reassignment
+- [x] License reassignment
 - [ ] License cost analysis
 - [ ] License usage optimization
-- [ ] Product-specific disabling
+- [x] Product-specific disabling
 - [ ] Bulk license management
 
 ### Security & Compliance
@@ -174,6 +175,7 @@ Feel free to submit issues, fork the repository and create pull requests for any
     - Connect to Microsoft Graph
     - Mailbox Management
     - Teams and SharePoint Management
+    - License Management
     - View license status
   - **Report Generation**
     - Generate activity reports

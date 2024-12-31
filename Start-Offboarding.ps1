@@ -47,6 +47,7 @@ $script:BasePath = Split-Path -Parent (Split-Path -Parent $currentPath)  # Move 
 . "$script:BasePath\Functions\UI\LoginDialog.ps1"
 . "$script:BasePath\Functions\UI\O365\MailboxManagement.ps1"
 . "$script:BasePath\Functions\UI\O365\TeamsManagement.ps1"
+. "$script:BasePath\Functions\UI\O365\LicenseManagement.ps1"
 . "$script:BasePath\Functions\UI\MainWindow.ps1"
 . "$script:BasePath\Functions\UI\OnPremHandlers.ps1"
 . "$script:BasePath\Functions\UI\O365Handlers.ps1"
@@ -115,7 +116,14 @@ try {
                 }
                 else {
                     # Normal credential creation
-                    $Credential = New-Object System.Management.Automation.PSCredential($script:Username, $script:Password)
+                    # Format username correctly for AD authentication
+                    $formattedUsername = if ($Username.Contains('\') -or $Username.Contains('@')) {
+                        $Username
+                    } else {
+                        "$Domain\$Username"
+                    }
+                    
+                    $Credential = New-Object System.Management.Automation.PSCredential ($formattedUsername, $Password)
                 }
                 
                 try {

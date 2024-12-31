@@ -230,6 +230,7 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 
                                 <StackPanel Grid.Row="0" Margin="0,0,0,15">
@@ -312,12 +313,14 @@
                                     <CheckBox Name="chkRemoveTeams" 
                                             Content="Remove from Teams Groups" 
                                             Margin="0,0,0,5"
+                                            IsEnabled="False"
                                             ToolTip="Remove user from all Teams groups"/>
 
                                     <!-- Teams Owner Transfer -->
                                     <CheckBox Name="chkTransferTeams" 
                                             Content="Transfer Teams Ownership" 
                                             Margin="0,0,0,5"
+                                            IsEnabled="False"
                                             ToolTip="Transfer Teams ownership to another user"/>
                                             
                                     <TextBlock Text="Transfer ownership to:" 
@@ -332,10 +335,47 @@
                                     <CheckBox Name="chkRemoveSharePoint" 
                                             Content="Remove SharePoint Permissions" 
                                             Margin="0,0,0,5"
+                                            IsEnabled="False"
                                             ToolTip="Remove user from all SharePoint sites"/>
                                 </StackPanel>
+                                <!-- License Management Section -->
+                                <StackPanel Grid.Row="3" Margin="0,15,0,15">
+                                    <TextBlock Text="License Management" 
+                                            FontWeight="SemiBold" 
+                                            Margin="0,0,0,10"/>
+                                            
+                                    <CheckBox Name="chkReassignLicense" 
+                                            Content="Reassign Licenses" 
+                                            Margin="0,0,0,5"
+                                            IsEnabled="False"
+                                            ToolTip="Transfer licenses to another user"/>
+
+                                    <!-- License Reassignment Target -->
+                                    <TextBlock Text="Reassign licenses to:" 
+                                            Margin="20,5,0,5"
+                                            Visibility="{Binding IsChecked, ElementName=chkReassignLicense, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    <ComboBox Name="cmbLicenseTarget"
+                                            Margin="20,0,0,10"
+                                            IsEnabled="{Binding IsChecked, ElementName=chkReassignLicense}"
+                                            Visibility="{Binding IsChecked, ElementName=chkReassignLicense, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                            ToolTip="Select user to receive licenses"/>
+
+                                    <CheckBox Name="chkDisableProducts" 
+                                            Content="Disable Specific Products" 
+                                            Margin="0,0,0,5"
+                                            IsEnabled="False"
+                                            ToolTip="Disable specific Microsoft 365 products"/>
+
+                                    <!-- Product Selection -->
+                                    <ListBox Name="lstProducts"
+                                            Margin="20,5,0,10"
+                                            Height="100"
+                                            SelectionMode="Multiple"
+                                            IsEnabled="{Binding IsChecked, ElementName=chkDisableProducts}"
+                                            Visibility="{Binding IsChecked, ElementName=chkDisableProducts, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                </StackPanel>
                                 <!-- Execute Button - initially disabled -->
-                                <Button Grid.Row="3" 
+                                <Button Grid.Row="4" 
                                         Name="btnRunO365" 
                                         Content="Run Selected Tasks" 
                                         Padding="15,8"

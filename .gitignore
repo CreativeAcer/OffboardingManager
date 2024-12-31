@@ -1,0 +1,47 @@
+# User-specific files
+Logs/*.log
+Reports/*.csv
+Reports/*.txt
+Reports/*.pdf
+Reports/*.xlsx
+
+# PowerShell Logs
+*.log
+
+# Reports
+*.csv 
+*.txt
+*.pdf
+*.xlsx
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# VS Code directories
+.vscode/
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+# PowerShell Studio
+*.TempPoint.*
+*.psprojs
+*.psproj
+*.suo
+*.user

@@ -23,6 +23,11 @@ function Initialize-O365Tab {
         $script:chkTransferTeams = $Window.FindName("chkTransferTeams")
         $script:cmbTeamsOwner = $Window.FindName("cmbTeamsOwner")
         $script:chkRemoveSharePoint = $Window.FindName("chkRemoveSharePoint")
+        #Licensemanagement
+        $script:chkReassignLicense = $Window.FindName("chkReassignLicense")
+        $script:cmbLicenseTarget = $Window.FindName("cmbLicenseTarget")
+        $script:chkDisableProducts = $Window.FindName("chkDisableProducts")
+        $script:lstProducts = $Window.FindName("lstProducts")
         $script:mainWindow = $Window
 
         # Initially disable execution controls until connected
@@ -56,6 +61,14 @@ function Initialize-O365Tab {
         Update-ForwardingUserList
         # Add AD users to teamsowner dropdown
         Update-TeamsOwnerList
+        # Initialize license target combobox
+        Update-LicenseTargetList
+
+        # Initialize products listbox
+        $products = Get-O365Products
+        foreach ($product in $products) {
+            $script:lstProducts.Items.Add($product)
+        }
 
         # Add click handler for connect button
         $script:btnConnectO365.Add_Click({
@@ -67,6 +80,12 @@ function Initialize-O365Tab {
                 $script:chkConvertShared.IsEnabled = $true
                 $script:chkSetForwarding.IsEnabled = $true
                 $script:chkAutoReply.IsEnabled = $true
+                $script:chkRemoveTeams.IsEnabled = $true
+                $script:chkTransferTeams.IsEnabled = $true
+                $script:cmbTeamsOwner.IsEnabled = $true
+                $script:chkRemoveSharePoint.IsEnabled = $true
+                $script:chkReassignLicense.IsEnabled = $true
+                $script:chkDisableProducts.IsEnabled = $true
                 $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
                 return
             }
@@ -97,6 +116,12 @@ function Initialize-O365Tab {
                 $script:chkConvertShared.IsEnabled = $true
                 $script:chkSetForwarding.IsEnabled = $true
                 $script:chkAutoReply.IsEnabled = $true
+                $script:chkRemoveTeams.IsEnabled = $true
+                $script:chkTransferTeams.IsEnabled = $true
+                $script:cmbTeamsOwner.IsEnabled = $true
+                $script:chkRemoveSharePoint.IsEnabled = $true
+                $script:chkReassignLicense.IsEnabled = $true
+                $script:chkDisableProducts.IsEnabled = $true
                 $script:O365Connected = $true
             }
             catch {
@@ -110,6 +135,12 @@ function Initialize-O365Tab {
                 $script:chkSetForwarding.IsEnabled = $false
                 $script:chkAutoReply.IsEnabled = $false
                 $script:txtForwardingEmail.IsEnabled = $false
+                $script:chkRemoveTeams.IsEnabled = $false
+                $script:chkTransferTeams.IsEnabled = $false
+                $script:cmbTeamsOwner.IsEnabled = $false
+                $script:chkRemoveSharePoint.IsEnabled = $false
+                $script:chkReassignLicense.IsEnabled = $false
+                $script:chkDisableProducts.IsEnabled = $false
                 $script:O365Connected = $false
             }
         })
@@ -178,6 +209,22 @@ function Update-TeamsOwnerList {
                 }
                 
             }
+        }
+    }
+}
+
+function Update-LicenseTargetList {
+    $script:cmbLicenseTarget.Items.Clear()
+    
+    if ($script:DemoMode) {
+        $mockUsers = Get-MockUsers
+        foreach($user in $mockUsers) {
+            $script:cmbLicenseTarget.Items.Add($user.UserPrincipalName)
+        }
+    }
+    else {
+        foreach($item in $script:lstUsers.Items) {
+            $script:cmbLicenseTarget.Items.Add($item)
         }
     }
 }
@@ -264,6 +311,17 @@ function Start-O365Tasks {
                 -RemoveSharePoint $script:chkRemoveSharePoint.IsChecked
         
             $results += $teamsResult + "`n"
+        }
+
+        if ($script:chkReassignLicense.IsChecked -or $script:chkDisableProducts.IsChecked) {
+            $licenseResult = Set-LicenseManagement `
+                -UserPrincipalName $userEmail `
+                -ReassignLicenses $script:chkReassignLicense.IsChecked `
+                -TargetUser $script:cmbLicenseTarget.SelectedItem `
+                -DisableProducts $script:chkDisableProducts.IsChecked `
+                -ProductsToDisable ($script:lstProducts.SelectedItems | ForEach-Object { $_ })
+
+            $results += $licenseResult + "`n"
         }
 
         if ($results.Count -eq 0) {
