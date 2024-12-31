@@ -236,9 +236,22 @@ Feel free to submit issues, fork the repository and create pull requests for any
 │   ├── UI/
 │   │   ├── LoginDialog.ps1
 │   │   ├── MainWindow.ps1
-│   │   │   ├── TeamsManagement.ps1
 │   │   ├── O365/              # O365 specific functions
-│   │   │   └── MailboxManagement.ps1
+│   │   │   ├── Initialize-O365Tab.ps1        # Contains initialization code
+│   │   │   ├── Start-O365Tasks.ps1          # Main task execution logic
+│   │   │   ├── MailboxManagement.ps1
+│   │   │   ├── TeamsManagement.ps1
+│   │   │   ├── LicenseManagement.ps1
+│   │   │   ├── Connect-O365.ps1
+│   │   │   ├── Tasks/
+│   │   │   │   ├── Get-O365Status.ps1       # O365 status check functionality
+│   │   │   │   ├── Set-MailboxTasks.ps1     # Mailbox-related tasks
+│   │   │   │   ├── Set-TeamsTasks.ps1       # Teams and SharePoint tasks
+│   │   │   │   └── Set-LicenseTasks.ps1     # License management tasks
+│   │   │   └── UI/
+│   │   │       ├── Update-ForwardingList.ps1 # UI update functions
+│   │   │       ├── Update-TeamsOwnerList.ps1
+│   │   │       ├── Update-LicenseList.ps1
 │   │   ├── MainWindow/
 │   │   │   ├── Initialize-MainWindow.ps1
 │   │   │   ├── Update-UserList.ps1
