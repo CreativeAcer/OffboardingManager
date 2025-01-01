@@ -6,9 +6,9 @@ function Start-O365Tasks {
     try {
         # Capture values before dispatcher invoke
         $localSelectedUser = $script:SelectedUser
-        $localDemoMode = $script:DemoMode
+        $localDemoMode = Get-AppSetting -SettingName "DemoMode"
         $localO365Connected = $script:O365Connected
-        $localUseADModule = $script:UseADModule
+        $localUseADModule = Get-AppSetting -SettingName "UseADModule"
         $results = @()
 
         # Get user email first

@@ -19,7 +19,7 @@ function Update-UserList {
                 $ListBox.Items.Clear()
                 $ListBox.Items.Add("Loading users...")
                 $ListBox.IsEnabled = $false
-                if ($script:DemoMode) {
+                if (Get-AppSetting -SettingName "DemoMode") {
                     $script:Users = Get-MockUsers
                     if ($SearchText) {
                         $script:Users = $script:Users | Where-Object { 
@@ -34,7 +34,7 @@ function Update-UserList {
                     }
                 }
                 else {
-                    if ($script:UseADModule) {
+                    if (Get-AppSetting -SettingName "UseADModule") {
                         $Filter = "Enabled -eq '$true' -and LockedOut -eq '$false' -and Mail -like '*'"
                         
                         if ($SearchText) {

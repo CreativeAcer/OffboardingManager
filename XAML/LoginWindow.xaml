@@ -114,7 +114,8 @@
             </StackPanel>
             <StackPanel Grid.Row="4" Margin="0,0,0,10">
                 <CheckBox x:Name="chkDemoMode" 
-                        Content="Demo Mode" 
+                        Content="Demo Mode"
+                        IsEnabled="False"
                         Foreground="$($colors.Text)"
                         ToolTip="Run in simulation mode to test functionality"/>
             </StackPanel>
@@ -124,7 +125,7 @@
                     HorizontalAlignment="Stretch" 
                     Padding="15,8"
                     Background="$($colors.Secondary)"
-                    Foreground="$($colors.Text)"
+                    Foreground="$($colors.InputBg)"
                     FontWeight="SemiBold"
                     BorderThickness="0"
                     Margin="0,10,0,0"/>

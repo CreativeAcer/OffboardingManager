@@ -53,7 +53,7 @@ function Initialize-O365Tab {
         Write-Host "Adding click handlers for O365 buttons"
 
         # Configure UI based on demo mode
-        if ($script:DemoMode) {
+        if (Get-AppSetting -SettingName "DemoMode") {
             $script:btnConnectO365.Content = "Connect to O365 (Demo)"
             $script:O365Connected = $false
         }
@@ -72,7 +72,7 @@ function Initialize-O365Tab {
 
         # Add click handler for connect button
         $script:btnConnectO365.Add_Click({
-            if ($script:DemoMode) {
+            if (Get-AppSetting -SettingName "DemoMode") {
                 $script:O365Connected = $true
                 $script:btnConnectO365.IsEnabled = $false
                 $script:chkO365Status.IsEnabled = $true

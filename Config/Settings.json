@@ -17,7 +17,7 @@
                          ],
     "UseADModule":  false,
     "DemoMode":  true,
-    "LogPath":  "Logs/activity_log.txt",
+    "LogPath":  "Logs/error_log.txt",
     "LoggingEnabled":  true,
     "AutoReplyTemplate":  "I am currently unavailable...contact xyz",
     "DefaultDomain":  "contoso.com"

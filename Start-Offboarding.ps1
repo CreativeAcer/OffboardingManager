@@ -38,6 +38,9 @@ $script:BasePath = Split-Path -Parent (Split-Path -Parent $currentPath)  # Move 
 . "$script:BasePath\Config\Fonts.ps1"
 . "$script:BasePath\Config\Settings.ps1"
 
+# Initialize settings
+Initialize-AppSettings
+
 # Import functions
 . "$script:BasePath\Functions\Environment.ps1"
 . "$script:BasePath\Functions\LDAP\LDAPConnection.ps1"
@@ -111,7 +114,7 @@ try {
             
             if (Show-LoginDialog) {
                 Write-Host "Login successful."
-                if ($script:DemoMode) {
+                if (Get-AppSetting -SettingName "DemoMode") {
                     # Create a dummy credential for demo mode
                     $securePassword = ConvertTo-SecureString "DemoPassword" -AsPlainText -Force
                     $Credential = New-Object System.Management.Automation.PSCredential("DemoUser", $securePassword)

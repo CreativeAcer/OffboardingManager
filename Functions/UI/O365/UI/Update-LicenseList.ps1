@@ -2,7 +2,7 @@ function Update-LicenseTargetList {
     try {
         $script:cmbLicenseTarget.Items.Clear()
         
-        if ($script:DemoMode) {
+        if (Get-AppSetting -SettingName "DemoMode") {
             $mockUsers = Get-MockUsers
             foreach($user in $mockUsers) {
                 $script:cmbLicenseTarget.Items.Add($user.UserPrincipalName)

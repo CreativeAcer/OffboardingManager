@@ -8,7 +8,7 @@ function Set-LicenseManagement {
     )
 
     try {
-        if ($script:DemoMode) {
+        if (Get-AppSetting -SettingName "DemoMode") {
             $results = @()
             
             if ($ReassignLicenses) {
@@ -71,7 +71,7 @@ function Set-LicenseManagement {
 
 function Get-O365Products {
     try {
-        if ($script:DemoMode) {
+        if (Get-AppSetting -SettingName "DemoMode") {
             return @(
                 "ENTERPRISEPACK",           # Office 365 E3
                 "ENTERPRISEPREMIUM",        # Office 365 E5

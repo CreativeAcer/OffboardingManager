@@ -41,7 +41,7 @@ function Initialize-MainWindowControls {
         $LoadingWindow
     )
 
-    if ($script:DemoMode) {
+    if (Get-AppSetting -SettingName "DemoMode") {
         $Window.Title += " (DEMO MODE)"
     }
     

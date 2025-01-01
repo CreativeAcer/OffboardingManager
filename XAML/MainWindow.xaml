@@ -191,7 +191,7 @@
                                     Content="Run Selected Tasks" 
                                     Padding="15,8"
                                     Background="$($colors.Secondary)"
-                                    Foreground="$($colors.Text)"
+                                    Foreground="$($colors.InputBg)"
                                     FontWeight="SemiBold"
                                     BorderThickness="0"
                                     Margin="0,10,0,0"/>
@@ -245,7 +245,7 @@
                                             Margin="0,0,0,10"
                                             Padding="15,8"
                                             Background="$($colors.Secondary)"
-                                            Foreground="$($colors.Text)"
+                                            Foreground="$($colors.InputBg)"
                                             FontWeight="SemiBold"
                                             BorderThickness="0"/>
                                     
@@ -381,7 +381,7 @@
                                         Content="Run Selected Tasks" 
                                         Padding="15,8"
                                         Background="$($colors.Secondary)"
-                                        Foreground="$($colors.Text)"
+                                        Foreground="$($colors.InputBg)"
                                         FontWeight="SemiBold"
                                         BorderThickness="0"
                                         IsEnabled="False"
@@ -457,7 +457,7 @@
                                         Content="Generate Report" 
                                         Padding="15,8"
                                         Background="$($colors.Secondary)"
-                                        Foreground="$($colors.Text)"
+                                        Foreground="$($colors.InputBg)"
                                         FontWeight="SemiBold"
                                         Margin="0,0,0,10"
                                         BorderThickness="0"/>

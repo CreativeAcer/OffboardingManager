@@ -2,14 +2,14 @@ function Update-TeamsOwnerList {
     try {
         $script:cmbTeamsOwner.Items.Clear()
         
-        if ($script:DemoMode) {
+        if (Get-AppSetting -SettingName "DemoMode") {
             $mockUsers = Get-MockUsers
             foreach($user in $mockUsers) {
                 $script:cmbTeamsOwner.Items.Add($user.UserPrincipalName)
             }
         }
         else {
-            if ($script:UseADModule) {
+            if (Get-AppSetting -SettingName "UseADModule") {
                 foreach($item in $script:Users) {
                     $script:cmbTeamsOwner.Items.Add($item.UserPrincipalName)
                 }

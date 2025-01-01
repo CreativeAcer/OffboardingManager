@@ -93,11 +93,12 @@ function Save-Settings {
             DefaultDomain = $domainValue
             AutoReplyTemplate = $txtAutoReplyTemplate.Text
             LoggingEnabled = $true
-            LogPath = "Logs/activity_log.txt"
+            LogPath = "Logs/error_log.txt"
             LicenseTemplates = (Get-StoredSettings).LicenseTemplates
         }
         
-        $settings | ConvertTo-Json -Depth 10 | Set-Content $settingsPath
+        # Update settings through Settings.ps1
+        Update-AppSettings -NewSettings $settings
         
         $txtSettingsStatus.Text = "Settings saved successfully at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
         
