@@ -1,0 +1,100 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Settings" 
+        Height="500" 
+        Width="800"
+        WindowStartupLocation="CenterScreen"
+        Background="$($colors.Background)">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Application Settings" 
+                  FontSize="24" 
+                  FontWeight="Bold" 
+                  Foreground="$($colors.Primary)"
+                  Margin="0,0,0,20"/>
+
+        <ScrollViewer Grid.Row="1">
+            <StackPanel>
+                <GroupBox Header="General Settings" 
+                         Margin="0,0,0,15"
+                         BorderBrush="$($colors.BorderColor)">
+                    <StackPanel Margin="10">
+                        <CheckBox Name="chkDemoMode" 
+                                 Content="Demo Mode" 
+                                 Foreground="$($colors.Text)"
+                                 Margin="0,0,0,10"/>
+                        <CheckBox Name="chkUseADModule" 
+                                 Content="Use AD Module" 
+                                 Foreground="$($colors.Text)"
+                                 Margin="0,0,0,10"/>
+                        <TextBlock Text="Default Domain:"
+                                 Foreground="$($colors.Text)"/>
+                        <TextBox Name="txtDefaultDomain" 
+                                Background="$($colors.InputBg)"
+                                BorderBrush="$($colors.BorderColor)"
+                                Margin="0,5,0,15"/>
+                        <TextBlock Text="Auto-Reply Template:"
+                                 Foreground="$($colors.Text)"/>
+                        <TextBox Name="txtAutoReplyTemplate" 
+                                TextWrapping="Wrap"
+                                AcceptsReturn="True"
+                                Height="100"
+                                Background="$($colors.InputBg)"
+                                BorderBrush="$($colors.BorderColor)"
+                                Margin="0,5,0,15"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <TextBlock Name="txtSettingsStatus" 
+                          TextWrapping="Wrap" 
+                          Foreground="$($colors.Success)"
+                          Margin="0,10"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="2" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right">
+            <Button Name="btnSaveSettings" 
+                    Content="Save" 
+                    Width="100" 
+                    Height="30"
+                    Background="$($colors.Secondary)"
+                    Foreground="$($colors.InputBg)"
+                    BorderThickness="0"
+                    Margin="0,0,10,0">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="$($colors.Hover)"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <Button Name="btnClose" 
+                    Content="Close" 
+                    Width="100"
+                    Height="30"
+                    Background="$($colors.Primary)"
+                    Foreground="$($colors.InputBg)"
+                    BorderThickness="0">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="$($colors.Text)"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

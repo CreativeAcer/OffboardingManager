@@ -25,6 +25,7 @@ The tool automatically adapts to your system architecture:
 - 🎯 Demo mode for testing and training
 - 📝 Activity logging and audit trails
 - 🔄 Real-time task execution feedback
+- ⚙️ Settings Page: easy configuration
 
 ### On-Premises Features
 - Disable AD accounts
@@ -81,6 +82,11 @@ Screenshots may be outdated due to continuous development!
     <p><em>Reporting</em></p>
 </div>
 
+<div align="center">
+    <img src="./Docs/Images/Settings.png" alt="Settings Screen" width="400"/>
+    <p><em>Settings</em></p>
+</div>
+
 ## Prerequisites
 - Windows PowerShell 5.1 or later
 - One of the following:
@@ -120,6 +126,7 @@ cd ADUserOffboarding
 These items might change the scope of this project
 ### General functionality
 - [ ] (bulk)Creation of user
+- [x] Settings page
 ### Teams & SharePoint
 - [x] Remove from Teams groups
 - [x] Transfer Teams ownership
@@ -261,11 +268,15 @@ Feel free to submit issues, fork the repository and create pull requests for any
 │   │   ├── O365Handlers.ps1
 │   │   ├── ReportHandlers.ps1
 │   │   ├── XAMLHelper.ps1
+│   │   ├── Show-SettingsWindow.ps1
+│   │   ├── SettingsHandler.ps1
 │   │   └── EasterEgg.ps1
 │   └── Logging/
 │       └── Write-ActivityLog.ps1
 ├── XAML/
+│   ├── LoadingWindow.xaml
 │   ├── LoginWindow.xaml
+│   ├── SettingsWindow.xaml
 │   └── MainWindow.xaml
 ├── Logs/
 │   └── error_log.txt

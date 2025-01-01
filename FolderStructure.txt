@@ -43,11 +43,15 @@
 │   │   ├── O365Handlers.ps1
 │   │   ├── ReportHandlers.ps1
 │   │   ├── XAMLHelper.ps1
+│   │   ├── Show-SettingsWindow.ps1
+│   │   ├── SettingsHandler.ps1
 │   │   └── EasterEgg.ps1
 │   └── Logging/
 │       └── Write-ActivityLog.ps1
 ├── XAML/
+│   ├── LoadingWindow.xaml
 │   ├── LoginWindow.xaml
+│   ├── SettingsWindow.xaml
 │   └── MainWindow.xaml
 ├── Logs/
 │   └── error_log.txt

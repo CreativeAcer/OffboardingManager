@@ -52,6 +52,8 @@ $script:BasePath = Split-Path -Parent (Split-Path -Parent $currentPath)  # Move 
 . "$script:BasePath\Functions\UI\OnPremHandlers.ps1"
 . "$script:BasePath\Functions\UI\O365Handlers.ps1"
 . "$script:BasePath\Functions\UI\ReportHandlers.ps1"
+. "$script:BasePath\Functions\UI\Show-SettingsWindow.ps1"
+. "$script:BasePath\Functions\UI\SettingsHandler.ps1"
 . "$script:BasePath\Functions\Logging\Write-ActivityLog.ps1"
 #. "$script:BasePath\Functions\UI\EasterEgg.ps1"
 

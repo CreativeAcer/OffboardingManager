@@ -1,0 +1,24 @@
+{
+    "LicenseTemplates":  [
+                             {
+                                 "Name":  "Standard User",
+                                 "Products":  [
+                                                  "Office 365 E3",
+                                                  "Exchange Online"
+                                              ]
+                             },
+                             {
+                                 "Name":  "Power User",
+                                 "Products":  [
+                                                  "Office 365 E5",
+                                                  "Power BI Pro"
+                                              ]
+                             }
+                         ],
+    "UseADModule":  false,
+    "DemoMode":  true,
+    "LogPath":  "Logs/activity_log.txt",
+    "LoggingEnabled":  true,
+    "AutoReplyTemplate":  "I am currently unavailable...contact xyz",
+    "DefaultDomain":  "contoso.com"
+}

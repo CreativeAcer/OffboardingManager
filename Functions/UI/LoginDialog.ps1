@@ -12,11 +12,24 @@
     $txtPassword = $LoginWindow.FindName("txtPassword")
     $chkDemoMode = $LoginWindow.FindName("chkDemoMode")
     $btnLogin = $LoginWindow.FindName("btnLogin")
+
+    # Get settings button and add click handler
+    $btnSettings = $loginWindow.FindName("btnSettings")
+    $btnSettings.Add_Click({
+        Show-SettingsWindow -LoginWindow $loginWindow
+    })
     
     $txtDomain.Text = $env:USERDNSDOMAIN
     $txtDC.Text = $env:LOGONSERVER -replace '\\',''
     
     $script:loginSuccess = $false
+
+    # Load current settings and apply them
+    $settings = Get-StoredSettings
+    if ($settings) {
+        $script:DemoMode = $settings.DemoMode
+        $chkDemoMode.IsChecked = $settings.DemoMode
+    }
     
     $btnLogin.Add_Click({
         $script:Domain = $txtDomain.Text
