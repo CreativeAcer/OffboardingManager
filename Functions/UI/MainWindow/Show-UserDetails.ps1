@@ -4,9 +4,13 @@ function Show-UserDetails {
         [System.Windows.Controls.TextBlock]$TextBlock,
         [System.Management.Automation.PSCredential]$Credential
     )
-
-    if ($script:DemoMode) {
-        $User = Get-MockUser -UserPrincipalName $UserPrincipalName
+    $loadingWindow = $null
+    try {
+        $loadingWindow = Show-LoadingScreen -Message "Loading user information..."
+        $loadingWindow.Show()
+        [System.Windows.Forms.Application]::DoEvents()
+        if ($script:DemoMode) {
+            $User = Get-MockUser -UserPrincipalName $UserPrincipalName
         
         $Details = @"
 Name: $($User.DisplayName)
@@ -31,12 +35,10 @@ $($User.MemberOf | ForEach-Object { "- $_" } | Out-String)
 "@
     }
     else {
-        # Your existing AD/LDAP code
-    
-    if ($script:UseADModule) {
-        $User = Get-ADUser -Credential $Credential -Filter {UserPrincipalName -eq $UserPrincipalName} -Properties *
-        
-        $Details = @"
+        if ($script:UseADModule) {
+            $User = Get-ADUser -Credential $Credential -Filter {UserPrincipalName -eq $UserPrincipalName} -Properties *
+            
+            $Details = @"
 Name: $($User.Name)
 User Principal Name: $($User.UserPrincipalName)
 Distinguished Name: $($User.DistinguishedName)
@@ -91,4 +93,16 @@ $($User.Properties["memberOf"] | ForEach-Object { "- $_" } | Out-String)
 }
     
     $TextBlock.Text = $Details
+    }
+    catch {
+        Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Show-UserDetails"
+    }
+    finally {
+        if ($loadingWindow) {
+            $script:mainWindow.Dispatcher.Invoke([Action]{
+                $loadingWindow.Close()
+            })
+        }
+    }
+
 }
