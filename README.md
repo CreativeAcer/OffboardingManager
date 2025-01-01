@@ -1,4 +1,5 @@
 # AD User Offboarding Tool
+[![CodeFactor](https://www.codefactor.io/repository/github/creativeacer/offboardingmanager/badge)](https://www.codefactor.io/repository/github/creativeacer/offboardingmanager)
 
 <div align="center">
     <img src="./Docs/Images/MainWindow.png" alt="AD User Offboarding Tool" width="800"/>
