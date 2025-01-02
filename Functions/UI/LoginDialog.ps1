@@ -25,10 +25,14 @@
     $script:loginSuccess = $false
 
     # Load current settings and apply them
-    $settings = Get-StoredSettings
+    #$settings = Get-StoredSettings
+    $settings = Get-AppSettings
     if ($settings) {
         $script:DemoMode = $settings.DemoMode
         $chkDemoMode.IsChecked = $settings.DemoMode
+        if ($settings.DefaultDomain) {
+            $txtDomain.Text = $settings.DefaultDomain
+        }
     }
     
     $btnLogin.Add_Click({

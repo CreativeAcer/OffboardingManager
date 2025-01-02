@@ -53,7 +53,7 @@ function Initialize-AppSettings {
     }
 }
 
-function Get-AppSetting {
+function Get-AppSettings {
     param (
         [string]$SettingName
     )
@@ -61,8 +61,10 @@ function Get-AppSetting {
     if ($null -eq $script:AppSettings) {
         Initialize-AppSettings
     }
-
-    return $script:AppSettings.$SettingName
+    if ($SettingName) {
+        return $script:AppSettings.$SettingName
+    }
+    return $script:AppSettings
 }
 
 function Update-AppSettings {

@@ -2,7 +2,7 @@ function Update-ForwardingUserList {
     try {
         $script:cmbForwardingUser.Items.Clear()
         
-        if (Get-AppSetting -SettingName "DemoMode") {
+        if (Get-AppSettings -SettingName "DemoMode") {
             # Add mock users from demo data
             $mockUsers = Get-MockUsers
             foreach($user in $mockUsers) {
@@ -11,7 +11,7 @@ function Update-ForwardingUserList {
         }
         else {
             # Add users from the main list
-            if (Get-AppSetting -SettingName "UseADModule") {
+            if (Get-AppSettings -SettingName "UseADModule") {
                 foreach($item in $script:Users) {
                     $script:cmbForwardingUser.Items.Add($item.UserPrincipalName)
                 }

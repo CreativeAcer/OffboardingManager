@@ -21,13 +21,25 @@ function Show-SettingsWindow {
         $txtSettingsStatus = $settingsWindow.FindName("txtSettingsStatus")
 
         # Load current settings
-        $settings = Get-StoredSettings
+        #$settings = Get-StoredSettings
+        $settings = Get-AppSettings
         
         # Apply settings to UI
         $chkDemoMode.IsChecked = $settings.DemoMode
         $chkUseADModule.IsChecked = $settings.UseADModule
-        $txtDefaultDomain.Text = $settings.DefaultDomain
-        $txtAutoReplyTemplate.Text = $settings.AutoReplyTemplate
+
+        # Only populate text fields if they have values in settings
+        if (![string]::IsNullOrWhiteSpace($settings.DefaultDomain)) {
+            $txtDefaultDomain.Text = $settings.DefaultDomain
+        }
+        
+        if (![string]::IsNullOrWhiteSpace($settings.AutoReplyTemplate)) {
+            $txtAutoReplyTemplate.Text = $settings.AutoReplyTemplate
+        }
+        else {
+            # Add placeholder text or watermark
+            $txtAutoReplyTemplate.Tag = "Enter auto-reply message here..."
+        }
 
         # Add save handler
         $btnSaveSettings.Add_Click({

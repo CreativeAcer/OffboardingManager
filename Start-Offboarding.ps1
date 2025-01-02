@@ -114,7 +114,7 @@ try {
             
             if (Show-LoginDialog) {
                 Write-Host "Login successful."
-                if (Get-AppSetting -SettingName "DemoMode") {
+                if (Get-AppSettings -SettingName "DemoMode") {
                     # Create a dummy credential for demo mode
                     $securePassword = ConvertTo-SecureString "DemoPassword" -AsPlainText -Force
                     $Credential = New-Object System.Management.Automation.PSCredential("DemoUser", $securePassword)

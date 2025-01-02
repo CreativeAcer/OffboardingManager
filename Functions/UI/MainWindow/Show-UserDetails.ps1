@@ -9,7 +9,7 @@ function Show-UserDetails {
         $loadingWindow = Show-LoadingScreen -Message "Loading user information..."
         $loadingWindow.Show()
         [System.Windows.Forms.Application]::DoEvents()
-        if (Get-AppSetting -SettingName "DemoMode") {
+        if (Get-AppSettings -SettingName "DemoMode") {
             $User = Get-MockUser -UserPrincipalName $UserPrincipalName
         
         $Details = @"
@@ -35,7 +35,7 @@ $($User.MemberOf | ForEach-Object { "- $_" } | Out-String)
 "@
     }
     else {
-        if (Get-AppSetting -SettingName "UseADModule") {
+        if (Get-AppSettings -SettingName "UseADModule") {
             $User = Get-ADUser -Credential $Credential -Filter {UserPrincipalName -eq $UserPrincipalName} -Properties *
             
             $Details = @"

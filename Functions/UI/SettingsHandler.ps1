@@ -13,8 +13,8 @@ function Initialize-SettingsTab {
         $script:txtSettingsStatus = $Window.FindName("txtSettingsStatus")
 
         # Load current settings
-        $settings = Get-StoredSettings
-        
+        #$settings = Get-StoredSettings
+        $settings = Get-AppSettings
         # Apply settings to UI
         $script:chkDemoMode.IsChecked = $settings.DemoMode
         $script:chkUseADModule.IsChecked = $settings.UseADModule
@@ -29,40 +29,6 @@ function Initialize-SettingsTab {
     catch {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Settings-TabInit"
     }
-}
-
-function Get-StoredSettings {
-    $settingsPath = Join-Path -Path $script:BasePath -ChildPath "Config\Settings.json"
-    
-    if (Test-Path $settingsPath) {
-        $settings = Get-Content $settingsPath | ConvertFrom-Json
-        # If domain is empty in settings, use auto-populated value
-        if ([string]::IsNullOrEmpty($settings.DefaultDomain)) {
-            $settings.DefaultDomain = $env:USERDNSDOMAIN
-        }
-    }
-    else {
-        # Default settings
-        $settings = @{
-            DemoMode = $false
-            UseADModule = $true
-            DefaultDomain = $env:USERDNSDOMAIN
-            AutoReplyTemplate = "I am currently unavailable..."
-            LoggingEnabled = $true
-            LogPath = "Logs/error_log.txt"
-            LicenseTemplates = @(
-                @{
-                    Name = "Standard User"
-                    Products = @("Office 365 E3", "Exchange Online")
-                }
-            )
-        }
-        
-        # Save default settings
-        $settings | ConvertTo-Json -Depth 10 | Set-Content $settingsPath
-    }
-    
-    return $settings
 }
 
 function Save-Settings {
@@ -80,21 +46,34 @@ function Save-Settings {
         $txtAutoReplyTemplate = $Window.FindName("txtAutoReplyTemplate")  
         $txtSettingsStatus = $Window.FindName("txtSettingsStatus")
 
-        # If domain is empty, use auto-populated value
-        $domainValue = if ([string]::IsNullOrWhiteSpace($txtDefaultDomain.Text)) {
-            $env:USERDNSDOMAIN
-        } else {
-            $txtDefaultDomain.Text
-        }
-
+        # Load current settings
+        #$settings = Get-StoredSettings
+        $settings = Get-AppSettings
         $settings = @{
             DemoMode = $chkDemoMode.IsChecked
             UseADModule = $chkUseADModule.IsChecked
-            DefaultDomain = $domainValue
-            AutoReplyTemplate = $txtAutoReplyTemplate.Text
+
+            # For domain: use input if provided, else keep current, else use system
+            DefaultDomain = if (![string]::IsNullOrWhiteSpace($txtDefaultDomain.Text)) {
+                $txtDefaultDomain.Text
+            } elseif (![string]::IsNullOrWhiteSpace($settings.DefaultDomain)) {
+                $settings.DefaultDomain
+            } else {
+                $env:USERDNSDOMAIN
+            }
+            
+            # For auto reply: use input if provided, else keep current, else use default
+            AutoReplyTemplate = if (![string]::IsNullOrWhiteSpace($txtAutoReplyTemplate.Text)) {
+                $txtAutoReplyTemplate.Text
+            } elseif (![string]::IsNullOrWhiteSpace($settings.AutoReplyTemplate)) {
+                $settings.AutoReplyTemplate
+            } else {
+                "I am currently unavailable..."
+            }
+
             LoggingEnabled = $true
             LogPath = "Logs/error_log.txt"
-            LicenseTemplates = (Get-StoredSettings).LicenseTemplates
+            LicenseTemplates = Get-AppSettings -SettingName "LicenseTemplates"
         }
         
         # Update settings through Settings.ps1

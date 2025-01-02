@@ -19,6 +19,6 @@
     "DemoMode":  true,
     "LogPath":  "Logs/error_log.txt",
     "LoggingEnabled":  true,
-    "AutoReplyTemplate":  "I am currently unavailable...contact xyz",
-    "DefaultDomain":  "contoso.com"
+    "AutoReplyTemplate":  "Please contact xyz",
+    "DefaultDomain":  "company.com"
 }

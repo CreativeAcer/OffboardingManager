@@ -9,7 +9,7 @@ function Set-O365MailboxManagement {
     )
 
     try {
-        if (Get-AppSetting -SettingName "DemoMode") {
+        if (Get-AppSettings -SettingName "DemoMode") {
             $results = @()
             
             if ($ConvertToShared) {
