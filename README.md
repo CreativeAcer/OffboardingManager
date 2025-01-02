@@ -1,5 +1,11 @@
 # AD User Offboarding Tool
 [![CodeFactor](https://www.codefactor.io/repository/github/creativeacer/offboardingmanager/badge)](https://www.codefactor.io/repository/github/creativeacer/offboardingmanager)
+![License](https://img.shields.io/github/license/creativeacer/offboardingmanager)
+![Version](https://img.shields.io/github/v/release/creativeacer/offboardingmanager)
+![PowerShell](https://img.shields.io/badge/powershell-%3E%3D%205.1-blue)
+
+![Platform Support](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-blue)
+![Architecture](https://img.shields.io/badge/architecture-x86%20%7C%20x64%20%7C%20ARM-yellow)
 
 <div align="center">
     <img src="./Docs/Images/MainWindow.png" alt="AD User Offboarding Tool" width="800"/>
