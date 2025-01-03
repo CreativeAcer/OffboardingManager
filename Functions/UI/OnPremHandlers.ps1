@@ -6,21 +6,23 @@ function Initialize-OnPremTab {
     )
     
     # Get control references
-    $script:chkOnPrem1 = $Window.FindName("chkOnPrem1")
-    $script:chkOnPrem2 = $Window.FindName("chkOnPrem2")
-    $script:chkOnPrem3 = $Window.FindName("chkOnPrem3")
+    $script:chkDisableAcc = $Window.FindName("chkDisableAcc")
+    $script:chkRemMemberShips = $Window.FindName("chkRemMemberShips")
+    $script:chkMoveToDisabledOu = $Window.FindName("chkMoveToDisabledOu")
+    $script:chkScheduleDisable = $Window.FindName("chkScheduleDisable")
+    $script:dpDisableDate = $Window.FindName("dpDisableDate")
     $script:btnRunOnPrem = $Window.FindName("btnRunOnPrem")
     $script:txtOnPremResults = $Window.FindName("txtOnPremResults")
 
     # Configure checkboxes with task descriptions
-    $chkOnPrem1.Content = "Disable AD Account"
-    $chkOnPrem2.Content = "Remove Group Memberships"
-    $chkOnPrem3.Content = "Move to Disabled OU"
+    # $chkDisableAcc.Content = "Disable AD Account"
+    # $chkRemMemberShips.Content = "Remove Group Memberships"
+    # $chkMoveToDisabledOu.Content = "Move to Disabled OU"
 
     # Add tooltip descriptions
-    $chkOnPrem1.ToolTip = "Disables the user's Active Directory account"
-    $chkOnPrem2.ToolTip = "Removes user from all AD groups except Domain Users"
-    $chkOnPrem3.ToolTip = "Moves the user account to the Disabled Users OU"
+    $chkDisableAcc.ToolTip = "Disables the user's Active Directory account"
+    $chkRemMemberShips.ToolTip = "Removes user from all AD groups except Domain Users"
+    $chkMoveToDisabledOu.ToolTip = "Moves the user account to the Disabled Users OU"
 
     # Add click handler for the run button
     $script:btnRunOnPrem.Add_Click({
@@ -68,7 +70,7 @@ function Start-OnPremTasks {
     $errorOccurred = $false
 
     # Task 1: Disable AD Account
-    if ($script:chkOnPrem1.IsChecked) {
+    if ($script:chkDisableAcc.IsChecked) {
         try {
             $result = Disable-UserAccount -UserPrincipalName $userPrincipalName -Credential $Credential
             Write-ActivityLog -UserEmail $userEmail -Action "Disable AD Account" -Result $result -Platform "OnPrem"
@@ -83,7 +85,7 @@ function Start-OnPremTasks {
     }
 
     # Task 2: Remove Group Memberships
-    if ($script:chkOnPrem2.IsChecked) {
+    if ($script:chkRemMemberShips.IsChecked) {
         try {
             $result = Remove-UserGroups -UserPrincipalName $userPrincipalName -Credential $Credential
             Write-ActivityLog -UserEmail $userEmail -Action "Remove Group Memberships" -Result $result -Platform "OnPrem"
@@ -98,7 +100,7 @@ function Start-OnPremTasks {
     }
 
     # Task 3: Move to Disabled OU
-    if ($script:chkOnPrem3.IsChecked) {
+    if ($script:chkMoveToDisabledOu.IsChecked) {
         try {
             $result = Move-UserToDisabledOU -UserPrincipalName $userPrincipalName -Credential $Credential
             Write-ActivityLog -UserEmail $userEmail -Action "Move to Disabled OU" -Result $result -Platform "OnPrem"
@@ -107,6 +109,25 @@ function Start-OnPremTasks {
         catch {
             $errorMessage = "OU Move Task Failed: $($_.Exception.Message)"
             Write-ActivityLog -UserEmail $userEmail -Action "Move to Disabled OU" -Result $errorMessage -Platform "OnPrem"
+            $results += $errorMessage
+            $errorOccurred = $true
+        }
+    }
+    # Task 4: Set Disabled date
+    if ($script:chkScheduleDisable.IsChecked) {
+        try {
+            $disableDate = $script:dpDisableDate.SelectedDate
+            if (-not $disableDate) {
+                throw "No disable date selected"
+            }
+
+            $result = Set-AccountExpiration -UserPrincipalName $userPrincipalName -ExpirationDate $disableDate -Credential $Credential
+            Write-ActivityLog -UserEmail $userEmail -Action "Schedule Account Disable" -Result $result -Platform "OnPrem"
+            $results += "Account Expiration Task: $result"
+        }
+        catch {
+            $errorMessage = "Account Expiration Task Failed: $($_.Exception.Message)"
+            Write-ActivityLog -UserEmail $userEmail -Action "Schedule Account Disable" -Result $errorMessage -Platform "OnPrem"
             $results += $errorMessage
             $errorOccurred = $true
         }
@@ -250,7 +271,7 @@ function Remove-UserGroups {
     }
  }
 
- function Move-UserToDisabledOU {
+function Move-UserToDisabledOU {
     param (
         [string]$UserPrincipalName,
         [System.Management.Automation.PSCredential]$Credential
@@ -307,4 +328,65 @@ function Remove-UserGroups {
             throw "OU move simulation failed (LDAP): $($_.Exception.Message)"
         }
     }
- }
+}
+
+function Set-AccountExpiration {
+    param (
+        [string]$UserPrincipalName,
+        [DateTime]$ExpirationDate,
+        [System.Management.Automation.PSCredential]$Credential
+       
+    )
+ 
+    Write-Host "[SIMULATION]: Would set account expiration for: $UserPrincipalName to $($ExpirationDate.ToString('yyyy-MM-dd'))"
+    if ($script:DemoMode) {
+        try {
+            Write-ActivityLog -UserEmail $UserPrincipalName -Action "Set Account Expiration" -Result "Demo mode - Would set expiration date to $($ExpirationDate.ToString('yyyy-MM-dd'))" -Platform "OnPrem"
+            return "[SIMULATION]: Would set account expiration for: $UserPrincipalName to $($ExpirationDate.ToString('yyyy-MM-dd'))"
+        }
+        catch {
+            throw "Demo account expiration simulation failed: $($_.Exception.Message)"
+        }
+    }
+    elseif ($script:UseADModule) {
+        try {
+            $user = Get-ADUser -Identity $UserPrincipalName -Properties AccountExpirationDate -Credential $Credential
+            
+            Write-ActivityLog -UserEmail $UserPrincipalName -Action "Set Account Expiration" -Result "Current expiration date: $($user.AccountExpirationDate)" -Platform "OnPrem"
+            
+            # Commented out actual action
+            #Set-ADUser -Identity $UserPrincipalName -AccountExpirationDate $ExpirationDate -Credential $Credential
+            #Write-ActivityLog -UserEmail $UserPrincipalName -Action "Set Account Expiration" -Result "New expiration date: $($ExpirationDate.ToString('yyyy-MM-dd'))" -Platform "OnPrem"
+            
+            return "[SIMULATION] Would set account expiration date to $($ExpirationDate.ToString('yyyy-MM-dd')) using AD Module"
+        }
+        catch {
+            throw "Account expiration simulation failed: $($_.Exception.Message)"
+        }
+    }
+    else {
+        try {
+            $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential
+            $filter = "(&(objectClass=user)(userPrincipalName=$UserPrincipalName))"
+            $user = Get-LDAPUsers -Directory $directory -SearchFilter $filter | Select-Object -First 1
+            
+            if ($user) {
+                $userEntry = $user.GetDirectoryEntry()
+                $currentExpiry = $userEntry.Properties["accountExpires"].Value
+                
+                Write-ActivityLog -UserEmail $UserPrincipalName -Action "Set Account Expiration" -Result "Current expiration: $currentExpiry" -Platform "OnPrem"
+                
+                # Commented out actual action
+                #$userEntry.Properties["accountExpires"].Value = $ExpirationDate.ToFileTime()
+                #$userEntry.CommitChanges()
+                #Write-ActivityLog -UserEmail $UserPrincipalName -Action "Set Account Expiration" -Result "New expiration date: $($ExpirationDate.ToString('yyyy-MM-dd'))" -Platform "OnPrem"
+                
+                return "[SIMULATION] Would set account expiration date to $($ExpirationDate.ToString('yyyy-MM-dd')) using LDAP"
+            }
+            throw "User not found"
+        }
+        catch {
+            throw "Account expiration simulation failed (LDAP): $($_.Exception.Message)"
+        }
+    }
+}

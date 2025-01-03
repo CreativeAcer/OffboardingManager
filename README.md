@@ -38,6 +38,7 @@ The tool automatically adapts to your system architecture:
 - Disable AD accounts
 - Remove group memberships
 - Move to disabled OU
+- Set Expiration date
 - Automatic logging of all actions
 
 ### O365 Features
@@ -134,6 +135,7 @@ These items might change the scope of this project
 ### General functionality
 - [ ] (bulk)Creation of user
 - [x] Settings page
+
 ### Teams & SharePoint
 - [x] Remove from Teams groups
 - [x] Transfer Teams ownership
@@ -150,6 +152,7 @@ These items might change the scope of this project
 - [ ] Bulk license management
 
 ### Security & Compliance
+- [x] Set Expiration date
 - [ ] Revoke app permissions
 - [ ] Remove MFA devices
 - [ ] Clear mobile device list
@@ -185,6 +188,7 @@ Feel free to submit issues, fork the repository and create pull requests for any
     - Disable AD account
     - Remove group memberships
     - Move to disabled OU
+    - Set expiration date
   - **O365 Management**
     - Connect to Microsoft Graph
     - Mailbox Management

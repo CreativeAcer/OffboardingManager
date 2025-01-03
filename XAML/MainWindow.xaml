@@ -166,6 +166,7 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             
@@ -175,18 +176,26 @@
                                       Margin="0,0,0,15"/>
                             
                             <StackPanel Grid.Row="1" Margin="0,0,0,15">
-                                <CheckBox Name="chkOnPrem1" 
-                                         Content="OnPrem Task 1" 
+                                <CheckBox Name="chkDisableAcc" 
+                                         Content="Disable AD Account" 
                                          Margin="0,0,0,10"/>
-                                <CheckBox Name="chkOnPrem2" 
-                                         Content="OnPrem Task 2" 
+                                <CheckBox Name="chkRemMemberShips" 
+                                         Content="Remove Group Memberships" 
                                          Margin="0,0,0,10"/>
-                                <CheckBox Name="chkOnPrem3" 
-                                         Content="OnPrem Task 3" 
+                                <CheckBox Name="chkMoveToDisabledOu" 
+                                         Content="Move to Disabled OU" 
                                          Margin="0,0,0,10"/>
+                                <CheckBox Name="chkScheduleDisable" 
+                                    Content="Schedule Account Disable" 
+                                    Margin="0,0,0,10"/>
+                                <TextBlock Text="Disable account on:"
+                                           Visibility="{Binding IsChecked, ElementName=chkScheduleDisable, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <DatePicker Name="dpDisableDate" 
+                                            Margin="0,5,0,0"
+                                            Visibility="{Binding IsChecked, ElementName=chkScheduleDisable, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                             </StackPanel>
                             
-                            <Button Grid.Row="2" 
+                            <Button Grid.Row="3" 
                                     Name="btnRunOnPrem" 
                                     Content="Run Selected Tasks" 
                                     Padding="15,8"
