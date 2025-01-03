@@ -34,6 +34,15 @@
             $txtDomain.Text = $settings.DefaultDomain
         }
     }
+
+    # Window closing handler ('X' pressed)
+    $LoginWindow.Add_Closing({
+        param($sender, $e)
+        if ($LoginWindow.DialogResult -ne $true) {
+            $script:loginSuccess = $false
+            $LoginWindow.DialogResult = $false
+        }
+    })
     
     $btnLogin.Add_Click({
         $script:Domain = $txtDomain.Text
@@ -44,6 +53,7 @@
         
         # Skip validation if in demo mode
         if ($script:DemoMode) {
+            $script:loginSuccess = $true 
             $LoginWindow.DialogResult = $true
             $LoginWindow.Close()
             return
@@ -80,6 +90,7 @@
                     Start-Sleep -Milliseconds 500
 
                     $script:loginSuccess = $true
+                    $LoginWindow.DialogResult = $true
                     
                     # Clean up windows
                     if ($loadingWindow.IsVisible) {
@@ -111,6 +122,6 @@
         }
     })
     
-    $LoginWindow.ShowDialog()
-    return $script:loginSuccess
+    $result = $LoginWindow.ShowDialog()
+    return ($result -eq $true -and $script:loginSuccess)
 }
