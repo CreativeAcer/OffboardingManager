@@ -1,6 +1,6 @@
 function Connect-O365 {
     try {
-        if (Get-AppSettings -SettingName "DemoMode") {
+        if (Get-AppSetting -SettingName "DemoMode") {
             Enable-O365Controls
             $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
             return

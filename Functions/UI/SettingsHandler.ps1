@@ -12,14 +12,20 @@ function Initialize-SettingsTab {
         $script:btnSaveSettings = $Window.FindName("btnSaveSettings")
         $script:txtSettingsStatus = $Window.FindName("txtSettingsStatus")
 
+        # Initialize workflow settings
+        Write-Host "Initializing workflow settings tab..."
+        Initialize-WorkflowSettingsTab -Window $Window
+
         # Load current settings
-        #$settings = Get-StoredSettings
-        $settings = Get-AppSettings
-        # Apply settings to UI
-        $script:chkDemoMode.IsChecked = $settings.DemoMode
-        $script:chkUseADModule.IsChecked = $settings.UseADModule
-        $script:txtDefaultDomain.Text = $settings.DefaultDomain
-        $script:txtAutoReplyTemplate.Text = $settings.AutoReplyTemplate
+        $settings = Get-AppSetting
+        if ($settings) {
+            $script:chkDemoMode.IsChecked = $settings.DemoMode
+            $script:chkUseADModule.IsChecked = $settings.UseADModule
+            $script:txtDefaultDomain.Text = $settings.DefaultDomain
+            $script:txtAutoReplyTemplate.Text = $settings.AutoReplyTemplate
+        }
+
+        Write-Host "Settings Tab initialization completed"e
 
         # Add save handler
         $script:btnSaveSettings.Add_Click({
@@ -48,7 +54,7 @@ function Save-Settings {
 
         # Load current settings
         #$settings = Get-StoredSettings
-        $settings = Get-AppSettings
+        $settings = Get-AppSetting
         $settings = @{
             DemoMode = $chkDemoMode.IsChecked
             UseADModule = $chkUseADModule.IsChecked
@@ -73,7 +79,7 @@ function Save-Settings {
 
             LoggingEnabled = $true
             LogPath = "Logs/error_log.txt"
-            LicenseTemplates = Get-AppSettings -SettingName "LicenseTemplates"
+            LicenseTemplates = Get-AppSetting -SettingName "LicenseTemplates"
         }
         
         # Update settings through Settings.ps1

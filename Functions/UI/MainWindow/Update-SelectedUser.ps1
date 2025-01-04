@@ -8,11 +8,11 @@ function Update-SelectedUser {
         $loadingWindow = Show-LoadingScreen -Message "Loading user details..."
         $loadingWindow.Show()
         [System.Windows.Forms.Application]::DoEvents()
-        if (Get-AppSettings -SettingName "DemoMode") {
+        if (Get-AppSetting -SettingName "DemoMode") {
             $script:SelectedUser = Get-MockUser -UserPrincipalName $UserPrincipalName
         }
         else {
-            if (Get-AppSettings -SettingName "UseADModule") {
+            if (Get-AppSetting -SettingName "UseADModule") {
                 $script:SelectedUser = Get-ADUser -Credential $Credential -Filter "UserPrincipalName -eq '$UserPrincipalName'" -Properties *
             }
             else {
