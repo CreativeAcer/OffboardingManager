@@ -29,7 +29,7 @@ function Initialize-SettingsTab {
 
         # Add save handler
         $script:btnSaveSettings.Add_Click({
-            Save-Settings -Window $Window
+            Save-Settings -Window $Window -LoginWindow $LoginWindow
         })
     }
     catch {
@@ -39,61 +39,72 @@ function Initialize-SettingsTab {
 
 function Save-Settings {
     param (
-        [System.Windows.Window]$Window
+        [System.Windows.Window]$Window,
+        [System.Windows.Window]$LoginWindow  # Add LoginWindow parameter
     )
 
     try {
-        $settingsPath = Join-Path -Path $script:BasePath -ChildPath "Config\Settings.json"
-        
-        # Match the exact names from your XAML
+        # Get controls and validate
         $chkDemoMode = $Window.FindName("chkDemoMode")
         $chkUseADModule = $Window.FindName("chkUseADModule")
         $txtDefaultDomain = $Window.FindName("txtDefaultDomain")
         $txtAutoReplyTemplate = $Window.FindName("txtAutoReplyTemplate")  
         $txtSettingsStatus = $Window.FindName("txtSettingsStatus")
 
-        # Load current settings
-        #$settings = Get-StoredSettings
-        $settings = Get-AppSetting
+        # Get current settings
+        $currentSettings = Get-AppSetting
+
+        # Build new settings
         $settings = @{
             DemoMode = $chkDemoMode.IsChecked
             UseADModule = $chkUseADModule.IsChecked
-
-            # For domain: use input if provided, else keep current, else use system
             DefaultDomain = if (![string]::IsNullOrWhiteSpace($txtDefaultDomain.Text)) {
                 $txtDefaultDomain.Text
-            } elseif (![string]::IsNullOrWhiteSpace($settings.DefaultDomain)) {
-                $settings.DefaultDomain
+            } elseif (![string]::IsNullOrWhiteSpace($currentSettings.DefaultDomain)) {
+                $currentSettings.DefaultDomain
             } else {
                 $env:USERDNSDOMAIN
             }
-            
-            # For auto reply: use input if provided, else keep current, else use default
             AutoReplyTemplate = if (![string]::IsNullOrWhiteSpace($txtAutoReplyTemplate.Text)) {
                 $txtAutoReplyTemplate.Text
-            } elseif (![string]::IsNullOrWhiteSpace($settings.AutoReplyTemplate)) {
-                $settings.AutoReplyTemplate
+            } elseif (![string]::IsNullOrWhiteSpace($currentSettings.AutoReplyTemplate)) {
+                $currentSettings.AutoReplyTemplate
             } else {
                 "I am currently unavailable..."
             }
-
             LoggingEnabled = $true
             LogPath = "Logs/error_log.txt"
-            LicenseTemplates = Get-AppSetting -SettingName "LicenseTemplates"
+            LicenseTemplates = $currentSettings.LicenseTemplates
+            WorkflowConfigurations = $currentSettings.WorkflowConfigurations
         }
         
-        # Update settings through Settings.ps1
+        # Update settings
         Update-AppSettings -NewSettings $settings
+
+        # Update Login window if available
+        if ($null -ne $LoginWindow) {
+            $loginDomain = $LoginWindow.FindName("txtDomain")
+            $loginDemoMode = $LoginWindow.FindName("chkDemoMode")
+            if ($null -ne $loginDomain) {
+                $loginDomain.Text = $settings.DefaultDomain
+            }
+            if ($null -ne $loginDemoMode) {
+                $loginDemoMode.IsChecked = $settings.DemoMode
+            }
+        }
         
-        $txtSettingsStatus.Text = "Settings saved successfully at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+        if ($null -ne $txtSettingsStatus) {
+            $txtSettingsStatus.Text = "Settings saved successfully at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+        }
         
         # Update application settings
         $script:DemoMode = $settings.DemoMode
         $script:UseADModule = $settings.UseADModule
-        
     }
     catch {
-        $script:txtSettingsStatus.Text = "Error saving settings: $($_.Exception.Message)"
+        if ($null -ne $txtSettingsStatus) {
+            $txtSettingsStatus.Text = "Error saving settings: $($_.Exception.Message)"
+        }
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Save-Settings"
     }
 }
