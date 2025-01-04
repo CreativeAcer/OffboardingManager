@@ -95,6 +95,11 @@ Screenshots may be outdated due to continuous development!
     <p><em>Settings</em></p>
 </div>
 
+<div align="center">
+    <img src="./Docs/Images/Settings-Workflow.png" alt="Settings Workflow Screen" width="400"/>
+    <p><em>Settings Workflow crud</em></p>
+</div>
+
 ## Prerequisites
 - Windows PowerShell 5.1 or later
 - One of the following:
@@ -171,7 +176,7 @@ These items might change the scope of this project
 ### Automation Features
 - [ ] Scheduled offboarding
 - [ ] Conditional task execution
-- [ ] Custom workflow builder
+- [x] Custom workflow builder
 - [ ] Email notifications
 - [ ] Manager approvals
 - [ ] Integration with ticketing systems
