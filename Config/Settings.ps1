@@ -101,10 +101,25 @@ function Get-AppSetting {
 
 function Update-AppSettings {
     param (
-        [hashtable]$NewSettings
+        [Parameter(Mandatory=$true)]
+        $NewSettings
     )
     
     try {
+        # If the $NewSettings is a PSCustomObject, convert it to a hashtable
+        if ($NewSettings -is [PSCustomObject]) {
+            $NewSettings = @{}  # Start with an empty hashtable
+            foreach ($property in $NewSettings.PSObject.Properties) {
+                $NewSettings[$property.Name] = $property.Value
+            }
+        }
+
+        # Validate if $NewSettings is now a hashtable
+        if ($NewSettings -isnot [hashtable]) {
+            Write-ErrorLog -ErrorMessage "NewSettings must be either a Hashtable or a PSCustomObject." -Location "Update-AppSettings"
+            throw
+        }
+
         $settingsPath = Join-Path -Path $script:BasePath -ChildPath "Config\Settings.json"
         
         # Update AppSettings object with new values

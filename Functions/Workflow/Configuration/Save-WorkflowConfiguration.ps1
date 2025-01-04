@@ -51,9 +51,11 @@ function Save-WorkflowConfiguration {
         if ($SetAsDefault -or $settings.WorkflowConfigurations.Configurations.Count -eq 1) {
             $settings.WorkflowConfigurations.LastUsed = $Name
         }
-        
         # Save settings
         Update-AppSettings -NewSettings $settings
+
+        # Save settings
+        #Update-AppSettings -NewSettings $settings
         
         return "Workflow configuration '$Name' saved successfully"
     }

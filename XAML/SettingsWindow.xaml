@@ -11,12 +11,29 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+        <Grid HorizontalAlignment="Stretch" Margin="0,20,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" /> 
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
 
-        <TextBlock Text="Application Settings" 
-                  FontSize="24" 
-                  FontWeight="Bold" 
-                  Foreground="$($colors.Primary)"
-                  Margin="0,0,0,20"/>
+            <!-- TextBlock aligned to the left -->
+            <TextBlock Text="Application Settings" 
+                       FontSize="24" 
+                       FontWeight="Bold" 
+                       Foreground="$($colors.Primary)"
+                       Margin="0,0,0,20"
+                       Grid.Column="0" />
+
+            <!-- TextBlock aligned to the right -->
+            <TextBlock Name="txtSettingsStatus" 
+                       FontSize="20" 
+                       TextWrapping="Wrap" 
+                       Foreground="$($colors.Success)" 
+                       VerticalAlignment="Center" 
+                       HorizontalAlignment="Right" 
+                       Grid.Column="1" />
+        </Grid>
 
         <TabControl Grid.Row="1">
             <!-- General Settings Tab -->
@@ -237,12 +254,7 @@
                     Orientation="Horizontal" 
                     HorizontalAlignment="Right"
                     Margin="0,20,0,0">
-            <!-- TextBlock next to the buttons for status -->
-            <TextBlock Name="txtSettingsStatus" 
-                       TextWrapping="Wrap" 
-                       Foreground="$($colors.Success)" 
-                       Margin="0,0,0,0" 
-                       VerticalAlignment="Center"/>
+            
             <Button Name="btnSaveSettings" 
                     Content="Save Settings" 
                     Width="100" 
