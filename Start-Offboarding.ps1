@@ -41,6 +41,21 @@ $script:BasePath = Split-Path -Parent (Split-Path -Parent $currentPath)  # Move 
 # Initialize settings
 Initialize-AppSettings
 
+# Import workflow functionality
+. "$script:BasePath\Functions\Workflow\WorkflowTasks.ps1"
+. "$script:BasePath\Functions\Workflow\Start-OffboardingWorkflow.ps1"
+. "$script:BasePath\Functions\Workflow\Configuration\Get-WorkflowConfiguration.ps1"
+. "$script:BasePath\Functions\Workflow\Configuration\Save-WorkflowConfiguration.ps1"
+. "$script:BasePath\Functions\Workflow\Configuration\Import-WorkflowConfiguration.ps1"
+. "$script:BasePath\Functions\Workflow\Configuration\Remove-WorkflowConfiguration.ps1"
+. "$script:BasePath\Functions\Workflow\Configuration\Get-TaskSettings.ps1"
+. "$script:BasePath\Functions\Workflow\Tasks\Get-WorkflowTasks.ps1"
+
+# Import workflow UI
+. "$script:BasePath\Functions\UI\Workflow\Initialize-WorkflowTab.ps1"
+. "$script:BasePath\Functions\UI\Settings\Initialize-WorkflowSettingsTab.ps1"
+. "$script:BasePath\Functions\UI\Settings\WorkflowTaskSettings.ps1"
+
 # Import functions
 . "$script:BasePath\Functions\Environment.ps1"
 . "$script:BasePath\Functions\LDAP\LDAPConnection.ps1"
@@ -114,7 +129,7 @@ try {
             
             if (Show-LoginDialog) {
                 Write-Host "Login successful."
-                if (Get-AppSettings -SettingName "DemoMode") {
+                if (Get-AppSetting -SettingName "DemoMode") {
                     # Create a dummy credential for demo mode
                     $securePassword = ConvertTo-SecureString "DemoPassword" -AsPlainText -Force
                     $Credential = New-Object System.Management.Automation.PSCredential("DemoUser", $securePassword)

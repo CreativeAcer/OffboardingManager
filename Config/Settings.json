@@ -20,5 +20,29 @@
     "LogPath":  "Logs/error_log.txt",
     "LoggingEnabled":  true,
     "AutoReplyTemplate":  "Please contact xyz",
-    "DefaultDomain":  "company.com"
+    "DefaultDomain":  "company.be",
+    "WorkflowConfigurations":  {
+                                   "Configurations":  {
+                                                          "Default":  {
+                                                                          "Name":  "Default",
+                                                                          "Description":  "Standard offboarding workflow",
+                                                                          "EnabledTasks":  [
+                                                                                               "DisableAccount",
+                                                                                               "RemoveGroups",
+                                                                                               "SetForwarding",
+                                                                                               "ConvertMailbox"
+                                                                                           ],
+                                                                          "TaskSettings":  {
+                                                                                               "SetExpiration":  {
+                                                                                                                     "DaysAfterOffboarding":  30
+                                                                                                                 },
+                                                                                               "SetForwarding":  {
+                                                                                                                     "KeepForwardingDays":  90
+                                                                                                                 }
+                                                                                           },
+                                                                          "LastModified":  "2025-01-03 14:30:00"
+                                                                      }
+                                                      },
+                                   "LastUsed":  "Default"
+                               }
 }

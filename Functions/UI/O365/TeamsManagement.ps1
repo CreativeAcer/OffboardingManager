@@ -8,7 +8,7 @@ function Set-TeamsManagement {
     )
 
     try {
-        if (Get-AppSettings -SettingName "DemoMode") {
+        if (Get-AppSetting -SettingName "DemoMode") {
             $results = @()
             
             if ($RemoveFromTeams) {

@@ -30,7 +30,7 @@ function Initialize-O365Tab {
         $script:lstProducts = $Window.FindName("lstProducts")
         $script:mainWindow = $Window
 
-        $settings = Get-AppSettings
+        $settings = Get-AppSetting
         #Check if autoreply was set in Settings page
         if ($settings.AutoReplyTemplate) {
             $script:txtAutoReplyMessage.Text = $settings.AutoReplyTemplate
@@ -59,7 +59,7 @@ function Initialize-O365Tab {
         Write-Host "Adding click handlers for O365 buttons"
 
         # Configure UI based on demo mode
-        if (Get-AppSettings -SettingName "DemoMode") {
+        if (Get-AppSetting -SettingName "DemoMode") {
             $script:btnConnectO365.Content = "Connect to O365 (Demo)"
             $script:O365Connected = $false
         }
@@ -78,7 +78,7 @@ function Initialize-O365Tab {
 
         # Add click handler for connect button
         $script:btnConnectO365.Add_Click({
-            if (Get-AppSettings -SettingName "DemoMode") {
+            if (Get-AppSetting -SettingName "DemoMode") {
                 $script:O365Connected = $true
                 $script:btnConnectO365.IsEnabled = $false
                 $script:chkO365Status.IsEnabled = $true

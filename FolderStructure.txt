@@ -15,11 +15,19 @@
 │   ├── Utilities/
 │   │   ├── Mockdata.ps1
 │   │   └── PathUtils.ps1
+│   ├── Workflow/
+│   │   ├── Configuration/
+│   │   │   ├── Get-WorkflowConfiguration.ps1
+│   │   │   ├── Save-WorkflowConfiguration.ps1
+│   │   │   ├── Import-WorkflowConfiguration.ps1
+│   │   │   └── Remove-WorkflowConfiguration.ps1
+│   │   ├── WorkflowTasks.ps1
+│   │   └── Start-OffboardingWorkflow.ps1
 │   ├── UI/
 │   │   ├── LoginDialog.ps1
 │   │   ├── MainWindow.ps1
-│   │   ├── O365/              # O365 specific functions
-│   │   │   ├── Initialize-O365Tab.ps1        # Contains initialization code
+│   │   ├── O365/                            # O365 specific functions
+│   │   │   ├── Initialize-O365Tab.ps1       # Contains initialization code
 │   │   │   ├── Start-O365Tasks.ps1          # Main task execution logic
 │   │   │   ├── MailboxManagement.ps1
 │   │   │   ├── TeamsManagement.ps1
@@ -39,6 +47,10 @@
 │   │   │   ├── Update-UserList.ps1
 │   │   │   ├── Update-SelectedUser.ps1
 │   │   │   └── Show-UserDetails.ps1
+│   │   ├── Settings/ [NEW folder]
+│   │   │   └── Initialize-WorkflowSettingsTab.ps1
+│   │   ├── Workflow/ [NEW folder]
+│   │   │   └── Initialize-WorkflowTab.ps1
 │   │   ├── OnPremHandlers.ps1
 │   │   ├── O365Handlers.ps1
 │   │   ├── ReportHandlers.ps1
