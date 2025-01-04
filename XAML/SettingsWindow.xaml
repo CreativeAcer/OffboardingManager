@@ -237,6 +237,13 @@
                     Orientation="Horizontal" 
                     HorizontalAlignment="Right"
                     Margin="0,20,0,0">
+            <!-- TextBlock next to the buttons for status -->
+            <TextBlock Name="txtSettingsStatus" 
+                       TextWrapping="Wrap" 
+                       Foreground="$($colors.Success)" 
+                       Margin="0,0,0,0" 
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"/>
             <Button Name="btnSaveSettings" 
                     Content="Save Settings" 
                     Width="100" 
@@ -251,7 +258,8 @@
                     Height="30"
                     Background="$($colors.Primary)"
                     Foreground="$($colors.InputBg)"
-                    BorderThickness="0"/>
+                    BorderThickness="0"
+                    Margin="0,0,10,0"/>
         </StackPanel>
     </Grid>
 </Window>

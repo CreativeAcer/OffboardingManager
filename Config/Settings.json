@@ -20,5 +20,29 @@
     "LogPath":  "Logs/error_log.txt",
     "LoggingEnabled":  true,
     "AutoReplyTemplate":  "Please contact xyz",
-    "DefaultDomain":  "company.com"
+    "DefaultDomain":  "company.com",
+    "WorkflowConfigurations":  {
+                                   "Configurations":  {
+                                                          "Default":  {
+                                                                          "TaskSettings":  {
+                                                                                               "SetForwarding":  {
+                                                                                                                     "KeepForwardingDays":  90
+                                                                                                                 },
+                                                                                               "SetAutoReply":  {
+                                                                                                                    "Message":  "I am currently unavailable..."
+                                                                                                                },
+                                                                                               "SetExpiration":  {
+                                                                                                                     "DaysAfterOffboarding":  30
+                                                                                                                 }
+                                                                                           },
+                                                                          "Description":  "Standard offboarding workflow",
+                                                                          "Name":  "Default",
+                                                                          "EnabledTasks":  [
+
+                                                                                           ],
+                                                                          "LastModified":  "2025-01-04 15:52:23"
+                                                                      }
+                                                      },
+                                   "LastUsed":  "Default"
+                               }
 }
