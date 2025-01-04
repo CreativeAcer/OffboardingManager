@@ -113,6 +113,11 @@
                                          Height="200"
                                          Background="$($colors.InputBg)"
                                          BorderBrush="$($colors.BorderColor)">
+                                         <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding DisplayName}" />
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
                                 </ListBox>
 
                                 <StackPanel Orientation="Horizontal" 
@@ -143,6 +148,11 @@
                                          Height="200"
                                          Background="$($colors.InputBg)"
                                          BorderBrush="$($colors.BorderColor)">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding DisplayName}" />
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
                                 </ListBox>
 
                                 <StackPanel Orientation="Horizontal" 

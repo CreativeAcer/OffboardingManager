@@ -126,15 +126,35 @@ function Load-AvailableTasks {
     
     # Debug output
     Write-Host "Loading OnPrem tasks:"
-    foreach($task in $script:WorkflowTasks.OnPrem) {
-        Write-Host ($task | ConvertTo-Json)
-        $script:lstAvailableTasks.Items.Add($task)
+    foreach ($task in $script:WorkflowTasks.OnPrem) {
+        $taskObject = New-Object PSObject -property @{
+            Id = $task.Id
+            DisplayName = $task.DisplayName
+            Description = $task.Description
+            FunctionName = $task.FunctionName
+            Platform = $task.Platform
+            RequiredParams = $task.RequiredParams
+            OptionalParams = $task.OptionalParams
+        }
+
+        # Add the taskObject to the ListBox
+        $script:lstAvailableTasks.Items.Add($taskObject)
     }
     
     Write-Host "Loading O365 tasks:"
-    foreach($task in $script:WorkflowTasks.O365) {
-        Write-Host ($task | ConvertTo-Json)
-        $script:lstAvailableTasks.Items.Add($task)
+    foreach ($task in $script:WorkflowTasks.O365) {
+        $taskObject = New-Object PSObject -property @{
+            Id = $task.Id
+            DisplayName = $task.DisplayName
+            Description = $task.Description
+            FunctionName = $task.FunctionName
+            Platform = $task.Platform
+            RequiredParams = $task.RequiredParams
+            OptionalParams = $task.OptionalParams
+        }
+
+        # Add the taskObject to the ListBox
+        $script:lstAvailableTasks.Items.Add($taskObject)
     }
 }
 
