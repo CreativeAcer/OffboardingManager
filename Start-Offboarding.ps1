@@ -48,6 +48,8 @@ Initialize-AppSettings
 . "$script:BasePath\Functions\Workflow\Configuration\Save-WorkflowConfiguration.ps1"
 . "$script:BasePath\Functions\Workflow\Configuration\Import-WorkflowConfiguration.ps1"
 . "$script:BasePath\Functions\Workflow\Configuration\Remove-WorkflowConfiguration.ps1"
+. "$script:BasePath\Functions\Workflow\Configuration\Get-TaskSettings.ps1"
+. "$script:BasePath\Functions\Workflow\Tasks\Get-WorkflowTasks.ps1"
 
 # Import workflow UI
 . "$script:BasePath\Functions\UI\Workflow\Initialize-WorkflowTab.ps1"

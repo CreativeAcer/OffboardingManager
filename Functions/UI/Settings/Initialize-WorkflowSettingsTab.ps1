@@ -164,28 +164,42 @@ function Load-AvailableTasks {
 }
 
 function Update-WorkflowList {
+    param (
+        [System.Windows.Window]$Window
+    )
     try {
-        $script:cmbWorkflowList.Items.Clear()
-        
-        $settings = Get-AppSetting
-        Write-Host "Current workflow configurations:"
-        Write-Host ($settings.WorkflowConfigurations | ConvertTo-Json -Depth 5)
-
-        if ($settings.WorkflowConfigurations -and 
-            $settings.WorkflowConfigurations.Configurations) {
+        #$Window.Dispatcher.Invoke([Action]{
+            $script:cmbWorkflowList.Items.Clear()
             
-            # Convert to hashtable if it's a PSCustomObject
-            $configurations = $settings.WorkflowConfigurations.Configurations
-            if ($configurations -is [PSCustomObject]) {
-                $configurations = @($configurations.PSObject.Properties) | 
-                    ForEach-Object { $_.Value }
-            }
+            $settings = Get-AppSetting
+            Write-Host "Current workflow configurations:"
+            Write-Host ($settings.WorkflowConfigurations | ConvertTo-Json -Depth 5)
 
-            foreach($workflow in $configurations) {
-                Write-Host "Adding workflow: $($workflow.Name)"
-                $script:cmbWorkflowList.Items.Add($workflow.Name)
+            if ($settings.WorkflowConfigurations -and 
+                $settings.WorkflowConfigurations.Configurations) {
+                
+                # Convert to hashtable if it's a PSCustomObject
+                $configurations = $settings.WorkflowConfigurations.Configurations
+                if ($configurations -is [PSCustomObject]) {
+                    $configurations = @($configurations.PSObject.Properties) | 
+                        ForEach-Object { $_.Value }
+                }
+
+                foreach($workflow in $configurations) {
+                    Write-Host "Adding workflow: $($workflow.Name)"
+                    $script:cmbWorkflowList.Items.Add($workflow.Name)
+                }
+
+                # Set selected item to LastUsed if available
+                if ($settings.WorkflowConfigurations.LastUsed) {
+                    $script:cmbWorkflowList.SelectedItem = $settings.WorkflowConfigurations.LastUsed
+                }
+                # If no LastUsed, but items exist, select the first one
+                elseif ($script:cmbWorkflowList.Items.Count -gt 0) {
+                    $script:cmbWorkflowList.SelectedIndex = 0
+                }
             }
-        }
+        #})
     }
     catch {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Update-WorkflowList"
@@ -199,8 +213,10 @@ function Load-SelectedWorkflow {
             $settings = Get-AppSetting
             $workflowName = $script:cmbWorkflowList.SelectedItem.ToString()
             
-            # Convert to hashtable if it's a PSCustomObject
+            # Create new hashtable for configurations
             $configurations = $settings.WorkflowConfigurations.Configurations
+            $workflow = $null
+
             if ($configurations -is [PSCustomObject]) {
                 $workflow = $configurations.PSObject.Properties |
                     Where-Object { $_.Name -eq $workflowName } |
@@ -215,13 +231,17 @@ function Load-SelectedWorkflow {
 
                 # Clear and reload selected tasks
                 $script:lstSelectedTasks.Items.Clear()
-                foreach($taskId in $workflow.EnabledTasks) {
+
+                # Convert EnabledTasks to ArrayList if needed
+                $enabledTasks = [System.Collections.ArrayList]@($workflow.EnabledTasks)
+
+                foreach($taskId in $enabledTasks) {
                     $task = $script:WorkflowTasks.OnPrem + $script:WorkflowTasks.O365 |
                         Where-Object { $_.Id -eq $taskId } |
                         Select-Object -First 1
 
                     if ($task) {
-                        # Create PSObject for the task
+                        # Create proper PSObject for the task
                         $taskObject = New-Object PSObject -Property @{
                             Id = $task.Id
                             DisplayName = $task.DisplayName
@@ -234,6 +254,7 @@ function Load-SelectedWorkflow {
                         $script:lstSelectedTasks.Items.Add($taskObject)
                     }
                 }
+                Update-TaskSettingsPanel
             }
         }
     }
@@ -243,32 +264,94 @@ function Load-SelectedWorkflow {
 }
 
 function New-Workflow {
-    $script:txtWorkflowName.Text = "New Workflow"
-    $script:txtWorkflowDescription.Text = ""
-    $script:lstSelectedTasks.Items.Clear()
-    $script:pnlTaskSettings.Children.Clear()
+    try {
+        # Clear all fields
+        $script:txtWorkflowName.Text = "New Workflow"
+        $script:txtWorkflowDescription.Text = ""
+        $script:lstSelectedTasks.Items.Clear()
+        $script:pnlTaskSettings.Children.Clear()
+
+        # Select the name text box for immediate editing
+        $script:txtWorkflowName.Focus()
+        $script:txtWorkflowName.SelectAll()
+    }
+    catch {
+        Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "New-Workflow"
+    }
 }
 
 function Remove-CurrentWorkflow {
-    if ($script:cmbWorkflowList.SelectedItem) {
-        $result = [System.Windows.MessageBox]::Show(
-            "Are you sure you want to delete this workflow?",
-            "Confirm Delete",
-            [System.Windows.MessageBoxButton]::YesNo,
-            [System.Windows.MessageBoxImage]::Warning
-        )
+    try {
+        if ($script:cmbWorkflowList.SelectedItem) {
+            $workflowName = $script:cmbWorkflowList.SelectedItem.ToString()
+            
+            $result = [System.Windows.MessageBox]::Show(
+                "Are you sure you want to delete the workflow '$workflowName'?",
+                "Confirm Delete",
+                [System.Windows.MessageBoxButton]::YesNo,
+                [System.Windows.MessageBoxImage]::Warning
+            )
+            
+            if ($result -eq [System.Windows.MessageBoxResult]::Yes) {
+                $settings = Get-AppSetting
+                
+                # Create new configurations hashtable
+                $newConfigurations = @{}
+                
+                # Handle PSCustomObject configurations
+                $configurations = $settings.WorkflowConfigurations.Configurations
+                if ($configurations -is [PSCustomObject]) {
+                    foreach($prop in $configurations.PSObject.Properties) {
+                        if ($prop.Name -ne $workflowName) {
+                            $newConfigurations[$prop.Name] = $prop.Value
+                        }
+                    }
+                } else {
+                    foreach($key in $configurations.Keys) {
+                        if ($key -ne $workflowName) {
+                            $newConfigurations[$key] = $configurations[$key]
+                        }
+                    }
+                }
 
-        if ($result -eq [System.Windows.MessageBoxResult]::Yes) {
-            Remove-WorkflowConfiguration -Name $script:cmbWorkflowList.SelectedItem
-            Update-WorkflowList
+                # Create new settings object
+                $newSettings = @{
+                    DemoMode = $settings.DemoMode
+                    UseADModule = $settings.UseADModule
+                    DefaultDomain = $settings.DefaultDomain
+                    AutoReplyTemplate = $settings.AutoReplyTemplate
+                    LoggingEnabled = $settings.LoggingEnabled
+                    LogPath = $settings.LogPath
+                    LicenseTemplates = $settings.LicenseTemplates
+                    WorkflowConfigurations = @{
+                        LastUsed = $newConfigurations.Keys | Select-Object -First 1
+                        Configurations = $newConfigurations
+                    }
+                }
+
+                # Update settings
+                Update-AppSettings -NewSettings $newSettings
+
+                # Refresh workflow list
+                Update-WorkflowList -Window $Window
+            }
         }
+    }
+    catch {
+        Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Remove-CurrentWorkflow"
+        [System.Windows.MessageBox]::Show(
+            "Failed to remove workflow: $($_.Exception.Message)",
+            "Error",
+            [System.Windows.MessageBoxButton]::OK,
+            [System.Windows.MessageBoxImage]::Error
+        )
     }
 }
 
 function Add-SelectedTask {
     if ($script:lstAvailableTasks.SelectedItem) {
         $selectedTask = $script:lstAvailableTasks.SelectedItem
-
+        
         # Create new PSObject for selected tasks list
         $taskObject = New-Object PSObject -Property @{
             Id = $selectedTask.Id
@@ -291,6 +374,7 @@ function Remove-SelectedTask {
         Update-TaskSettingsPanel
     }
 }
+
 
 function Move-TaskUp {
     if ($script:lstSelectedTasks.SelectedIndex -gt 0) {
@@ -358,22 +442,66 @@ function Move-TaskDown {
 
 function Save-CurrentWorkflow {
     try {
-        $enabledTasks = @()
+        $settings = Get-AppSetting
+
+        # Get enabled tasks
+        $enabledTasks = [System.Collections.ArrayList]@()
         foreach($task in $script:lstSelectedTasks.Items) {
-            $enabledTasks += $task.Id
+            $enabledTasks.Add($task.Id) | Out-Null
         }
 
-        # Gather task settings from UI
-        $taskSettings = @{}
-        # Add code here to gather settings from pnlTaskSettings controls
+        # Create new workflow configuration
+        $newWorkflow = @{
+            Name = $script:txtWorkflowName.Text
+            Description = $script:txtWorkflowDescription.Text
+            EnabledTasks = $enabledTasks.ToArray()
+            TaskSettings = @{}  # Add task settings collection here
+            LastModified = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
+        }
 
-        Save-WorkflowConfiguration `
-            -Name $script:txtWorkflowName.Text `
-            -Description $script:txtWorkflowDescription.Text `
-            -EnabledTasks $enabledTasks `
-            -TaskSettings $taskSettings
+        # Create new configurations hashtable
+        $newConfigurations = @{}
+        
+        # Handle PSCustomObject configurations
+        $configurations = $settings.WorkflowConfigurations.Configurations
+        if ($configurations -is [PSCustomObject]) {
+            foreach($prop in $configurations.PSObject.Properties) {
+                if ($prop.Name -ne $newWorkflow.Name) {
+                    $newConfigurations[$prop.Name] = $prop.Value
+                }
+            }
+        } else {
+            foreach($key in $configurations.Keys) {
+                if ($key -ne $newWorkflow.Name) {
+                    $newConfigurations[$key] = $configurations[$key]
+                }
+            }
+        }
 
-        Update-WorkflowList
+        # Add the new workflow
+        $newConfigurations[$newWorkflow.Name] = $newWorkflow
+
+        # Create new settings object
+        $newSettings = @{
+            DemoMode = $settings.DemoMode
+            UseADModule = $settings.UseADModule
+            DefaultDomain = $settings.DefaultDomain
+            AutoReplyTemplate = $settings.AutoReplyTemplate
+            LoggingEnabled = $settings.LoggingEnabled
+            LogPath = $settings.LogPath
+            LicenseTemplates = $settings.LicenseTemplates
+            WorkflowConfigurations = @{
+                LastUsed = $newWorkflow.Name
+                Configurations = $newConfigurations
+            }
+        }
+
+        # Update settings
+        Update-AppSettings -NewSettings $newSettings
+
+        # Refresh workflow list
+        Update-WorkflowList -Window $Window
+        
         [System.Windows.MessageBox]::Show(
             "Workflow saved successfully",
             "Success",
@@ -384,7 +512,7 @@ function Save-CurrentWorkflow {
     catch {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Save-CurrentWorkflow"
         [System.Windows.MessageBox]::Show(
-            $_.Exception.Message,
+            "Failed to save workflow: $($_.Exception.Message)",
             "Error",
             [System.Windows.MessageBoxButton]::OK,
             [System.Windows.MessageBoxImage]::Error

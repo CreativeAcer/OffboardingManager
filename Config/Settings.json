@@ -22,7 +22,6 @@
     "AutoReplyTemplate":  "Please contact xyz",
     "DefaultDomain":  "company.be",
     "WorkflowConfigurations":  {
-                                   "LastUsed":  "Default",
                                    "Configurations":  {
                                                           "Default":  {
                                                                           "Name":  "Default",
@@ -43,6 +42,7 @@
                                                                                            },
                                                                           "LastModified":  "2025-01-03 14:30:00"
                                                                       }
-                                                      }
+                                                      },
+                                   "LastUsed":  "Default"
                                }
 }

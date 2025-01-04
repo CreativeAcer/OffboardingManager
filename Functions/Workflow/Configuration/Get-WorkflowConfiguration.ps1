@@ -1,10 +1,21 @@
 function Get-WorkflowConfigurations {
     try {
         $settings = Get-AppSetting
-        Write-Host "Getting workflow configurations..."
-        Write-Host ($settings | ConvertTo-Json -Depth 5)
-        Write-Host ($settings.WorkflowConfigurations | ConvertTo-Json -Depth 5)
-        return $settings.WorkflowConfigurations.Configurations
+        if ($settings.WorkflowConfigurations -and 
+            $settings.WorkflowConfigurations.Configurations) {
+            
+            # Convert to hashtable if it's a PSCustomObject
+            $configurations = $settings.WorkflowConfigurations.Configurations
+            if ($configurations -is [PSCustomObject]) {
+                $configHash = @{}
+                foreach($prop in $configurations.PSObject.Properties) {
+                    $configHash[$prop.Name] = $prop.Value
+                }
+                return $configHash
+            }
+            return $configurations
+        }
+        return @{}
     }
     catch {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Get-WorkflowConfigurations"

@@ -15,7 +15,7 @@ function Initialize-WorkflowTab {
         $script:txtWorkflowResults = $Window.FindName("txtWorkflowResults")
 
         # Load available workflows
-        Update-WorkflowList
+        Update-WorkflowList -Window $Window
 
         # Add event handlers
         $script:cmbWorkflows.Add_SelectionChanged({
@@ -35,23 +35,23 @@ function Initialize-WorkflowTab {
     }
 }
 
-function Update-WorkflowList {
-    try {
-        $script:cmbWorkflows.Items.Clear()
+# function Update-WorkflowList {
+#     try {
+#         $script:cmbWorkflows.Items.Clear()
         
-        $workflows = Get-WorkflowConfigurations
-        foreach($workflow in $workflows.Values) {
-            $script:cmbWorkflows.Items.Add($workflow.Name)
-        }
+#         $workflows = Get-WorkflowConfigurations
+#         foreach($workflow in $workflows.Values) {
+#             $script:cmbWorkflows.Items.Add($workflow.Name)
+#         }
 
-        if($script:cmbWorkflows.Items.Count -gt 0) {
-            $script:cmbWorkflows.SelectedIndex = 0
-        }
-    }
-    catch {
-        Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Update-WorkflowList"
-    }
-}
+#         if($script:cmbWorkflows.Items.Count -gt 0) {
+#             $script:cmbWorkflows.SelectedIndex = 0
+#         }
+#     }
+#     catch {
+#         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Update-WorkflowList"
+#     }
+# }
 
 function Update-WorkflowTasksList {
     try {
