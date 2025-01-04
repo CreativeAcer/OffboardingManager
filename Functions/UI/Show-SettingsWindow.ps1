@@ -3,6 +3,7 @@ function Show-SettingsWindow {
         [System.Windows.Window]$LoginWindow
     )
     try {
+        Write-Host "=== Opening Settings Window ==="
         # Get the XAML
         $xamlPath = Join-Path -Path $script:BasePath -ChildPath "XAML\SettingsWindow.xaml"
         $SettingsXAML = [xml](Get-ProcessedXaml -XamlPath $xamlPath)
@@ -10,6 +11,9 @@ function Show-SettingsWindow {
         # Create window
         $reader = New-Object System.Xml.XmlNodeReader $SettingsXAML
         $settingsWindow = [Windows.Markup.XamlReader]::Load($reader)
+
+        Write-Host "Initializing settings tab..."
+        Initialize-SettingsTab -Window $settingsWindow
 
         # Get controls
         $chkDemoMode = $settingsWindow.FindName("chkDemoMode")
@@ -22,7 +26,7 @@ function Show-SettingsWindow {
 
         # Load current settings
         #$settings = Get-StoredSettings
-        $settings = Get-AppSettings
+        $settings = Get-AppSetting
         
         # Apply settings to UI
         $chkDemoMode.IsChecked = $settings.DemoMode
@@ -67,6 +71,7 @@ function Show-SettingsWindow {
         })
 
         # Show window
+        Write-Host "=== Settings Window Initialized ==="
         $settingsWindow.ShowDialog()
     }
     catch {

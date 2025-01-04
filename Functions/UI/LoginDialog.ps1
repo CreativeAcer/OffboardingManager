@@ -26,7 +26,7 @@
 
     # Load current settings and apply them
     #$settings = Get-StoredSettings
-    $settings = Get-AppSettings
+    $settings = Get-AppSetting
     if ($settings) {
         $script:DemoMode = $settings.DemoMode
         $chkDemoMode.IsChecked = $settings.DemoMode
