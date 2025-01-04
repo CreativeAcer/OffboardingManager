@@ -297,20 +297,30 @@ function Move-TaskUp {
         $currentIndex = $script:lstSelectedTasks.SelectedIndex
         $task = $script:lstSelectedTasks.SelectedItem
 
-        # Create new PSObject when moving
-        $taskObject = New-Object PSObject -Property @{
-            Id = $task.Id
-            DisplayName = $task.DisplayName
-            Description = $task.Description
-            FunctionName = $task.FunctionName
-            Platform = $task.Platform
-            RequiredParams = $task.RequiredParams
-            OptionalParams = $task.OptionalParams
+        # Create new list of items to preserve order
+        $items = New-Object System.Collections.ObjectModel.ObservableCollection[Object]
+        
+        # Copy all items to the new list, swapping the selected item with the one above it
+        for ($i = 0; $i -lt $script:lstSelectedTasks.Items.Count; $i++) {
+            if ($i -eq $currentIndex - 1) {
+                $items.Add($task)
+            }
+            elseif ($i -eq $currentIndex) {
+                $items.Add($script:lstSelectedTasks.Items[$currentIndex - 1])
+            }
+            else {
+                $items.Add($script:lstSelectedTasks.Items[$i])
+            }
         }
 
-        $script:lstSelectedTasks.Items.RemoveAt($currentIndex)
-        $script:lstSelectedTasks.Items.Insert($currentIndex - 1, $taskObject)
+        # Clear and repopulate the listbox
+        $script:lstSelectedTasks.Items.Clear()
+        foreach ($item in $items) {
+            $script:lstSelectedTasks.Items.Add($item)
+        }
+
         $script:lstSelectedTasks.SelectedIndex = $currentIndex - 1
+        Update-TaskSettingsPanel
     }
 }
 
@@ -319,20 +329,30 @@ function Move-TaskDown {
         $currentIndex = $script:lstSelectedTasks.SelectedIndex
         $task = $script:lstSelectedTasks.SelectedItem
 
-        # Create new PSObject when moving
-        $taskObject = New-Object PSObject -Property @{
-            Id = $task.Id
-            DisplayName = $task.DisplayName
-            Description = $task.Description
-            FunctionName = $task.FunctionName
-            Platform = $task.Platform
-            RequiredParams = $task.RequiredParams
-            OptionalParams = $task.OptionalParams
+        # Create new list of items to preserve order
+        $items = New-Object System.Collections.ObjectModel.ObservableCollection[Object]
+        
+        # Copy all items to the new list, swapping the selected item with the one below it
+        for ($i = 0; $i -lt $script:lstSelectedTasks.Items.Count; $i++) {
+            if ($i -eq $currentIndex) {
+                $items.Add($script:lstSelectedTasks.Items[$currentIndex + 1])
+            }
+            elseif ($i -eq $currentIndex + 1) {
+                $items.Add($task)
+            }
+            else {
+                $items.Add($script:lstSelectedTasks.Items[$i])
+            }
         }
 
-        $script:lstSelectedTasks.Items.RemoveAt($currentIndex)
-        $script:lstSelectedTasks.Items.Insert($currentIndex + 1, $taskObject)
+        # Clear and repopulate the listbox
+        $script:lstSelectedTasks.Items.Clear()
+        foreach ($item in $items) {
+            $script:lstSelectedTasks.Items.Add($item)
+        }
+
         $script:lstSelectedTasks.SelectedIndex = $currentIndex + 1
+        Update-TaskSettingsPanel
     }
 }
 
