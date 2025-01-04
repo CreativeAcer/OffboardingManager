@@ -90,6 +90,7 @@ function Save-Settings {
         # Update application settings
         $script:DemoMode = $settings.DemoMode
         $script:UseADModule = $settings.UseADModule
+        
     }
     catch {
         $script:txtSettingsStatus.Text = "Error saving settings: $($_.Exception.Message)"

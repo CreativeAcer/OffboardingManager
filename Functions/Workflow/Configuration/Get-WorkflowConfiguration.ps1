@@ -2,6 +2,7 @@ function Get-WorkflowConfigurations {
     try {
         $settings = Get-AppSetting
         Write-Host "Getting workflow configurations..."
+        Write-Host ($settings | ConvertTo-Json -Depth 5)
         Write-Host ($settings.WorkflowConfigurations | ConvertTo-Json -Depth 5)
         return $settings.WorkflowConfigurations.Configurations
     }

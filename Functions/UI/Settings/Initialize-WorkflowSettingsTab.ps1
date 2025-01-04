@@ -2,11 +2,11 @@ function Initialize-WorkflowSettingsTab {
     param (
         [System.Windows.Window]$Window
     )
-    
+
     try {
 
         Write-Host "=== Workflow Settings Tab Initialization ==="
-        
+
         # Get control references
         Write-Host "Getting control references..."
         $script:cmbWorkflowList = $Window.FindName("cmbWorkflowList")
@@ -34,6 +34,7 @@ function Initialize-WorkflowSettingsTab {
         Write-Host "Loading settings..."
         $settings = Get-AppSetting
         Write-Host "Current workflow configurations:"
+        Write-Host ($settings | ConvertTo-Json -Depth 5)
         Write-Host ($settings.WorkflowConfigurations | ConvertTo-Json -Depth 5)
 
         if (-not $settings.WorkflowConfigurations) {
@@ -66,6 +67,7 @@ function Initialize-WorkflowSettingsTab {
         Write-Host "Updating workflow list..."
         Update-WorkflowList
         Write-Host "Updating workflow list..."
+
         $script:cmbWorkflowList.Items.Clear()
         foreach($workflow in $settings.WorkflowConfigurations.Configurations.GetEnumerator()) {
             Write-Host "Adding workflow: $($workflow.Value.Name)"
@@ -76,7 +78,7 @@ function Initialize-WorkflowSettingsTab {
             Write-Host "Setting selected workflow to: $($settings.WorkflowConfigurations.LastUsed)"
             $script:cmbWorkflowList.SelectedItem = $settings.WorkflowConfigurations.LastUsed
         }
-        
+
 
         Write-Host "Setting up event handlers..."
         # Add event handlers
@@ -123,8 +125,7 @@ function Initialize-WorkflowSettingsTab {
 
 function Load-AvailableTasks {
     $script:lstAvailableTasks.Items.Clear()
-    
-    # Debug output
+
     Write-Host "Loading OnPrem tasks:"
     foreach ($task in $script:WorkflowTasks.OnPrem) {
         $taskObject = New-Object PSObject -property @{
@@ -140,7 +141,7 @@ function Load-AvailableTasks {
         # Add the taskObject to the ListBox
         $script:lstAvailableTasks.Items.Add($taskObject)
     }
-    
+
     Write-Host "Loading O365 tasks:"
     foreach ($task in $script:WorkflowTasks.O365) {
         $taskObject = New-Object PSObject -property @{
@@ -161,13 +162,14 @@ function Load-AvailableTasks {
 function Update-WorkflowList {
     try {
         $script:cmbWorkflowList.Items.Clear()
-        
+
         $settings = Get-AppSetting
         if ($settings.WorkflowConfigurations -and $settings.WorkflowConfigurations.Configurations) {
             foreach($workflow in $settings.WorkflowConfigurations.Configurations.GetEnumerator()) {
                 Write-Host "Adding workflow: $($workflow.Value.Name)"
                 $script:cmbWorkflowList.Items.Add($workflow.Value.Name)
             }
+
         }
     }
     catch {
@@ -178,10 +180,10 @@ function Update-WorkflowList {
 function Load-SelectedWorkflow {
     if ($script:cmbWorkflowList.SelectedItem) {
         $workflow = Get-WorkflowConfigurations[$script:cmbWorkflowList.SelectedItem]
-        
+
         $script:txtWorkflowName.Text = $workflow.Name
         $script:txtWorkflowDescription.Text = $workflow.Description
-        
+
         # Load selected tasks
         $script:lstSelectedTasks.Items.Clear()
         foreach($taskId in $workflow.EnabledTasks) {
@@ -192,7 +194,7 @@ function Load-SelectedWorkflow {
                 $script:lstSelectedTasks.Items.Add($task)
             }
         }
-        
+
         Update-TaskSettingsPanel
     }
 }
@@ -212,7 +214,7 @@ function Remove-CurrentWorkflow {
             [System.Windows.MessageBoxButton]::YesNo,
             [System.Windows.MessageBoxImage]::Warning
         )
-        
+
         if ($result -eq [System.Windows.MessageBoxResult]::Yes) {
             Remove-WorkflowConfiguration -Name $script:cmbWorkflowList.SelectedItem
             Update-WorkflowList
@@ -292,7 +294,7 @@ function Save-CurrentWorkflow {
 
 function Update-TaskSettingsPanel {
     $script:pnlTaskSettings.Children.Clear()
-    
+
     foreach($task in $script:lstSelectedTasks.Items) {
         # Add settings controls for each task
         $header = New-Object System.Windows.Controls.TextBlock
@@ -300,7 +302,7 @@ function Update-TaskSettingsPanel {
         $header.FontWeight = "SemiBold"
         $header.Margin = "0,10,0,5"
         $script:pnlTaskSettings.Children.Add($header)
-        
+
         # Add specific settings based on task type
         switch($task.Id) {
             "SetExpiration" {
