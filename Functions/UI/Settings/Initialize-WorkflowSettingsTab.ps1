@@ -4,7 +4,6 @@ function Initialize-WorkflowSettingsTab {
     )
 
     try {
-
         Write-Host "=== Workflow Settings Tab Initialization ==="
 
         # Get control references
@@ -13,6 +12,7 @@ function Initialize-WorkflowSettingsTab {
         if (-not $script:cmbWorkflowList) {
             Write-Host "ERROR: cmbWorkflowList not found!"
         }
+        
         Write-Host "Initializing Workflow Settings Tab controls"
         # Get control references
         $script:btnNewWorkflow = $Window.FindName("btnNewWorkflow")
@@ -34,7 +34,6 @@ function Initialize-WorkflowSettingsTab {
         Write-Host "Loading settings..."
         $settings = Get-AppSetting
         Write-Host "Current workflow configurations:"
-        Write-Host ($settings | ConvertTo-Json -Depth 5)
         Write-Host ($settings.WorkflowConfigurations | ConvertTo-Json -Depth 5)
 
         if (-not $settings.WorkflowConfigurations) {
@@ -60,25 +59,30 @@ function Initialize-WorkflowSettingsTab {
 
             $settings | Add-Member -NotePropertyName "WorkflowConfigurations" -NotePropertyValue $defaultWorkflow -Force
             Update-AppSettings -NewSettings $settings
-            Write-Host "Default workflow saved:"
-            Write-Host ($settings.WorkflowConfigurations | ConvertTo-Json -Depth 5)
         }
 
         Write-Host "Updating workflow list..."
-        Update-WorkflowList
-        Write-Host "Updating workflow list..."
-
         $script:cmbWorkflowList.Items.Clear()
-        foreach($workflow in $settings.WorkflowConfigurations.Configurations.GetEnumerator()) {
-            Write-Host "Adding workflow: $($workflow.Value.Name)"
-            $script:cmbWorkflowList.Items.Add($workflow.Value.Name)
+        
+        # Handle PSCustomObject or Hashtable configurations
+        $configurations = $settings.WorkflowConfigurations.Configurations
+        if ($configurations -is [PSCustomObject]) {
+            $configProperties = $configurations.PSObject.Properties
+            foreach($config in $configProperties) {
+                Write-Host "Adding workflow: $($config.Value.Name)"
+                $script:cmbWorkflowList.Items.Add($config.Value.Name)
+            }
+        } else {
+            foreach($workflow in $configurations.GetEnumerator()) {
+                Write-Host "Adding workflow: $($workflow.Value.Name)"
+                $script:cmbWorkflowList.Items.Add($workflow.Value.Name)
+            }
         }
 
         if ($settings.WorkflowConfigurations.LastUsed) {
             Write-Host "Setting selected workflow to: $($settings.WorkflowConfigurations.LastUsed)"
             $script:cmbWorkflowList.SelectedItem = $settings.WorkflowConfigurations.LastUsed
         }
-
 
         Write-Host "Setting up event handlers..."
         # Add event handlers
@@ -162,40 +166,79 @@ function Load-AvailableTasks {
 function Update-WorkflowList {
     try {
         $script:cmbWorkflowList.Items.Clear()
-
+        
         $settings = Get-AppSetting
-        if ($settings.WorkflowConfigurations -and $settings.WorkflowConfigurations.Configurations) {
-            foreach($workflow in $settings.WorkflowConfigurations.Configurations.GetEnumerator()) {
-                Write-Host "Adding workflow: $($workflow.Value.Name)"
-                $script:cmbWorkflowList.Items.Add($workflow.Value.Name)
+        Write-Host "Current workflow configurations:"
+        Write-Host ($settings.WorkflowConfigurations | ConvertTo-Json -Depth 5)
+
+        if ($settings.WorkflowConfigurations -and 
+            $settings.WorkflowConfigurations.Configurations) {
+            
+            # Convert to hashtable if it's a PSCustomObject
+            $configurations = $settings.WorkflowConfigurations.Configurations
+            if ($configurations -is [PSCustomObject]) {
+                $configurations = @($configurations.PSObject.Properties) | 
+                    ForEach-Object { $_.Value }
             }
 
+            foreach($workflow in $configurations) {
+                Write-Host "Adding workflow: $($workflow.Name)"
+                $script:cmbWorkflowList.Items.Add($workflow.Name)
+            }
         }
     }
     catch {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Update-WorkflowList"
+        throw
     }
 }
 
 function Load-SelectedWorkflow {
-    if ($script:cmbWorkflowList.SelectedItem) {
-        $workflow = Get-WorkflowConfigurations[$script:cmbWorkflowList.SelectedItem]
+    try {
+        if ($script:cmbWorkflowList.SelectedItem) {
+            $settings = Get-AppSetting
+            $workflowName = $script:cmbWorkflowList.SelectedItem.ToString()
+            
+            # Convert to hashtable if it's a PSCustomObject
+            $configurations = $settings.WorkflowConfigurations.Configurations
+            if ($configurations -is [PSCustomObject]) {
+                $workflow = $configurations.PSObject.Properties |
+                    Where-Object { $_.Name -eq $workflowName } |
+                    Select-Object -ExpandProperty Value
+            } else {
+                $workflow = $configurations[$workflowName]
+            }
 
-        $script:txtWorkflowName.Text = $workflow.Name
-        $script:txtWorkflowDescription.Text = $workflow.Description
+            if ($workflow) {
+                $script:txtWorkflowName.Text = $workflow.Name
+                $script:txtWorkflowDescription.Text = $workflow.Description
 
-        # Load selected tasks
-        $script:lstSelectedTasks.Items.Clear()
-        foreach($taskId in $workflow.EnabledTasks) {
-            $task = $script:WorkflowTasks.OnPrem + $script:WorkflowTasks.O365 |
-                    Where-Object { $_.Id -eq $taskId } |
-                    Select-Object -First 1
-            if($task) {
-                $script:lstSelectedTasks.Items.Add($task)
+                # Clear and reload selected tasks
+                $script:lstSelectedTasks.Items.Clear()
+                foreach($taskId in $workflow.EnabledTasks) {
+                    $task = $script:WorkflowTasks.OnPrem + $script:WorkflowTasks.O365 |
+                        Where-Object { $_.Id -eq $taskId } |
+                        Select-Object -First 1
+
+                    if ($task) {
+                        # Create PSObject for the task
+                        $taskObject = New-Object PSObject -Property @{
+                            Id = $task.Id
+                            DisplayName = $task.DisplayName
+                            Description = $task.Description
+                            FunctionName = $task.FunctionName
+                            Platform = $task.Platform
+                            RequiredParams = $task.RequiredParams
+                            OptionalParams = $task.OptionalParams
+                        }
+                        $script:lstSelectedTasks.Items.Add($taskObject)
+                    }
+                }
             }
         }
-
-        Update-TaskSettingsPanel
+    }
+    catch {
+        Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Load-SelectedWorkflow"
     }
 }
 
@@ -224,7 +267,20 @@ function Remove-CurrentWorkflow {
 
 function Add-SelectedTask {
     if ($script:lstAvailableTasks.SelectedItem) {
-        $script:lstSelectedTasks.Items.Add($script:lstAvailableTasks.SelectedItem)
+        $selectedTask = $script:lstAvailableTasks.SelectedItem
+
+        # Create new PSObject for selected tasks list
+        $taskObject = New-Object PSObject -Property @{
+            Id = $selectedTask.Id
+            DisplayName = $selectedTask.DisplayName
+            Description = $selectedTask.Description
+            FunctionName = $selectedTask.FunctionName
+            Platform = $selectedTask.Platform
+            RequiredParams = $selectedTask.RequiredParams
+            OptionalParams = $selectedTask.OptionalParams
+        }
+
+        $script:lstSelectedTasks.Items.Add($taskObject)
         Update-TaskSettingsPanel
     }
 }
@@ -239,9 +295,21 @@ function Remove-SelectedTask {
 function Move-TaskUp {
     if ($script:lstSelectedTasks.SelectedIndex -gt 0) {
         $currentIndex = $script:lstSelectedTasks.SelectedIndex
-        $task = $script:lstSelectedTasks.Items[$currentIndex]
+        $task = $script:lstSelectedTasks.SelectedItem
+
+        # Create new PSObject when moving
+        $taskObject = New-Object PSObject -Property @{
+            Id = $task.Id
+            DisplayName = $task.DisplayName
+            Description = $task.Description
+            FunctionName = $task.FunctionName
+            Platform = $task.Platform
+            RequiredParams = $task.RequiredParams
+            OptionalParams = $task.OptionalParams
+        }
+
         $script:lstSelectedTasks.Items.RemoveAt($currentIndex)
-        $script:lstSelectedTasks.Items.Insert($currentIndex - 1, $task)
+        $script:lstSelectedTasks.Items.Insert($currentIndex - 1, $taskObject)
         $script:lstSelectedTasks.SelectedIndex = $currentIndex - 1
     }
 }
@@ -249,9 +317,21 @@ function Move-TaskUp {
 function Move-TaskDown {
     if ($script:lstSelectedTasks.SelectedIndex -lt $script:lstSelectedTasks.Items.Count - 1) {
         $currentIndex = $script:lstSelectedTasks.SelectedIndex
-        $task = $script:lstSelectedTasks.Items[$currentIndex]
+        $task = $script:lstSelectedTasks.SelectedItem
+
+        # Create new PSObject when moving
+        $taskObject = New-Object PSObject -Property @{
+            Id = $task.Id
+            DisplayName = $task.DisplayName
+            Description = $task.Description
+            FunctionName = $task.FunctionName
+            Platform = $task.Platform
+            RequiredParams = $task.RequiredParams
+            OptionalParams = $task.OptionalParams
+        }
+
         $script:lstSelectedTasks.Items.RemoveAt($currentIndex)
-        $script:lstSelectedTasks.Items.Insert($currentIndex + 1, $task)
+        $script:lstSelectedTasks.Items.Insert($currentIndex + 1, $taskObject)
         $script:lstSelectedTasks.SelectedIndex = $currentIndex + 1
     }
 }
