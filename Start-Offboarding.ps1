@@ -57,8 +57,11 @@ Initialize-AppSettings
 . "$script:BasePath\Functions\UI\Settings\WorkflowTaskSettings.ps1"
 . "$script:BasePath\Functions\UI\Update-WorkflowDropdowns.ps1"
 
+# Import Core functions
+. "$script:BasePath\Functions\Core\Environment.ps1"
+. "$script:BasePath\Functions\Core\Logging\Write-ActivityLog.ps1"
+
 # Import functions
-. "$script:BasePath\Functions\Environment.ps1"
 . "$script:BasePath\Functions\LDAP\LDAPConnection.ps1"
 . "$script:BasePath\Functions\LDAP\LDAPUsers.ps1"
 . "$script:BasePath\Functions\UI\XamlHelper.ps1"
@@ -73,7 +76,7 @@ Initialize-AppSettings
 . "$script:BasePath\Functions\UI\ReportHandlers.ps1"
 . "$script:BasePath\Functions\UI\Show-SettingsWindow.ps1"
 . "$script:BasePath\Functions\UI\SettingsHandler.ps1"
-. "$script:BasePath\Functions\Logging\Write-ActivityLog.ps1"
+
 #. "$script:BasePath\Functions\UI\EasterEgg.ps1"
 
 # Error handling function
