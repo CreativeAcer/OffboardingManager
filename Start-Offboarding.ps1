@@ -30,8 +30,11 @@ try {
 . "$PSScriptRoot\Functions\Utilities\PathUtils.ps1"
 $currentPath = Get-BasePath
 $script:BasePath = Split-Path -Parent (Split-Path -Parent $currentPath)  # Move two folders higher
-. "$script:BasePath\Functions\Utilities\MockData.ps1"  
-#. "$script:BasePath\Functions\Utilities\Converters.ps1"    
+ 
+# Import Data functions
+. "$script:BasePath\Functions\Data\Mock\MockData.ps1"
+. "$script:BasePath\Functions\Data\LDAP\LDAPConnection.ps1"
+. "$script:BasePath\Functions\Data\LDAP\LDAPUsers.ps1"  
 
 # Import configurations
 . "$script:BasePath\Config\Colors.ps1"
@@ -62,8 +65,6 @@ Initialize-AppSettings
 . "$script:BasePath\Functions\Core\Logging\Write-ActivityLog.ps1"
 
 # Import functions
-. "$script:BasePath\Functions\LDAP\LDAPConnection.ps1"
-. "$script:BasePath\Functions\LDAP\LDAPUsers.ps1"
 . "$script:BasePath\Functions\UI\XamlHelper.ps1"
 . "$script:BasePath\Functions\UI\LoadingScreen.ps1"
 . "$script:BasePath\Functions\UI\LoginDialog.ps1"
