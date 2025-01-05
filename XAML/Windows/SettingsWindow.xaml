@@ -1,8 +1,8 @@
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Settings" 
-        Height="800" 
-        Width="900"
+        Height="900" 
+        Width="1000"
         WindowStartupLocation="CenterScreen"
         Background="$($colors.Background)">
         <Window.Resources>
@@ -125,8 +125,9 @@
         <TabControl Grid.Row="1">
             <!-- General Settings Tab -->
             <TabItem Header="General"
-                Margin="10,10,10,10">
-                <ScrollViewer>
+                Margin="0,0,10,0"
+                Padding="10,40,10,10">
+                <ScrollViewer Margin="0, 20, 0, 0">
                     <StackPanel>
                         <CheckBox Name="chkDemoMode" 
                                     Content="Demo Mode" 
@@ -171,7 +172,8 @@
 
             <!-- Workflows Tab -->
             <TabItem Header="Workflows"
-                    Margin="10,10,10,10">
+                    Margin="0,0,10,0"
+                    Padding="10,40,10,10">
                 <StackPanel>
                     <Grid>
                         <Grid.RowDefinitions>
@@ -180,7 +182,7 @@
                         </Grid.RowDefinitions>
 
                         <!-- Workflow Selection -->
-                        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                        <StackPanel Grid.Row="0" Margin="0,20,0,10">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -339,29 +341,5 @@
                 </StackPanel>
             </TabItem>
         </TabControl>
-
-        <!-- Global Save and Close Buttons for Settings -->
-        <!-- <StackPanel Grid.Row="2" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Right"
-                    Margin="0,20,0,0">
-            
-            <Button Name="btnSaveSettings" 
-                    Content="Save Settings" 
-                    Width="100" 
-                    Height="30"
-                    Background="$($colors.Secondary)"
-                    Foreground="$($colors.InputBg)"
-                    BorderThickness="0"
-                    Margin="0,0,10,0"/>
-            <Button Name="btnClose" 
-                    Content="Close" 
-                    Width="100"
-                    Height="30"
-                    Background="$($colors.Primary)"
-                    Foreground="$($colors.InputBg)"
-                    BorderThickness="0"
-                    Margin="0,0,10,0"/>
-        </StackPanel> -->
     </Grid>
 </Window>
