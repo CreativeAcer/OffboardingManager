@@ -12,7 +12,7 @@ function Initialize-MainWindow {
             Write-Host "Loading XAML..."
             Update-LoadingMessage -LoadingWindow $loadingWindow -Message "Loading interface components..."
             
-            $xamlPath = Join-Path -Path $script:BasePath -ChildPath "XAML\MainWindow.xaml"
+            $xamlPath = Join-Path -Path $script:BasePath -ChildPath "XAML\Windows\MainWindow.xaml"
             $MainXAML = [xml](Get-ProcessedXaml -XamlPath $xamlPath)
             
             $Reader = New-Object System.Xml.XmlNodeReader $MainXAML

@@ -5,7 +5,7 @@ function Show-LoadingScreen {
 
     try {
         # Get the XAML
-        $xamlPath = Join-Path -Path $script:BasePath -ChildPath "XAML\LoadingWindow.xaml"
+        $xamlPath = Join-Path -Path $script:BasePath -ChildPath "XAML\Components\LoadingWindow.xaml"
         $LoadingXAML = [xml](Get-ProcessedXaml -XamlPath $xamlPath)
         
         # Create window

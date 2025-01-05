@@ -1,6 +1,6 @@
 ﻿function Show-LoginDialog {
     # Use the global base path
-    $xamlPath = Join-Path -Path $script:BasePath -ChildPath "XAML\LoginWindow.xaml"
+    $xamlPath = Join-Path -Path $script:BasePath -ChildPath "XAML\Windows\LoginWindow.xaml"
     $LoginXAML = [xml](Get-ProcessedXaml -XamlPath $xamlPath)
     
     $Reader = New-Object System.Xml.XmlNodeReader $LoginXAML

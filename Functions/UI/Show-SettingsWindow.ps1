@@ -5,7 +5,7 @@ function Show-SettingsWindow {
     try {
         Write-Host "=== Opening Settings Window ==="
         # Get the XAML
-        $xamlPath = Join-Path -Path $script:BasePath -ChildPath "XAML\SettingsWindow.xaml"
+        $xamlPath = Join-Path -Path $script:BasePath -ChildPath "XAML\Windows\SettingsWindow.xaml"
         $SettingsXAML = [xml](Get-ProcessedXaml -XamlPath $xamlPath)
         
         # Create window
