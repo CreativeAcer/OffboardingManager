@@ -188,50 +188,6 @@ function Load-AvailableTasks {
     }
 }
 
-# function Update-WorkflowList {
-#     param (
-#         [System.Windows.Window]$Window
-#     )
-#     try {
-#         $Window.Dispatcher.Invoke([Action]{
-#             $script:cmbWorkflowList.Items.Clear()
-            
-#             $settings = Get-AppSetting
-#             Write-Host "Current workflow configurations:"
-#             Write-Host ($settings.WorkflowConfigurations | ConvertTo-Json -Depth 5)
-
-#             if ($settings.WorkflowConfigurations -and 
-#                 $settings.WorkflowConfigurations.Configurations) {
-                
-#                 # Convert to hashtable if it's a PSCustomObject
-#                 $configurations = $settings.WorkflowConfigurations.Configurations
-#                 if ($configurations -is [PSCustomObject]) {
-#                     $configurations = @($configurations.PSObject.Properties) | 
-#                         ForEach-Object { $_.Value }
-#                 }
-
-#                 foreach($workflow in $configurations) {
-#                     Write-Host "Adding workflow: $($workflow.Name)"
-#                     $script:cmbWorkflowList.Items.Add($workflow.Name)
-#                 }
-
-#                 # Set selected item to LastUsed if available
-#                 if ($settings.WorkflowConfigurations.LastUsed) {
-#                     $script:cmbWorkflowList.SelectedItem = $settings.WorkflowConfigurations.LastUsed
-#                 }
-#                 # If no LastUsed, but items exist, select the first one
-#                 elseif ($script:cmbWorkflowList.Items.Count -gt 0) {
-#                     $script:cmbWorkflowList.SelectedIndex = 0
-#                 }
-#             }
-#         })
-#     }
-#     catch {
-#         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Update-WorkflowList"
-#         throw
-#     }
-# }
-
 function Load-SelectedWorkflow {
     param (
         [System.Windows.Window]$Window

@@ -56,8 +56,6 @@ Initialize-AppSettings
 
 # Import workflow UI
 . "$script:BasePath\Functions\UI\Workflow\Initialize-WorkflowTab.ps1"
-. "$script:BasePath\Functions\UI\Settings\Initialize-WorkflowSettingsTab.ps1"
-. "$script:BasePath\Functions\UI\Settings\WorkflowTaskSettings.ps1"
 
 # Import Core functions
 . "$script:BasePath\Functions\Core\Environment.ps1"
@@ -68,17 +66,22 @@ Initialize-AppSettings
 . "$script:BasePath\Functions\UI\Shared\LoadingScreen.ps1"
 . "$script:BasePath\Functions\UI\Shared\Controls\Update-WorkflowDropdowns.ps1"
 
+# Import Windows functions
+. "$script:BasePath\Functions\UI\Windows\Login\LoginDialog.ps1"
+. "$script:BasePath\Functions\UI\Windows\Main\MainWindow.ps1"
+. "$script:BasePath\Functions\UI\Windows\Settings\Initialize-WorkflowSettingsTab.ps1"
+. "$script:BasePath\Functions\UI\Windows\Settings\Show-SettingsWindow.ps1"
+. "$script:BasePath\Functions\UI\Windows\Settings\SettingsHandler.ps1"
+. "$script:BasePath\Functions\UI\Windows\Settings\WorkflowTaskSettings.ps1"
+
 # Import functions
-. "$script:BasePath\Functions\UI\LoginDialog.ps1"
-. "$script:BasePath\Functions\UI\O365\MailboxManagement.ps1"
-. "$script:BasePath\Functions\UI\O365\TeamsManagement.ps1"
-. "$script:BasePath\Functions\UI\O365\LicenseManagement.ps1"
-. "$script:BasePath\Functions\UI\MainWindow.ps1"
+. "$script:BasePath\Functions\UI\Services\O365\MailboxManagement.ps1"
+. "$script:BasePath\Functions\UI\Services\O365\TeamsManagement.ps1"
+. "$script:BasePath\Functions\UI\Services\O365\LicenseManagement.ps1"
 . "$script:BasePath\Functions\UI\OnPremHandlers.ps1"
 . "$script:BasePath\Functions\UI\O365Handlers.ps1"
 . "$script:BasePath\Functions\UI\ReportHandlers.ps1"
-. "$script:BasePath\Functions\UI\Show-SettingsWindow.ps1"
-. "$script:BasePath\Functions\UI\SettingsHandler.ps1"
+
 
 #. "$script:BasePath\Functions\UI\EasterEgg.ps1"
 
