@@ -41,8 +41,21 @@
                                                                                                                  }
                                                                                            },
                                                                           "LastModified":  "2025-01-03 14:30:00"
-                                                                      }
+                                                                      },
+                                                          "OnPrem Actions":  {
+                                                                                 "TaskSettings":  {
+
+                                                                                                  },
+                                                                                 "Description":  "Demo on prem actions",
+                                                                                 "Name":  "OnPrem Actions",
+                                                                                 "EnabledTasks":  [
+                                                                                                      "DisableAccount",
+                                                                                                      "RemoveGroups",
+                                                                                                      "MoveToDisabledOU"
+                                                                                                  ],
+                                                                                 "LastModified":  "2025-01-05 13:06:03"
+                                                                             }
                                                       },
-                                   "LastUsed":  "Default"
+                                   "LastUsed":  "OnPrem Actions"
                                }
 }

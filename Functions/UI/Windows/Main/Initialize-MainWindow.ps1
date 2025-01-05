@@ -92,6 +92,10 @@ function Initialize-Tabs {
     Update-LoadingMessage -LoadingWindow $LoadingWindow -Message "Initializing Office 365 components..."
     Initialize-O365Tab -Window $Window -Credential $Credential
 
+    Write-Host "Initializing Workflow tab..."
+    Update-LoadingMessage -LoadingWindow $LoadingWindow -Message "Initializing Workflow components..."
+    Initialize-WorkflowTab -Window $Window -Credential $Credential
+
     Write-Host "Initializing Reports tab..."
     Update-LoadingMessage -LoadingWindow $LoadingWindow -Message "Initializing Reports components..."
     Initialize-ReportsTab -Window $Window -Credential $Credential
