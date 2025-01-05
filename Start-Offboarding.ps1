@@ -58,15 +58,17 @@ Initialize-AppSettings
 . "$script:BasePath\Functions\UI\Workflow\Initialize-WorkflowTab.ps1"
 . "$script:BasePath\Functions\UI\Settings\Initialize-WorkflowSettingsTab.ps1"
 . "$script:BasePath\Functions\UI\Settings\WorkflowTaskSettings.ps1"
-. "$script:BasePath\Functions\UI\Update-WorkflowDropdowns.ps1"
 
 # Import Core functions
 . "$script:BasePath\Functions\Core\Environment.ps1"
 . "$script:BasePath\Functions\Core\Logging\Write-ActivityLog.ps1"
 
+# Import Shared functions
+. "$script:BasePath\Functions\UI\Shared\XamlHelper.ps1"
+. "$script:BasePath\Functions\UI\Shared\LoadingScreen.ps1"
+. "$script:BasePath\Functions\UI\Shared\Controls\Update-WorkflowDropdowns.ps1"
+
 # Import functions
-. "$script:BasePath\Functions\UI\XamlHelper.ps1"
-. "$script:BasePath\Functions\UI\LoadingScreen.ps1"
 . "$script:BasePath\Functions\UI\LoginDialog.ps1"
 . "$script:BasePath\Functions\UI\O365\MailboxManagement.ps1"
 . "$script:BasePath\Functions\UI\O365\TeamsManagement.ps1"
