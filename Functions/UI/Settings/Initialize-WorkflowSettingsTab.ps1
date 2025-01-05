@@ -88,7 +88,7 @@ function Initialize-WorkflowSettingsTab {
         # Add event handlers
         $script:cmbWorkflowList.Add_SelectionChanged({
             Write-Host "Workflow selection changed to: $($script:cmbWorkflowList.SelectedItem)"
-            Load-SelectedWorkflow
+            Load-SelectedWorkflow -Window $Window
         })
 
         $script:btnNewWorkflow.Add_Click({
@@ -96,7 +96,7 @@ function Initialize-WorkflowSettingsTab {
         })
 
         $script:btnDeleteWorkflow.Add_Click({
-            Remove-CurrentWorkflow
+            Remove-CurrentWorkflow -Window $Window
         })
 
         $script:btnAddTask.Add_Click({
@@ -116,7 +116,7 @@ function Initialize-WorkflowSettingsTab {
         })
 
         $script:btnSaveWorkflow.Add_Click({
-            Save-CurrentWorkflow
+            Save-CurrentWorkflow -Window $Window
         })
 
         Write-Host "=== Workflow Settings Tab Initialization Complete ==="
@@ -163,51 +163,54 @@ function Load-AvailableTasks {
     }
 }
 
-function Update-WorkflowList {
+# function Update-WorkflowList {
+#     param (
+#         [System.Windows.Window]$Window
+#     )
+#     try {
+#         $Window.Dispatcher.Invoke([Action]{
+#             $script:cmbWorkflowList.Items.Clear()
+            
+#             $settings = Get-AppSetting
+#             Write-Host "Current workflow configurations:"
+#             Write-Host ($settings.WorkflowConfigurations | ConvertTo-Json -Depth 5)
+
+#             if ($settings.WorkflowConfigurations -and 
+#                 $settings.WorkflowConfigurations.Configurations) {
+                
+#                 # Convert to hashtable if it's a PSCustomObject
+#                 $configurations = $settings.WorkflowConfigurations.Configurations
+#                 if ($configurations -is [PSCustomObject]) {
+#                     $configurations = @($configurations.PSObject.Properties) | 
+#                         ForEach-Object { $_.Value }
+#                 }
+
+#                 foreach($workflow in $configurations) {
+#                     Write-Host "Adding workflow: $($workflow.Name)"
+#                     $script:cmbWorkflowList.Items.Add($workflow.Name)
+#                 }
+
+#                 # Set selected item to LastUsed if available
+#                 if ($settings.WorkflowConfigurations.LastUsed) {
+#                     $script:cmbWorkflowList.SelectedItem = $settings.WorkflowConfigurations.LastUsed
+#                 }
+#                 # If no LastUsed, but items exist, select the first one
+#                 elseif ($script:cmbWorkflowList.Items.Count -gt 0) {
+#                     $script:cmbWorkflowList.SelectedIndex = 0
+#                 }
+#             }
+#         })
+#     }
+#     catch {
+#         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Update-WorkflowList"
+#         throw
+#     }
+# }
+
+function Load-SelectedWorkflow {
     param (
         [System.Windows.Window]$Window
     )
-    try {
-        #$Window.Dispatcher.Invoke([Action]{
-            $script:cmbWorkflowList.Items.Clear()
-            
-            $settings = Get-AppSetting
-            Write-Host "Current workflow configurations:"
-            Write-Host ($settings.WorkflowConfigurations | ConvertTo-Json -Depth 5)
-
-            if ($settings.WorkflowConfigurations -and 
-                $settings.WorkflowConfigurations.Configurations) {
-                
-                # Convert to hashtable if it's a PSCustomObject
-                $configurations = $settings.WorkflowConfigurations.Configurations
-                if ($configurations -is [PSCustomObject]) {
-                    $configurations = @($configurations.PSObject.Properties) | 
-                        ForEach-Object { $_.Value }
-                }
-
-                foreach($workflow in $configurations) {
-                    Write-Host "Adding workflow: $($workflow.Name)"
-                    $script:cmbWorkflowList.Items.Add($workflow.Name)
-                }
-
-                # Set selected item to LastUsed if available
-                if ($settings.WorkflowConfigurations.LastUsed) {
-                    $script:cmbWorkflowList.SelectedItem = $settings.WorkflowConfigurations.LastUsed
-                }
-                # If no LastUsed, but items exist, select the first one
-                elseif ($script:cmbWorkflowList.Items.Count -gt 0) {
-                    $script:cmbWorkflowList.SelectedIndex = 0
-                }
-            }
-        #})
-    }
-    catch {
-        Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Update-WorkflowList"
-        throw
-    }
-}
-
-function Load-SelectedWorkflow {
     try {
         if ($script:cmbWorkflowList.SelectedItem) {
             $settings = Get-AppSetting
@@ -281,6 +284,9 @@ function New-Workflow {
 }
 
 function Remove-CurrentWorkflow {
+    param (
+        [System.Windows.Window]$Window
+    )
     try {
         if ($script:cmbWorkflowList.SelectedItem) {
             $workflowName = $script:cmbWorkflowList.SelectedItem.ToString()
@@ -333,7 +339,7 @@ function Remove-CurrentWorkflow {
                 Update-AppSettings -NewSettings $newSettings
 
                 # Refresh workflow list
-                Update-WorkflowList -Window $Window
+                Update-WorkflowDropdowns -Window $Window -DropdownNames @("cmbWorkflowList")
             }
         }
     }
@@ -441,6 +447,9 @@ function Move-TaskDown {
 }
 
 function Save-CurrentWorkflow {
+    param (
+        [System.Windows.Window]$Window
+    )
     try {
         $settings = Get-AppSetting
 
@@ -500,7 +509,7 @@ function Save-CurrentWorkflow {
         Update-AppSettings -NewSettings $newSettings
 
         # Refresh workflow list
-        Update-WorkflowList -Window $Window
+        Update-WorkflowDropdowns -Window $Window -DropdownNames @("cmbWorkflowList")
         
         [System.Windows.MessageBox]::Show(
             "Workflow saved successfully",

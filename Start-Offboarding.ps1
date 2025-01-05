@@ -55,6 +55,7 @@ Initialize-AppSettings
 . "$script:BasePath\Functions\UI\Workflow\Initialize-WorkflowTab.ps1"
 . "$script:BasePath\Functions\UI\Settings\Initialize-WorkflowSettingsTab.ps1"
 . "$script:BasePath\Functions\UI\Settings\WorkflowTaskSettings.ps1"
+. "$script:BasePath\Functions\UI\Update-WorkflowDropdowns.ps1"
 
 # Import functions
 . "$script:BasePath\Functions\Environment.ps1"
