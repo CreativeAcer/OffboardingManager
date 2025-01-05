@@ -20,6 +20,8 @@ function Initialize-WorkflowTab {
         # Load available workflows
         Update-WorkflowDropdowns -Window $Window -DropdownNames @("cmbWorkflows")
 
+        $script:btnRunWorkflow.IsEnabled = $false  # Enable only when workflow is selected
+
         # Load initial workflow if one is selected
         if ($script:cmbWorkflows.SelectedItem) {
             Load-SelectedWorkflow -Window $Window `
@@ -42,7 +44,7 @@ function Initialize-WorkflowTab {
             Start-SelectedWorkflow -Credential $Credential
         })
 
-        $script:btnRunWorkflow.IsEnabled = $false  # Enable only when workflow is selected
+        
     }
     catch {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Workflow-TabInit"
