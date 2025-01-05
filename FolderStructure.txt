@@ -1,76 +1,107 @@
 /ADUserOffboarding/
-├── Start-Offboarding.ps1
-├── Launch-Offboarding.ps1
+├── .gitignore
+├── Create-FolderstructureReport.ps1
 ├── Create-OffboardingShortcut.ps1
 ├── Create-Shortcut.bat
+├── FolderStructure.txt
+├── folderstructurereport.txt
+├── Launch-Offboarding.ps1
+├── LICENSE
+├── README.md
+├── Start-Offboarding.ps1
 ├── Config/
 │   ├── Colors.ps1
 │   ├── Fonts.ps1
+│   ├── Settings.json
 │   └── Settings.ps1
+├── Docs/
+│   └── Images/
+│   │   ├── Login.png
+│   │   ├── MainWindow.png
+│   │   ├── O365.png
+│   │   ├── OnPrem.png
+│   │   ├── reporting.png
+│   │   ├── Settings-Workflow.png
+│   │   └── Settings.png
 ├── Functions/
-│   ├── Environment.ps1
-│   ├── LDAP/
-│   │   ├── LDAPConnection.ps1
-│   │   └── LDAPUsers.ps1
-│   ├── Utilities/
-│   │   ├── Mockdata.ps1
-│   │   └── PathUtils.ps1
-│   ├── Workflow/
-│   │   ├── Configuration/
-│   │   │   ├── Get-WorkflowConfiguration.ps1
-│   │   │   ├── Save-WorkflowConfiguration.ps1
-│   │   │   ├── Import-WorkflowConfiguration.ps1
-│   │   │   └── Remove-WorkflowConfiguration.ps1
-│   │   ├── WorkflowTasks.ps1
-│   │   └── Start-OffboardingWorkflow.ps1
+│   ├── Core/
+│   │   ├── Environment.ps1
+│   │   ├── Logging/
+│   │   │   └── Write-ActivityLog.ps1
+│   ├── Data/
+│   │   ├── LDAP/
+│   │   │   ├── LDAPConnection.ps1
+│   │   │   └── LDAPUsers.ps1
+│   │   └── Mock/
+│   │   │   └── MockData.ps1
 │   ├── UI/
-│   │   ├── LoginDialog.ps1
-│   │   ├── MainWindow.ps1
-│   │   ├── O365/                            # O365 specific functions
-│   │   │   ├── Initialize-O365Tab.ps1       # Contains initialization code
-│   │   │   ├── Start-O365Tasks.ps1          # Main task execution logic
-│   │   │   ├── MailboxManagement.ps1
-│   │   │   ├── TeamsManagement.ps1
-│   │   │   ├── LicenseManagement.ps1
-│   │   │   ├── Connect-O365.ps1
+│   │   ├── EasterEgg.ps1
+│   │   ├── Handlers/
+│   │   │   ├── O365Handlers.ps1
+│   │   │   ├── OnPremHandlers.ps1
+│   │   │   └── ReportHandlers.ps1
+│   │   ├── O365/
+│   │   │   ├── Initialize-O365Tab.ps1
+│   │   │   ├── Start-O365Tasks.ps1
 │   │   │   ├── Tasks/
-│   │   │   │   ├── Get-O365Status.ps1       # O365 status check functionality
-│   │   │   │   ├── Set-MailboxTasks.ps1     # Mailbox-related tasks
-│   │   │   │   ├── Set-TeamsTasks.ps1       # Teams and SharePoint tasks
-│   │   │   │   └── Set-LicenseTasks.ps1     # License management tasks
-│   │   │   └── UI/
-│   │   │       ├── Update-ForwardingList.ps1 # UI update functions
-│   │   │       ├── Update-TeamsOwnerList.ps1
-│   │   │       ├── Update-LicenseList.ps1
-│   │   ├── MainWindow/
-│   │   │   ├── Initialize-MainWindow.ps1
-│   │   │   ├── Update-UserList.ps1
-│   │   │   ├── Update-SelectedUser.ps1
-│   │   │   └── Show-UserDetails.ps1
-│   │   ├── Settings/ [NEW folder]
-│   │   │   └── Initialize-WorkflowSettingsTab.ps1
-│   │   ├── Workflow/ [NEW folder]
+│   │   │   │   ├── Get-O365Status.ps1
+│   │   │   │   ├── Set-LicenseTasks.ps1
+│   │   │   │   ├── Set-MailboxTasks.ps1
+│   │   │   │   └── Set-TeamsTasks.ps1
+│   │   │   ├── UI/
+│   │   │   │   ├── Update-ForwardingList.ps1
+│   │   │   │   ├── Update-LicenseList.ps1
+│   │   │   │   └── Update-TeamsOwnerList.ps1
+│   │   ├── Services/
+│   │   │   └── O365/
+│   │   │   │   ├── Connect-O365.ps1
+│   │   │   │   ├── LicenseManagement.ps1
+│   │   │   │   ├── MailboxManagement.ps1
+│   │   │   │   └── TeamsManagement.ps1
+│   │   ├── Shared/
+│   │   │   ├── LoadingScreen.ps1
+│   │   │   ├── XamlHelper.ps1
+│   │   │   ├── Controls/
+│   │   │   │   └── Update-WorkflowDropdowns.ps1
+│   │   ├── Windows/
+│   │   │   ├── Login/
+│   │   │   │   └── LoginDialog.ps1
+│   │   │   ├── Main/
+│   │   │   │   ├── Initialize-MainWindow.ps1
+│   │   │   │   ├── MainWindow.ps1
+│   │   │   │   ├── Show-UserDetails.ps1
+│   │   │   │   ├── Update-SelectedUser.ps1
+│   │   │   │   └── Update-UserList.ps1
+│   │   │   └── Settings/
+│   │   │   │   ├── Initialize-WorkflowSettingsTab.ps1
+│   │   │   │   ├── SettingsHandler.ps1
+│   │   │   │   ├── Show-SettingsWindow.ps1
+│   │   │   │   └── WorkflowTaskSettings.ps1
+│   │   ├── Workflow/
 │   │   │   └── Initialize-WorkflowTab.ps1
-│   │   ├── OnPremHandlers.ps1
-│   │   ├── O365Handlers.ps1
-│   │   ├── ReportHandlers.ps1
-│   │   ├── XAMLHelper.ps1
-│   │   ├── Show-SettingsWindow.ps1
-│   │   ├── SettingsHandler.ps1
-│   │   └── EasterEgg.ps1
-│   └── Logging/
-│       └── Write-ActivityLog.ps1
-├── XAML/
-│   ├── LoadingWindow.xaml
-│   ├── LoginWindow.xaml
-│   ├── SettingsWindow.xaml
-│   └── MainWindow.xaml
+│   ├── Utilities/
+│   │   ├── Converters.ps1
+│   │   └── PathUtils.ps1
+│   └── Workflow/
+│   │   ├── Start-OffboardingWorkflow.ps1
+│   │   ├── WorkflowTasks.ps1
+│   │   ├── Configuration/
+│   │   │   ├── Get-TaskSettings.ps1
+│   │   │   ├── Get-WorkflowConfiguration.ps1
+│   │   │   ├── Import-WorkflowConfiguration.ps1
+│   │   │   ├── Remove-WorkflowConfiguration.ps1
+│   │   │   └── Save-WorkflowConfiguration.ps1
+│   │   ├── Tasks/
+│   │   │   └── Get-WorkflowTasks.ps1
 ├── Logs/
-│   └── error_log.txt
-├── Reports/
-│   └── date.csv
-└── docs/
-    └── images/
-        ├── MainWindow2.png    # Main banner
-        ├── Login.png          # Login screen
-        └── MainWindow.png     # Main interface
+│   ├── error_log.txt
+│   ├── OffboardingActivities/
+│   │   ├── 20241227.log
+│   │   └── 20250105.log
+└── XAML/
+    ├── Components/
+    │   └── LoadingWindow.xaml
+    └── Windows/
+        ├── LoginWindow.xaml
+        ├── MainWindow.xaml
+        └── SettingsWindow.xaml
