@@ -42,14 +42,16 @@ function Update-WorkflowTasksList {
         
         $selectedWorkflow = Get-WorkflowConfigurations[$script:cmbWorkflows.SelectedItem]
         if($selectedWorkflow) {
-            foreach($taskId in $selectedWorkflow.EnabledTasks) {
-                $task = $script:WorkflowTasks.OnPrem + $script:WorkflowTasks.O365 |
-                        Where-Object { $_.Id -eq $taskId } |
-                        Select-Object -First 1
-                if($task) {
-                    $script:lstWorkflowTasks.Items.Add($task)
-                }
-            }
+            $tesks = Get-WorkflowTasks -WorkflowName $selectedWorkflow
+            $script:lstWorkflowTasks.Items.Add($tesks)
+            # foreach($taskId in $selectedWorkflow.EnabledTasks) {
+            #     $task = $script:WorkflowTasks.OnPrem + $script:WorkflowTasks.O365 |
+            #             Where-Object { $_.Id -eq $taskId } |
+            #             Select-Object -First 1
+            #     if($task) {
+            #         $script:lstWorkflowTasks.Items.Add($task)
+            #     }
+            # }
             $script:btnRunWorkflow.IsEnabled = $true
         }
     }
