@@ -6,6 +6,9 @@ function Initialize-WorkflowTab {
     
     try {
         Write-Host "Initializing Workflow Tab controls"
+
+        # Store window reference
+        $script:mainWindow = $Window
         
         # Get control references
         $script:cmbWorkflows = $Window.FindName("cmbWorkflows")
@@ -19,8 +22,12 @@ function Initialize-WorkflowTab {
 
         # Add event handlers
         $script:cmbWorkflows.Add_SelectionChanged({
-            Update-WorkflowTasksList
-            Update-TaskSettings
+            if ($script:cmbWorkflows.SelectedItem) {
+                Load-SelectedWorkflow -Window $script:mainWindow `
+                     -WorkflowDropdownName "cmbWorkflows" `
+                     -TaskListName "lstWorkflowTasks"
+                $script:btnRunWorkflow.IsEnabled = $true
+            }
         })
 
         $script:btnRunWorkflow.Add_Click({
@@ -38,20 +45,14 @@ function Initialize-WorkflowTab {
 
 function Update-WorkflowTasksList {
     try {
-        $script:lstWorkflowTasks.Items.Clear()
-        
-        $selectedWorkflow = Get-WorkflowConfigurations[$script:cmbWorkflows.SelectedItem]
-        if($selectedWorkflow) {
-            $tesks = Get-WorkflowTasks -WorkflowName $selectedWorkflow
-            $script:lstWorkflowTasks.Items.Add($tesks)
-            # foreach($taskId in $selectedWorkflow.EnabledTasks) {
-            #     $task = $script:WorkflowTasks.OnPrem + $script:WorkflowTasks.O365 |
-            #             Where-Object { $_.Id -eq $taskId } |
-            #             Select-Object -First 1
-            #     if($task) {
-            #         $script:lstWorkflowTasks.Items.Add($task)
-            #     }
-            # }
+        if ($script:cmbWorkflows.SelectedItem) {
+            $settings = Get-AppSetting
+            $workflowName = $script:cmbWorkflows.SelectedItem.ToString()
+            
+            # Use the same function as settings window
+            Load-SelectedWorkflow -Window $script:mainWindow `
+                     -WorkflowDropdownName "cmbWorkflows" `
+                     -TaskListName "lstWorkflowTasks"
             $script:btnRunWorkflow.IsEnabled = $true
         }
     }

@@ -86,14 +86,26 @@ function Initialize-WorkflowSettingsTab {
             Write-Host "Setting selected workflow to: $($settings.WorkflowConfigurations.LastUsed)"
             $script:cmbWorkflowList.SelectedItem = $settings.WorkflowConfigurations.LastUsed
             Write-Host "Loading initial workflow settings..."
-            Load-SelectedWorkflow -Window $Window
+            Load-SelectedWorkflow -Window $Window `
+                     -WorkflowDropdownName "cmbWorkflowList" `
+                     -TaskListName "lstSelectedTasks" `
+                     -AdditionalControls @{
+                         "txtWorkflowName" = "Name"
+                         "txtWorkflowDescription" = "Description"
+                     }
         }
 
         Write-Host "Setting up event handlers..."
         # Add event handlers
         $script:cmbWorkflowList.Add_SelectionChanged({
             Write-Host "Workflow selection changed to: $($script:cmbWorkflowList.SelectedItem)"
-            Load-SelectedWorkflow -Window $script:settingsWindow
+            Load-SelectedWorkflow -Window $script:settingsWindow `
+                     -WorkflowDropdownName "cmbWorkflowList" `
+                     -TaskListName "lstSelectedTasks" `
+                     -AdditionalControls @{
+                         "txtWorkflowName" = "Name"
+                         "txtWorkflowDescription" = "Description"
+                     }
         })
 
         $script:btnNewWorkflow.Add_Click({
@@ -190,14 +202,22 @@ function Load-AvailableTasks {
 
 function Load-SelectedWorkflow {
     param (
-        [System.Windows.Window]$Window
+        [Parameter(Mandatory = $true)]
+        [System.Windows.Window]$Window,
+        [string]$WorkflowDropdownName,
+        [string]$TaskListName,
+        [hashtable]$AdditionalControls = @{}  # For optional controls like description, name textboxes etc.
     )
     try {
-        if ($script:cmbWorkflowList.SelectedItem) {
+        # Get the dropdown and task list controls
+        $workflowDropdown = $Window.FindName($WorkflowDropdownName)
+        $taskList = $Window.FindName($TaskListName)
+
+        if ($workflowDropdown.SelectedItem) {
             $settings = Get-AppSetting
-            $workflowName = $script:cmbWorkflowList.SelectedItem.ToString()
+            $workflowName = $workflowDropdown.SelectedItem.ToString()
             
-            # Create new hashtable for configurations
+            # Get workflow configuration
             $configurations = $settings.WorkflowConfigurations.Configurations
             $workflow = $null
 
@@ -210,11 +230,17 @@ function Load-SelectedWorkflow {
             }
 
             if ($workflow) {
-                $script:txtWorkflowName.Text = $workflow.Name
-                $script:txtWorkflowDescription.Text = $workflow.Description
+                # Handle additional controls if provided
+                foreach ($controlName in $AdditionalControls.Keys) {
+                    $control = $Window.FindName($controlName)
+                    if ($control) {
+                        $propertyName = $AdditionalControls[$controlName]
+                        $control.Text = $workflow.$propertyName
+                    }
+                }
 
-                # Clear and reload selected tasks
-                $script:lstSelectedTasks.Items.Clear()
+                # Clear and reload tasks
+                $taskList.Items.Clear()
 
                 # Convert EnabledTasks to ArrayList if needed
                 $enabledTasks = [System.Collections.ArrayList]@($workflow.EnabledTasks)
@@ -235,7 +261,7 @@ function Load-SelectedWorkflow {
                             RequiredParams = $task.RequiredParams
                             OptionalParams = $task.OptionalParams
                         }
-                        $script:lstSelectedTasks.Items.Add($taskObject)
+                        $taskList.Items.Add($taskObject)
                     }
                 }
                 Update-TaskSettingsPanel
