@@ -20,6 +20,14 @@ function Initialize-WorkflowTab {
         # Load available workflows
         Update-WorkflowDropdowns -Window $Window -DropdownNames @("cmbWorkflows")
 
+        # Load initial workflow if one is selected
+        if ($script:cmbWorkflows.SelectedItem) {
+            Load-SelectedWorkflow -Window $Window `
+                                -WorkflowDropdownName "cmbWorkflows" `
+                                -TaskListName "lstWorkflowTasks"
+            $script:btnRunWorkflow.IsEnabled = $true
+        }
+
         # Add event handlers
         $script:cmbWorkflows.Add_SelectionChanged({
             if ($script:cmbWorkflows.SelectedItem) {
