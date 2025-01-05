@@ -78,9 +78,9 @@ Initialize-AppSettings
 . "$script:BasePath\Functions\UI\Services\O365\MailboxManagement.ps1"
 . "$script:BasePath\Functions\UI\Services\O365\TeamsManagement.ps1"
 . "$script:BasePath\Functions\UI\Services\O365\LicenseManagement.ps1"
-. "$script:BasePath\Functions\UI\OnPremHandlers.ps1"
-. "$script:BasePath\Functions\UI\O365Handlers.ps1"
-. "$script:BasePath\Functions\UI\ReportHandlers.ps1"
+. "$script:BasePath\Functions\UI\Handlers\OnPremHandlers.ps1"
+. "$script:BasePath\Functions\UI\Handlers\O365Handlers.ps1"
+. "$script:BasePath\Functions\UI\Handlers\ReportHandlers.ps1"
 
 
 #. "$script:BasePath\Functions\UI\EasterEgg.ps1"
