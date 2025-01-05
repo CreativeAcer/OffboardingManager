@@ -1,8 +1,8 @@
 function Initialize-WorkflowSettingsTab {
     param (
+        [Parameter(Mandatory = $true)]
         [System.Windows.Window]$Window
     )
-
     try {
         Write-Host "=== Workflow Settings Tab Initialization ==="
 
@@ -12,6 +12,9 @@ function Initialize-WorkflowSettingsTab {
         if (-not $script:cmbWorkflowList) {
             Write-Host "ERROR: cmbWorkflowList not found!"
         }
+
+        # Store window reference
+        $script:settingsWindow = $Window
         
         Write-Host "Initializing Workflow Settings Tab controls"
         # Get control references
@@ -88,7 +91,7 @@ function Initialize-WorkflowSettingsTab {
         # Add event handlers
         $script:cmbWorkflowList.Add_SelectionChanged({
             Write-Host "Workflow selection changed to: $($script:cmbWorkflowList.SelectedItem)"
-            Load-SelectedWorkflow -Window $Window
+            Load-SelectedWorkflow -Window $script:settingsWindow
         })
 
         $script:btnNewWorkflow.Add_Click({
@@ -96,7 +99,17 @@ function Initialize-WorkflowSettingsTab {
         })
 
         $script:btnDeleteWorkflow.Add_Click({
-            Remove-CurrentWorkflow -Window $Window
+            try {
+                Remove-CurrentWorkflow -Window $script:settingsWindow
+            }
+            catch {
+                [System.Windows.MessageBox]::Show(
+                    "Failed to remove workflow: $($_.Exception.Message)",
+                    "Error",
+                    [System.Windows.MessageBoxButton]::OK,
+                    [System.Windows.MessageBoxImage]::Error
+                )
+            }
         })
 
         $script:btnAddTask.Add_Click({
@@ -116,7 +129,17 @@ function Initialize-WorkflowSettingsTab {
         })
 
         $script:btnSaveWorkflow.Add_Click({
-            Save-CurrentWorkflow -Window $Window
+            try {
+                Save-CurrentWorkflow -Window $script:settingsWindow
+            }
+            catch {
+                [System.Windows.MessageBox]::Show(
+                    "Failed to save workflow: $($_.Exception.Message)",
+                    "Error",
+                    [System.Windows.MessageBoxButton]::OK,
+                    [System.Windows.MessageBoxImage]::Error
+                )
+            }
         })
 
         Write-Host "=== Workflow Settings Tab Initialization Complete ==="
@@ -285,6 +308,7 @@ function New-Workflow {
 
 function Remove-CurrentWorkflow {
     param (
+        [Parameter(Mandatory = $true)]
         [System.Windows.Window]$Window
     )
     try {
@@ -300,25 +324,6 @@ function Remove-CurrentWorkflow {
             
             if ($result -eq [System.Windows.MessageBoxResult]::Yes) {
                 $settings = Get-AppSetting
-                
-                # Create new configurations hashtable
-                $newConfigurations = @{}
-                
-                # Handle PSCustomObject configurations
-                $configurations = $settings.WorkflowConfigurations.Configurations
-                if ($configurations -is [PSCustomObject]) {
-                    foreach($prop in $configurations.PSObject.Properties) {
-                        if ($prop.Name -ne $workflowName) {
-                            $newConfigurations[$prop.Name] = $prop.Value
-                        }
-                    }
-                } else {
-                    foreach($key in $configurations.Keys) {
-                        if ($key -ne $workflowName) {
-                            $newConfigurations[$key] = $configurations[$key]
-                        }
-                    }
-                }
 
                 # Create new settings object
                 $newSettings = @{
@@ -330,8 +335,19 @@ function Remove-CurrentWorkflow {
                     LogPath = $settings.LogPath
                     LicenseTemplates = $settings.LicenseTemplates
                     WorkflowConfigurations = @{
-                        LastUsed = $newConfigurations.Keys | Select-Object -First 1
-                        Configurations = $newConfigurations
+                        LastUsed = ""  # Will be updated below
+                        Configurations = @{}
+                    }
+                }
+
+                # Copy all workflows except the one being deleted
+                foreach($key in $settings.WorkflowConfigurations.Configurations.PSObject.Properties.Name) {
+                    if ($key -ne $workflowName) {
+                        $newSettings.WorkflowConfigurations.Configurations[$key] = 
+                            $settings.WorkflowConfigurations.Configurations.$key
+                        if ([string]::IsNullOrEmpty($newSettings.WorkflowConfigurations.LastUsed)) {
+                            $newSettings.WorkflowConfigurations.LastUsed = $key
+                        }
                     }
                 }
 
@@ -345,12 +361,7 @@ function Remove-CurrentWorkflow {
     }
     catch {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Remove-CurrentWorkflow"
-        [System.Windows.MessageBox]::Show(
-            "Failed to remove workflow: $($_.Exception.Message)",
-            "Error",
-            [System.Windows.MessageBoxButton]::OK,
-            [System.Windows.MessageBoxImage]::Error
-        )
+        throw
     }
 }
 

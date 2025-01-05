@@ -23,6 +23,17 @@
     "DefaultDomain":  "company.be",
     "WorkflowConfigurations":  {
                                    "Configurations":  {
+                                                          "New Workflow":  {
+                                                                               "TaskSettings":  {
+
+                                                                                                },
+                                                                               "Description":  "pop",
+                                                                               "Name":  "New Workflow",
+                                                                               "EnabledTasks":  [
+                                                                                                    "DisableAccount"
+                                                                                                ],
+                                                                               "LastModified":  "2025-01-05 11:14:06"
+                                                                           },
                                                           "Default":  {
                                                                           "Name":  "Default",
                                                                           "Description":  "Standard offboarding workflow",
@@ -43,6 +54,6 @@
                                                                           "LastModified":  "2025-01-03 14:30:00"
                                                                       }
                                                       },
-                                   "LastUsed":  "Default"
+                                   "LastUsed":  "New Workflow"
                                }
 }
