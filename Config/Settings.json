@@ -23,17 +23,6 @@
     "DefaultDomain":  "company.be",
     "WorkflowConfigurations":  {
                                    "Configurations":  {
-                                                          "New Workflow":  {
-                                                                               "TaskSettings":  {
-
-                                                                                                },
-                                                                               "Description":  "pop",
-                                                                               "Name":  "New Workflow",
-                                                                               "EnabledTasks":  [
-                                                                                                    "DisableAccount"
-                                                                                                ],
-                                                                               "LastModified":  "2025-01-05 11:14:06"
-                                                                           },
                                                           "Default":  {
                                                                           "Name":  "Default",
                                                                           "Description":  "Standard offboarding workflow",
@@ -52,8 +41,30 @@
                                                                                                                  }
                                                                                            },
                                                                           "LastModified":  "2025-01-03 14:30:00"
-                                                                      }
+                                                                      },
+                                                          "New Workflow":  {
+                                                                               "TaskSettings":  {
+
+                                                                                                },
+                                                                               "Description":  "demo",
+                                                                               "Name":  "New Workflow",
+                                                                               "EnabledTasks":  [
+                                                                                                    "SetAutoReply"
+                                                                                                ],
+                                                                               "LastModified":  "2025-01-05 11:16:22"
+                                                                           },
+                                                          "New Workflow 2":  {
+                                                                                 "TaskSettings":  {
+
+                                                                                                  },
+                                                                                 "Description":  "yes",
+                                                                                 "Name":  "New Workflow 2",
+                                                                                 "EnabledTasks":  [
+                                                                                                      "RemoveGroups"
+                                                                                                  ],
+                                                                                 "LastModified":  "2025-01-05 11:17:11"
+                                                                             }
                                                       },
-                                   "LastUsed":  "New Workflow"
+                                   "LastUsed":  "New Workflow 2"
                                }
 }
