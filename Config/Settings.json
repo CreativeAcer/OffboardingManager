@@ -41,30 +41,8 @@
                                                                                                                  }
                                                                                            },
                                                                           "LastModified":  "2025-01-03 14:30:00"
-                                                                      },
-                                                          "New Workflow":  {
-                                                                               "TaskSettings":  {
-
-                                                                                                },
-                                                                               "Description":  "demo",
-                                                                               "Name":  "New Workflow",
-                                                                               "EnabledTasks":  [
-                                                                                                    "SetAutoReply"
-                                                                                                ],
-                                                                               "LastModified":  "2025-01-05 11:16:22"
-                                                                           },
-                                                          "New Workflow 2":  {
-                                                                                 "TaskSettings":  {
-
-                                                                                                  },
-                                                                                 "Description":  "yes",
-                                                                                 "Name":  "New Workflow 2",
-                                                                                 "EnabledTasks":  [
-                                                                                                      "RemoveGroups"
-                                                                                                  ],
-                                                                                 "LastModified":  "2025-01-05 11:17:11"
-                                                                             }
+                                                                      }
                                                       },
-                                   "LastUsed":  "New Workflow 2"
+                                   "LastUsed":  "Default"
                                }
 }

@@ -85,6 +85,8 @@ function Initialize-WorkflowSettingsTab {
         if ($settings.WorkflowConfigurations.LastUsed) {
             Write-Host "Setting selected workflow to: $($settings.WorkflowConfigurations.LastUsed)"
             $script:cmbWorkflowList.SelectedItem = $settings.WorkflowConfigurations.LastUsed
+            Write-Host "Loading initial workflow settings..."
+            Load-SelectedWorkflow -Window $Window
         }
 
         Write-Host "Setting up event handlers..."
@@ -325,7 +327,34 @@ function Remove-CurrentWorkflow {
             if ($result -eq [System.Windows.MessageBoxResult]::Yes) {
                 $settings = Get-AppSetting
 
-                # Create new settings object
+                # Create new configurations hashtable
+                $newConfigurations = @{}
+                
+                # Copy all workflows except the one being deleted
+                if ($settings.WorkflowConfigurations.Configurations -is [PSCustomObject]) {
+                    foreach($prop in $settings.WorkflowConfigurations.Configurations.PSObject.Properties) {
+                        if ($prop.Name -ne $workflowName) {
+                            $newConfigurations[$prop.Name] = $prop.Value
+                        }
+                    }
+                } else {
+                    foreach($key in $settings.WorkflowConfigurations.Configurations.Keys) {
+                        if ($key -ne $workflowName) {
+                            $newConfigurations[$key] = $settings.WorkflowConfigurations.Configurations[$key]
+                        }
+                    }
+                }
+
+                # Set LastUsed to first available workflow if current is being deleted
+                $newLastUsed = $settings.WorkflowConfigurations.LastUsed
+                if ($newLastUsed -eq $workflowName -and $newConfigurations.Count -gt 0) {
+                    $newLastUsed = $newConfigurations.Keys | Select-Object -First 1
+                }
+                elseif ($newConfigurations.Count -eq 0) {
+                    $newLastUsed = ""
+                }
+
+                # Create complete new settings
                 $newSettings = @{
                     DemoMode = $settings.DemoMode
                     UseADModule = $settings.UseADModule
@@ -335,19 +364,8 @@ function Remove-CurrentWorkflow {
                     LogPath = $settings.LogPath
                     LicenseTemplates = $settings.LicenseTemplates
                     WorkflowConfigurations = @{
-                        LastUsed = ""  # Will be updated below
-                        Configurations = @{}
-                    }
-                }
-
-                # Copy all workflows except the one being deleted
-                foreach($key in $settings.WorkflowConfigurations.Configurations.PSObject.Properties.Name) {
-                    if ($key -ne $workflowName) {
-                        $newSettings.WorkflowConfigurations.Configurations[$key] = 
-                            $settings.WorkflowConfigurations.Configurations.$key
-                        if ([string]::IsNullOrEmpty($newSettings.WorkflowConfigurations.LastUsed)) {
-                            $newSettings.WorkflowConfigurations.LastUsed = $key
-                        }
+                        LastUsed = $newLastUsed
+                        Configurations = $newConfigurations
                     }
                 }
 
