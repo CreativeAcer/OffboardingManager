@@ -60,8 +60,6 @@ function Save-Settings {
             UseADModule = $chkUseADModule.IsChecked
             DefaultDomain = if (![string]::IsNullOrWhiteSpace($txtDefaultDomain.Text)) {
                 $txtDefaultDomain.Text
-            } elseif (![string]::IsNullOrWhiteSpace($currentSettings.DefaultDomain)) {
-                $currentSettings.DefaultDomain
             } else {
                 $env:USERDNSDOMAIN
             }
