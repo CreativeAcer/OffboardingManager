@@ -5,7 +5,7 @@ $script:WorkflowTasks = @{
             Id = "DisableAccount"
             DisplayName = "Disable Account"
             Description = "Disables the user's AD account"
-            FunctionName = "Disable-ADAccount"  # Direct function reference
+            FunctionName = "Disable-UserAccount"  # Direct function reference
             Platform = "OnPrem"
             RequiredParams = @("UserPrincipalName", "Credential")
             OptionalParams = @()
@@ -52,18 +52,18 @@ $script:WorkflowTasks = @{
             Id = "SetForwarding"
             DisplayName = "Set Mail Forwarding"
             Description = "Sets up email forwarding"
-            FunctionName = "Set-MailForwarding"
+            FunctionName = "Set-MailboxForwarding"
             Platform = "O365"
-            RequiredParams = @("UserPrincipalName", "ForwardingAddress")
+            RequiredParams = @("UserPrincipalName", "ForwardingEmail")
             OptionalParams = @()
         }
         @{
             Id = "SetAutoReply"
             DisplayName = "Set Auto-Reply"
             Description = "Configures automatic reply message"
-            FunctionName = "Set-AutoReplyMessage"
+            FunctionName = "Set-MailboxAutoReply"
             Platform = "O365"
-            RequiredParams = @("UserPrincipalName", "Message")
+            RequiredParams = @("UserPrincipalName", "AutoReplyMessage")
             OptionalParams = @()
         }
     )

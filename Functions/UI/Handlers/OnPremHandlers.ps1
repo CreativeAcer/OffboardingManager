@@ -42,7 +42,7 @@ function Start-OnPremTasks {
     }
 
     # Get user details based on the connection method
-    $userEmail = if ($script:DemoMode) {
+    $userEmail = if (Get-AppSetting -SettingName "DemoMode") {
         $script:SelectedUser.EmailAddress
     }
     elseif ($script:UseADModule) {
@@ -51,7 +51,7 @@ function Start-OnPremTasks {
         $script:SelectedUser.Properties["mail"][0]
     }
 
-    $userPrincipalName = if ($script:DemoMode) {
+    $userPrincipalName = if (Get-AppSetting -SettingName "DemoMode") {
         $script:SelectedUser.UserPrincipalName
     }
     elseif ($script:UseADModule) {
@@ -159,7 +159,7 @@ function Disable-UserAccount {
     )
  
     Write-Host "SIMULATION: Would disable account for: $UserPrincipalName"
-    if ($script:DemoMode) {
+    if (Get-AppSetting -SettingName "DemoMode") {
         try {
             Write-ActivityLog -UserEmail $UserPrincipalName -Action "Account Disable" -Result "Starting account disable process (Demo)" -Platform "OnPrem"
             return "[SIMULATION] Would disable account for demo user: $UserPrincipalName"
@@ -215,7 +215,7 @@ function Remove-UserGroups {
     )
  
     Write-Host "[SIMULATION]: Would remove group memberships for: $UserPrincipalName"
-    if ($script:DemoMode) {
+    if (Get-AppSetting -SettingName "DemoMode") {
         try {
             Write-ActivityLog -UserEmail $UserPrincipalName -Action "Group Membership Backup" -Result "Groups to remove: $($groups -join '; ')" -Platform "OnPrem"
             return "[SIMULATION]: Would remove group memberships for: $UserPrincipalName"
@@ -282,7 +282,7 @@ function Move-UserToDisabledOU {
     # You should customize this OU path for your environment
     $disabledOU = "OU=Disabled Users,DC=yourdomain,DC=com"
  
-    if ($script:DemoMode) {
+    if (Get-AppSetting -SettingName "DemoMode") {
         try {
             Write-ActivityLog -UserEmail $UserPrincipalName -Action "Move to Disabled OU" -Result "Starting OU move process" -Platform "OnPrem"
             return "SIMULATION: Would move user to Disabled OU: $UserPrincipalName"
@@ -339,7 +339,7 @@ function Set-AccountExpiration {
     )
  
     Write-Host "[SIMULATION]: Would set account expiration for: $UserPrincipalName to $($ExpirationDate.ToString('yyyy-MM-dd'))"
-    if ($script:DemoMode) {
+    if (Get-AppSetting -SettingName "DemoMode") {
         try {
             Write-ActivityLog -UserEmail $UserPrincipalName -Action "Set Account Expiration" -Result "Demo mode - Would set expiration date to $($ExpirationDate.ToString('yyyy-MM-dd'))" -Platform "OnPrem"
             return "[SIMULATION]: Would set account expiration for: $UserPrincipalName to $($ExpirationDate.ToString('yyyy-MM-dd'))"

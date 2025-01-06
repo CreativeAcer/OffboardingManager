@@ -19,7 +19,7 @@ function Start-OffboardingWorkflow {
         }
 
         # Get user email for logging
-        $userEmail = if ($script:DemoMode) {
+        $userEmail = if (Get-AppSetting -SettingName "DemoMode") {
             $UserPrincipalName
         }
         else {

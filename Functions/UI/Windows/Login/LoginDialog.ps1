@@ -48,7 +48,7 @@
             $script:Password = $txtPassword.SecurePassword
             $script:DemoMode = $chkDemoMode.IsChecked
 
-            if ($script:DemoMode) {
+            if (Get-AppSetting -SettingName "DemoMode") {
                 $script:loginSuccess = $true 
                 $LoginWindow.Close()
                 return

@@ -63,7 +63,7 @@ function Generate-Reports {
             return
         }
 
-        if ($script:chkLicenseReport.IsChecked -and -not ($script:DemoMode -or $script:O365Connected)) {
+        if ($script:chkLicenseReport.IsChecked -and -not (Get-AppSetting -SettingName "DemoMode" -or $script:O365Connected)) {
             $script:txtReportResults.Text = "Please connect to O365 first before generating license reports."
             return
         }
@@ -116,7 +116,7 @@ function Generate-Reports {
 
         if ($script:chkLicenseReport.IsChecked) {
             # Get user details
-            $selectedUserUPN = if ($script:DemoMode) {
+            $selectedUserUPN = if (Get-AppSetting -SettingName "DemoMode") {
                 $script:SelectedUser.UserPrincipalName  
             } elseif ($script:UseADModule) {
                 $script:SelectedUser.mail
@@ -161,7 +161,7 @@ function Generate-LicenseReport {
         [string]$UserPrincipalName
     )
 
-    if ($script:DemoMode) {
+    if (Get-AppSetting -SettingName "DemoMode") {
         try {
             Write-Host "Retrieving mock license information..."
             $licenseData = @()
