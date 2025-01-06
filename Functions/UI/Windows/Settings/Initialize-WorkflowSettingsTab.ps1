@@ -209,14 +209,16 @@ function Load-SelectedWorkflow {
         [hashtable]$AdditionalControls = @{}  # For optional controls like description, name textboxes etc.
     )
     try {
+        Write-Host "=== Load Selected Workflow Initialization ==="
         # Get the dropdown and task list controls
         $workflowDropdown = $Window.FindName($WorkflowDropdownName)
         $taskList = $Window.FindName($TaskListName)
+        Write-Host "Selected tasklist to update $($taskList)"
 
         if ($workflowDropdown.SelectedItem) {
             $settings = Get-AppSetting
             $workflowName = $workflowDropdown.SelectedItem.ToString()
-            
+            Write-Host "Selected workflow $($workflowName)"
             # Get workflow configuration
             $configurations = $settings.WorkflowConfigurations.Configurations
             $workflow = $null
@@ -267,6 +269,7 @@ function Load-SelectedWorkflow {
                 Update-TaskSettingsPanel -ReadOnly $false
             }
         }
+        Write-Host "=== Load Selected Workflow Initialization Complete ==="
     }
     catch {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Load-SelectedWorkflow"
@@ -474,7 +477,6 @@ function Save-CurrentWorkflow {
 
         # Capture task settings from the panel
         $taskSettings = @{}
-
         # Loop through selected tasks to ensure we capture settings for each enabled task
         foreach($task in $script:lstSelectedTasks.Items) {
             Write-Host "Processing task: $($task.Id) - $($task.DisplayName)"

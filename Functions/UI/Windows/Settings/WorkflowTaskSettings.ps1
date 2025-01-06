@@ -70,6 +70,7 @@ function Add-ForwardingSettings {
     $script:pnlTaskSettings.Children.Add($label)
 
     $input = New-Object System.Windows.Controls.TextBox
+    $input.Name = "txt_SetForwarding_Days"  # Give it a specific name to retrieve it in saving
     $input.Text = $Settings.KeepForwardingDays  # Use saved value
     $input.Margin = "20,0,0,10"
     $input.IsReadOnly = $ReadOnly
@@ -90,6 +91,7 @@ function Add-AutoReplySettings {
     $script:pnlTaskSettings.Children.Add($label)
 
     $input = New-Object System.Windows.Controls.TextBox
+    $input.Name = "txt_SetAutoReply_Message"  # Give it a specific name to retrieve it in saving
     $input.Text = $Settings.Message  # Use saved value
     $input.TextWrapping = "Wrap"
     $input.AcceptsReturn = $true
@@ -113,6 +115,7 @@ function Add-ExpirationSettings {
     $script:pnlTaskSettings.Children.Add($label)
 
     $input = New-Object System.Windows.Controls.TextBox
+    $input.Name = "txt_SetExpiration_Days"  # Give it a specific name to retrieve it in saving
     $input.Text = $Settings.DaysAfterOffboarding  # Use saved value
     $input.Margin = "20,0,0,10"
     $input.IsReadOnly = $ReadOnly
