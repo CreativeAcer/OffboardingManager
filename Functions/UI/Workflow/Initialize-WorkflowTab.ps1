@@ -18,13 +18,13 @@ function Initialize-WorkflowTab {
         $script:txtWorkflowResults = $Window.FindName("txtWorkflowResults")
 
         # Load available workflows
-        Update-WorkflowDropdowns -Window $Window -DropdownNames @("cmbWorkflows")
+        Update-WorkflowDropdowns -Window $script:mainWindow -DropdownNames @("cmbWorkflows")
 
         $script:btnRunWorkflow.IsEnabled = $false  # Enable only when workflow is selected
 
         # Load initial workflow if one is selected
         if ($script:cmbWorkflows.SelectedItem) {
-            Load-SelectedWorkflow -Window $Window `
+            Load-SelectedWorkflow -Window $script:mainWindow `
                                 -WorkflowDropdownName "cmbWorkflows" `
                                 -TaskListName "lstWorkflowTasks"
             $script:btnRunWorkflow.IsEnabled = $true
