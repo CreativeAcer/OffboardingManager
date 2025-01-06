@@ -158,14 +158,7 @@
                                 Background="$($colors.Secondary)"
                                 Foreground="$($colors.InputBg)"
                                 BorderThickness="0"
-                                Margin="0,10,0,0"/>
-                        <Button Name="btnClose" 
-                                Content="Close"
-                                Padding="15,8" 
-                                Background="$($colors.Primary)"
-                                Foreground="$($colors.InputBg)"
-                                BorderThickness="0"
-                                Margin="0,10,0,0"/>
+                                Margin="0,10,0,0"/> 
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
@@ -341,5 +334,19 @@
                 </StackPanel>
             </TabItem>
         </TabControl>
+        <!-- Global Save and Close Buttons for Settings -->
+        <StackPanel Grid.Row="2" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right"
+                    Margin="0,20,0,0">
+            <Button Name="btnClose" 
+                    Content="Close"
+                    Padding="15,8" 
+                    Width="250"
+                    Background="$($colors.Primary)"
+                    Foreground="$($colors.InputBg)"
+                    BorderThickness="0"
+                    Margin="0,10,0,0"/>
+        </StackPanel>
     </Grid>
 </Window>
