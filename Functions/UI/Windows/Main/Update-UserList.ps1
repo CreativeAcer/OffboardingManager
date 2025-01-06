@@ -35,20 +35,23 @@ function Update-UserList {
                 }
                 else {
                     if (Get-AppSetting -SettingName "UseADModule") {
-                        $Filter = "Enabled -eq '$true' -and LockedOut -eq '$false' -and Mail -like '*'"
-                        
-                        if ($SearchText) {
-                            $Filter = "Enabled -eq '$true' -and LockedOut -eq '$false' -and Mail -like '*' -and UserPrincipalName -like '*$SearchText*'"
+                        Write-Host "Using AD Module filter: $baseFilter"
+                        try {
+                            $searchFilter = "*"
+                            if ($SearchText) {
+                                $searchFilter = "*$SearchText*"
+                            }
+
+                            $script:Users = Get-ADModuleUsers -Credential $Credential -SearchFilter $searchFilter -DomainController $script:DomainController
+
+                            $ListBox.Items.Clear()
+                            foreach ($User in $script:Users) {
+                                $ListBox.Items.Add($User.UserPrincipalName)
+                            }
                         }
-            
-                        Write-Host "Using AD Module filter: $Filter"
-                        
-                        $script:Users = Get-ADUser -Credential $Credential -Filter $Filter -Properties UserPrincipalName |
-                                Sort-Object UserPrincipalName
-                        
-                        $ListBox.Items.Clear()
-                        foreach ($User in $script:Users) {
-                            $ListBox.Items.Add($User.UserPrincipalName)
+                        catch {
+                            Write-Host "Failed to update user list: $_"
+                            throw
                         }
                     }
                     else {
@@ -69,6 +72,7 @@ function Update-UserList {
                                 $ListBox.Items.Add($User.Properties["userPrincipalName"][0])
                             }
                         }
+
                     }
                 }
             }

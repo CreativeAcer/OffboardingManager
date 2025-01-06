@@ -53,98 +53,85 @@
                 $LoginWindow.Close()
                 return
             }
+
             # Validate input fields
             if ([string]::IsNullOrWhiteSpace($script:Username) -or 
                 [string]::IsNullOrWhiteSpace($script:DomainController) -or 
                 [string]::IsNullOrWhiteSpace($script:Domain)) {
                 throw "Please fill in all required fields"
             }
+            # Normal credential creation
+            # Format username correctly for AD authentication
+            $formattedUsername = if ($script:Username.Contains('\') -or $script:Username.Contains('@')) {
+                $script:Username
+            } else {
+                "$script:Domain\$script:Username"
+            }
+            
+            $Credential = New-Object System.Management.Automation.PSCredential ($formattedUsername, $script:Password)
+            # # Construct full username with domain
+            # $fullUsername = "$($script:Domain)\$($script:Username)"
+            Write-Host "Attempting login with username: $formattedUsername"
+            
+            # # Create credential object
+            # $Credential = New-Object System.Management.Automation.PSCredential($fullUsername, $script:Password)
 
-            # Construct full username with domain
-            $fullUsername = "$($script:Domain)\$($script:Username)"
-            Write-Host "Attempting login with username: $fullUsername"
-            
-            # Create credential object
-            $Credential = New-Object System.Management.Automation.PSCredential($fullUsername, $script:Password)
-            
             $loadingWindow = Show-LoadingScreen -Message "Validating credentials..."
             $loadingWindow.Owner = $LoginWindow
             $loadingWindow.WindowStartupLocation = "CenterOwner"
             $loadingWindow.Show()
 
-            # Create authentication block
-            $authBlock = {
+            Write-Host "Using UseADModule: $(Get-AppSetting -SettingName "UseADModule")"
+            if(Get-AppSetting -SettingName "UseADModule"){
                 try {
-                    Write-Host "Using LDAP for authentication..."
-                    Update-LoadingMessage -LoadingWindow $loadingWindow -Message "Establishing LDAP connection..."
+                    # Use Get-ADAuthentication for authentication
+                    $directory = Get-ADAuthentication -DomainController $script:DomainController -Credential $Credential
                     
-                    $networkCred = $Credential.GetNetworkCredential()
-                    $ldapPath = "LDAP://$($script:DomainController)"
-                    
-                    Write-Host "Creating directory entry with path: $ldapPath"
-                    Write-Host "Username: $($networkCred.UserName)"
-                    Write-Host "Domain: $($networkCred.Domain)"
-                    
-                    $authType = [System.DirectoryServices.AuthenticationTypes]::Secure -bor 
-                               [System.DirectoryServices.AuthenticationTypes]::Sealing -bor 
-                               [System.DirectoryServices.AuthenticationTypes]::Signing
-                    
-                    $directoryEntry = New-Object System.DirectoryServices.DirectoryEntry(
-                        $ldapPath,
-                        $networkCred.UserName,
-                        $networkCred.Password,
-                        $authType
-                    )
-                    
-                    Write-Host "Directory entry created, testing connection..."
-                    if ($null -eq $directoryEntry) {
-                        throw "Failed to create directory entry"
-                    }
-                    
-                    # Test connection
-                    $null = $directoryEntry.RefreshCache()
-                    
-                    Write-Host "Creating directory searcher..."
-                    $searcher = New-Object System.DirectoryServices.DirectorySearcher
-                    $searcher.SearchRoot = $directoryEntry
-                    $searcher.Filter = "(sAMAccountName=$($script:Username))"
-                    
-                    Write-Host "Performing search..."
-                    $result = $searcher.FindOne()
-                    
-                    if ($null -eq $result) {
-                        throw "User not found in directory"
-                    }
-
-                    Write-Host "Authentication successful"
                     Update-LoadingMessage -LoadingWindow $loadingWindow -Message "Connection successful..."
                     Start-Sleep -Milliseconds 500
 
                     $script:loginSuccess = $true
-                    
-                    $loadingWindow.Dispatcher.Invoke({ $loadingWindow.Close() })
-                    $LoginWindow.Dispatcher.Invoke({ $LoginWindow.Close() })
+                    $loadingWindow.Close()
+                    $LoginWindow.Close()
                 }
                 catch {
-                    Write-Host "Authentication error details: $($_.Exception.Message)"
-                    Write-Host "Stack trace: $($_.ScriptStackTrace)"
+                    Write-Host "Authentication error: $($_.Exception.Message)"
+                    $loadingWindow.Close()
+                    [System.Windows.MessageBox]::Show(
+                        "Login failed: $($_.Exception.Message)`nPlease check your credentials and domain controller.", 
+                        "Authentication Error", 
+                        [System.Windows.MessageBoxButton]::OK, 
+                        [System.Windows.MessageBoxImage]::Error)
+                }
+            } else {
+                try {
+                    # Use Get-LDAPConnection for authentication
+                    $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential
                     
-                    $loadingWindow.Dispatcher.Invoke({ 
-                        $loadingWindow.Close()
-                        [System.Windows.MessageBox]::Show(
-                            "Login failed: $($_.Exception.Message)`nPlease check your credentials and domain controller.", 
-                            "Authentication Error", 
-                            [System.Windows.MessageBoxButton]::OK, 
-                            [System.Windows.MessageBoxImage]::Error)
-                    })
+                    Update-LoadingMessage -LoadingWindow $loadingWindow -Message "Connection successful..."
+                    Start-Sleep -Milliseconds 500
+
+                    $script:loginSuccess = $true
+                    $loadingWindow.Close()
+                    $LoginWindow.Close()
+                }
+                catch {
+                    Write-Host "Authentication error: $($_.Exception.Message)"
+                    $loadingWindow.Close()
+                    [System.Windows.MessageBox]::Show(
+                        "Login failed: $($_.Exception.Message)`nPlease check your credentials and domain controller.", 
+                        "Authentication Error", 
+                        [System.Windows.MessageBoxButton]::OK, 
+                        [System.Windows.MessageBoxImage]::Error)
                 }
             }
-
-            # Execute authentication on dispatcher
-            $LoginWindow.Dispatcher.Invoke($authBlock, [System.Windows.Threading.DispatcherPriority]::Normal)
+            
         }
         catch {
             Write-Host "Login error: $_"
+            if ($null -ne $loadingWindow) {
+                $loadingWindow.Close()
+            }
             [System.Windows.MessageBox]::Show(
                 "Login failed: $($_.Exception.Message)", 
                 "Error", 

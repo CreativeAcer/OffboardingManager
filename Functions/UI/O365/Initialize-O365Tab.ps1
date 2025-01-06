@@ -92,43 +92,23 @@ function Initialize-O365Tab {
 
         # Add click handler for connect button
         $script:btnConnectO365.Add_Click({
-            if (Get-AppSetting -SettingName "DemoMode") {
-                EnableO365Controls
-                $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
-                return
-            }
-            
-            try {
-                $script:txtO365Results.Text = "Checking Microsoft Graph module..."
+        try {
+            # Call Connect-O365 function for initial connection
+            Connect-O365
 
-                # Check if Microsoft.Graph module is installed
-                if (-not (Get-Module -ListAvailable -Name Microsoft.Graph)) {
-                    $script:txtO365Results.Text = "Installing Microsoft Graph module..."
-                    Install-Module Microsoft.Graph -Force -AllowClobber -Scope CurrentUser -ErrorAction Stop
-                }
-
-                # Import the module and connect
-                $script:txtO365Results.Text = "Importing Microsoft Graph module..."
-                Import-Module Microsoft.Graph.Authentication -ErrorAction Stop
-
-                $script:txtO365Results.Text = "Connecting to Microsoft Graph...`nPlease watch for a popup browser window for authentication."
-                Connect-MgGraph -Scopes "User.Read.All", "Group.Read.All" -ErrorAction Stop
-
-                # Clear and populate the products list
+            # Only update products list if connection was successful
+            if ($script:O365Connected) {
                 $script:lstProducts.Items.Clear()
                 $products = Get-O365Products
                 foreach ($product in $products) {
                     $script:lstProducts.Items.Add($product)
                 }
-
-                EnableO365Controls
-                $script:txtO365Results.Text = "Successfully connected to Microsoft Graph!`nReady to perform O365 operations."
             }
-            catch {
-                $script:txtO365Results.Text = "Error connecting to Microsoft Graph: $($_.Exception.Message)"
-                Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "O365-Connection"
-                DisableO365Controls
-            }
+        }
+        catch {
+            Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "O365-ButtonClick"
+            DisableO365Controls
+        }
         })
 
         # Add click handler for execute button

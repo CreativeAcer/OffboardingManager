@@ -4,13 +4,23 @@
     if ($arch -eq [System.Runtime.InteropServices.Architecture]::X86 -or 
         $arch -eq [System.Runtime.InteropServices.Architecture]::X64) {
         try {
+            # Check Windows PowerShell for AD module
+            if (!(Get-Module -ListAvailable -Name ActiveDirectory)) {
+                Write-Host "AD module not available. Please ask your administrator to install RSAT tools."
+                Write-Host "Falling back to LDAP"
+                $script:UseADModule = $false
+                return $true
+            }
+            
             Import-Module ActiveDirectory -ErrorAction Stop
             $script:UseADModule = $true
             Write-Host "Using Active Directory module"
             return $true
         }
         catch {
-            Write-Host "AD module not available, falling back to LDAP"
+            Write-Host "Failed to import AD module: $($_.Exception.Message)"
+            Write-Host "Falling back to LDAP"
+            $script:UseADModule = $false
         }
     }
     

@@ -131,6 +131,7 @@ function Set-LicenseManagement {
 
 # Main function call:
 # Set-LicenseManagement -UserPrincipalName "user@domain.com" -ReassignLicenses $true -TargetUser "newuser@domain.com" -DisableProducts $true -ProductsToDisable @("Product1", "Product2")
+
 function Get-O365Products {
     try {
         if (Get-AppSetting -SettingName "DemoMode") {

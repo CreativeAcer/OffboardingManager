@@ -18,7 +18,7 @@ function Get-O365Status {
                 "- Licenses: Office 365 E5"
             )
         } else {
-            $o365User = Get-MgUser -Filter "mail eq '$UserEmail'" -Property displayName, userPrincipalName, accountEnabled, mail
+            $o365User = Get-MgUser -Filter "userPrincipalName eq '$UserEmail'" -Property displayName, userPrincipalName, accountEnabled, mail
             $statusResults = @(
                 "O365 Status for $($o365User.DisplayName):",
                 "- User Principal Name: $($o365User.UserPrincipalName)",

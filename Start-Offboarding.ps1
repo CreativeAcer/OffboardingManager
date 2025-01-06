@@ -33,6 +33,8 @@ $script:BasePath = Split-Path -Parent (Split-Path -Parent $currentPath)  # Move 
  
 # Import Data functions
 . "$script:BasePath\Functions\Data\Mock\MockData.ps1"
+. "$script:BasePath\Functions\Data\ADModule\ADConnection.ps1"
+. "$script:BasePath\Functions\Data\ADModule\ADUsers.ps1"  
 . "$script:BasePath\Functions\Data\LDAP\LDAPConnection.ps1"
 . "$script:BasePath\Functions\Data\LDAP\LDAPUsers.ps1"  
 
@@ -60,6 +62,7 @@ Initialize-AppSettings
 # Import Core functions
 . "$script:BasePath\Functions\Core\Environment.ps1"
 . "$script:BasePath\Functions\Core\Logging\Write-ActivityLog.ps1"
+. "$script:BasePath\Functions\Core\Dependencies\DotNetVersionCheck.ps1"
 
 # Import Shared functions
 . "$script:BasePath\Functions\UI\Shared\XamlHelper.ps1"
@@ -115,6 +118,17 @@ $currentVersion = $PSVersionTable.PSVersion
 if ($currentVersion -lt $minVersion) {
     $message = "This script requires PowerShell version $minVersion or higher. Current version is $currentVersion"
     [System.Windows.MessageBox]::Show($message, "Version Error", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
+    exit
+}
+
+try {
+    $psEnvironment = Check-PowerShellVersion
+    Write-Host "Running on PowerShell $psEnvironment"
+    # Load-LdapLibrary -Environment $psEnvironment
+    # Proceed with your script logic here
+    Write-Host "Environment validated. Proceeding with script execution..." -ForegroundColor Green
+} catch {
+    Write-Error $_.Exception.Message
     exit
 }
 

@@ -16,7 +16,7 @@
                              }
                          ],
     "UseADModule":  false,
-    "DemoMode":  true,
+    "DemoMode":  false,
     "LogPath":  "Logs/error_log.txt",
     "LoggingEnabled":  true,
     "AutoReplyTemplate":  "Please contact xyz",

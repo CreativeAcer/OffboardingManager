@@ -477,6 +477,7 @@ function Save-CurrentWorkflow {
 
         # Capture task settings from the panel
         $taskSettings = @{}
+
         # Loop through selected tasks to ensure we capture settings for each enabled task
         foreach($task in $script:lstSelectedTasks.Items) {
             Write-Host "Processing task: $($task.Id) - $($task.DisplayName)"
@@ -594,3 +595,30 @@ function Save-CurrentWorkflow {
         )
     }
 }
+
+# function Update-TaskSettingsPanel {
+#     $script:pnlTaskSettings.Children.Clear()
+
+#     foreach($task in $script:lstSelectedTasks.Items) {
+#         # Add settings controls for each task
+#         $header = New-Object System.Windows.Controls.TextBlock
+#         $header.Text = $task.DisplayName
+#         $header.FontWeight = "SemiBold"
+#         $header.Margin = "0,10,0,5"
+#         $script:pnlTaskSettings.Children.Add($header)
+
+#         # Add specific settings based on task type
+#         switch($task.Id) {
+#             "SetExpiration" {
+#                 Add-ExpirationSettings $task
+#             }
+#             "SetForwarding" {
+#                 Add-ForwardingSettings $task
+#             }
+#             "SetExpiration" {
+#                 Add-ExpirationSettings -Task $task
+#             }
+#             # Add more task-specific settings as needed
+#         }
+#     }
+# }
