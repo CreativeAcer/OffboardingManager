@@ -240,11 +240,12 @@ Feel free to submit issues, fork the repository and create pull requests for any
 ## Project Structure
 ```plaintext
 /ADUserOffboarding/
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
 ├── Create-FolderstructureReport.ps1
 ├── Create-OffboardingShortcut.ps1
 ├── Create-Shortcut.bat
 ├── FolderStructure.txt
-├── folderstructurereport.txt
 ├── Launch-Offboarding.ps1
 ├── LICENSE
 ├── README.md
@@ -266,14 +267,22 @@ Feel free to submit issues, fork the repository and create pull requests for any
 ├── Functions/
 │   ├── Core/
 │   │   ├── Environment.ps1
+│   │   ├── Dependencies/
+│   │   │   └── DotNetVersionCheck.ps1
 │   │   ├── Logging/
 │   │   │   └── Write-ActivityLog.ps1
 │   ├── Data/
+│   │   ├── ADModule/
+│   │   │   ├── ADConnection.ps1
+│   │   │   └── ADUsers.ps1
 │   │   ├── LDAP/
 │   │   │   ├── LDAPConnection.ps1
 │   │   │   └── LDAPUsers.ps1
-│   │   └── Mock/
+│   │   ├── Mock/
 │   │   │   └── MockData.ps1
+│   │   └── O365/
+│   │   │   └── Connect-O365.ps1
+│   ├── Reports/
 │   ├── UI/
 │   │   ├── EasterEgg.ps1
 │   │   ├── Handlers/
@@ -337,7 +346,8 @@ Feel free to submit issues, fork the repository and create pull requests for any
 │   ├── error_log.txt
 │   ├── OffboardingActivities/
 │   │   ├── 20241227.log
-│   │   └── 20250105.log
+│   │   └── 20241231.log
+├── Reports/
 └── XAML/
     ├── Components/
     │   └── LoadingWindow.xaml
