@@ -38,7 +38,10 @@ function Update-TaskSettingsPanel {
 }
 
 function Add-ForwardingSettings {
-    param($Task)
+    param(
+        $Task,
+        [bool]$ReadOnly = $false
+    )
     
     # Add forwarding email setting
     $label = New-Object System.Windows.Controls.TextBlock
@@ -49,11 +52,15 @@ function Add-ForwardingSettings {
     $input = New-Object System.Windows.Controls.TextBox
     $input.Text = "90"  # Default value
     $input.Margin = "20,0,0,10"
+    $input.IsReadOnly = $ReadOnly
     $script:pnlTaskSettings.Children.Add($input)
 }
 
 function Add-AutoReplySettings {
-    param($Task)
+    param(
+        $Task,
+        [bool]$ReadOnly = $false
+    )
     
     # Add auto-reply message setting
     $label = New-Object System.Windows.Controls.TextBlock
@@ -67,11 +74,15 @@ function Add-AutoReplySettings {
     $input.AcceptsReturn = $true
     $input.Height = 60
     $input.Margin = "20,0,0,10"
+    $input.IsReadOnly = $ReadOnly
     $script:pnlTaskSettings.Children.Add($input)
 }
 
 function Add-ExpirationSettings {
-    param($Task)
+    param(
+        $Task,
+        [bool]$ReadOnly = $false
+    )
     
     # Add expiration days setting
     $label = New-Object System.Windows.Controls.TextBlock
@@ -82,5 +93,6 @@ function Add-ExpirationSettings {
     $input = New-Object System.Windows.Controls.TextBox
     $input.Text = "30"  # Default value
     $input.Margin = "20,0,0,10"
+    $input.IsReadOnly = $ReadOnly
     $script:pnlTaskSettings.Children.Add($input)
 }
