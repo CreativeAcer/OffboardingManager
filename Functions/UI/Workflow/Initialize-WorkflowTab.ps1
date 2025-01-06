@@ -20,22 +20,27 @@ function Initialize-WorkflowTab {
         # Load available workflows
         Update-WorkflowDropdowns -Window $script:mainWindow -DropdownNames @("cmbWorkflows")
 
-        $script:btnRunWorkflow.IsEnabled = $false  # Enable only when workflow is selected
+        $script:btnRunWorkflow.IsEnabled = $false
 
-        # Load initial workflow if one is selected
-        if ($script:cmbWorkflows.SelectedItem) {
+        # Get current settings to set initial workflow
+        $settings = Get-AppSetting
+        if ($settings.WorkflowConfigurations.LastUsed) {
+            $script:cmbWorkflows.SelectedItem = $settings.WorkflowConfigurations.LastUsed
+            # Force initial load of the workflow
             Load-SelectedWorkflow -Window $script:mainWindow `
                                 -WorkflowDropdownName "cmbWorkflows" `
                                 -TaskListName "lstWorkflowTasks"
+            Update-TaskSettingsPanel -ReadOnly $true -TasksList $script:lstWorkflowTasks
             $script:btnRunWorkflow.IsEnabled = $true
         }
-
+    
         # Add event handlers
         $script:cmbWorkflows.Add_SelectionChanged({
             if ($script:cmbWorkflows.SelectedItem) {
                 Load-SelectedWorkflow -Window $script:mainWindow `
                      -WorkflowDropdownName "cmbWorkflows" `
                      -TaskListName "lstWorkflowTasks"
+                Update-TaskSettingsPanel -ReadOnly $true -TasksList $script:lstWorkflowTasks
                 $script:btnRunWorkflow.IsEnabled = $true
             }
         })
@@ -43,8 +48,6 @@ function Initialize-WorkflowTab {
         $script:btnRunWorkflow.Add_Click({
             Start-SelectedWorkflow -Credential $Credential
         })
-
-        
     }
     catch {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Workflow-TabInit"

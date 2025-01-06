@@ -264,7 +264,7 @@ function Load-SelectedWorkflow {
                         $taskList.Items.Add($taskObject)
                     }
                 }
-                Update-TaskSettingsPanel
+                Update-TaskSettingsPanel -ReadOnly $false
             }
         }
     }
@@ -381,14 +381,14 @@ function Add-SelectedTask {
         }
 
         $script:lstSelectedTasks.Items.Add($taskObject)
-        Update-TaskSettingsPanel
+        Update-TaskSettingsPanel -ReadOnly $false
     }
 }
 
 function Remove-SelectedTask {
     if ($script:lstSelectedTasks.SelectedItem) {
         $script:lstSelectedTasks.Items.Remove($script:lstSelectedTasks.SelectedItem)
-        Update-TaskSettingsPanel
+        Update-TaskSettingsPanel -ReadOnly $false
     }
 }
 
@@ -421,7 +421,7 @@ function Move-TaskUp {
         }
 
         $script:lstSelectedTasks.SelectedIndex = $currentIndex - 1
-        Update-TaskSettingsPanel
+        Update-TaskSettingsPanel -ReadOnly $false
     }
 }
 
@@ -453,7 +453,7 @@ function Move-TaskDown {
         }
 
         $script:lstSelectedTasks.SelectedIndex = $currentIndex + 1
-        Update-TaskSettingsPanel
+        Update-TaskSettingsPanel -ReadOnly $false
     }
 }
 
@@ -537,29 +537,5 @@ function Save-CurrentWorkflow {
             [System.Windows.MessageBoxButton]::OK,
             [System.Windows.MessageBoxImage]::Error
         )
-    }
-}
-
-function Update-TaskSettingsPanel {
-    $script:pnlTaskSettings.Children.Clear()
-
-    foreach($task in $script:lstSelectedTasks.Items) {
-        # Add settings controls for each task
-        $header = New-Object System.Windows.Controls.TextBlock
-        $header.Text = $task.DisplayName
-        $header.FontWeight = "SemiBold"
-        $header.Margin = "0,10,0,5"
-        $script:pnlTaskSettings.Children.Add($header)
-
-        # Add specific settings based on task type
-        switch($task.Id) {
-            "SetExpiration" {
-                Add-ExpirationSettings $task
-            }
-            "SetForwarding" {
-                Add-ForwardingSettings $task
-            }
-            # Add more task-specific settings as needed
-        }
     }
 }

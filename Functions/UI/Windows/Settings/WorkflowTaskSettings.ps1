@@ -1,7 +1,18 @@
 function Update-TaskSettingsPanel {
+    param (
+        [Parameter(Mandatory = $false)]
+        [bool]$ReadOnly = $false,  # Add parameter to control if settings are editable
+        [Parameter(Mandatory = $false)]
+        [System.Windows.Controls.ListBox]$TasksList = $null  # Allow passing in different list box
+    )
+
+    Write-Host "=== Update Task Settingspanel Initialization ==="
     $script:pnlTaskSettings.Children.Clear()
     
-    foreach($task in $script:lstSelectedTasks.Items) {
+    # Use provided TasksList or default to lstSelectedTasks
+    $taskSource = if ($TasksList) { $TasksList } else { $script:lstSelectedTasks }
+    
+    foreach($task in $taskSource.Items) {
         # Add settings controls for each task
         $header = New-Object System.Windows.Controls.TextBlock
         $header.Text = $task.DisplayName
@@ -12,16 +23,18 @@ function Update-TaskSettingsPanel {
         # Add specific settings based on task type
         switch($task.Id) {
             "SetForwarding" {
-                Add-ForwardingSettings -Task $task
+                Add-ForwardingSettings -Task $task -ReadOnly:$ReadOnly
             }
             "SetAutoReply" {
-                Add-AutoReplySettings -Task $task
+                Add-AutoReplySettings -Task $task -ReadOnly:$ReadOnly
             }
             "SetExpiration" {
-                Add-ExpirationSettings -Task $task
+                Add-ExpirationSettings -Task $task -ReadOnly:$ReadOnly
             }
+            # Add more task-specific settings as needed
         }
     }
+    Write-Host "=== Update Task Settingspanel Initialization Complete ==="
 }
 
 function Add-ForwardingSettings {
