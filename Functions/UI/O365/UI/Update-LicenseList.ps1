@@ -9,28 +9,14 @@ function Update-LicenseTargetList {
             }
         }
         else {
-            foreach($item in $script:lstUsers.Items) {
-                $script:cmbLicenseTarget.Items.Add($item)
+            foreach($item in $script:Users) {
+                if ($item.Properties["userPrincipalName"]) {
+                    $script:cmbLicenseTarget.Items.Add($item.Properties["userPrincipalName"][0])
+                }
             }
         }
     }
     catch {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Update-LicenseList"
-    }
-}
-
-function Initialize-ProductsList {
-    try {
-        # Clear existing items
-        $script:lstProducts.Items.Clear()
-        
-        # Get and add products
-        $products = Get-O365Products
-        foreach ($product in $products) {
-            $script:lstProducts.Items.Add($product)
-        }
-    }
-    catch {
-        Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Initialize-ProductsList"
     }
 }

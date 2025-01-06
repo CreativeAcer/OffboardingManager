@@ -3,6 +3,7 @@
 . "$PSScriptRoot\..\O365\Initialize-O365Tab.ps1"
 . "$PSScriptRoot\..\O365\Start-O365Tasks.ps1"
 . "$PSScriptRoot\..\Services\O365\Connect-O365.ps1"
+. "$PSScriptRoot\..\Services\O365\LicenseManagement.ps1"
 
 # Task-specific modules
 . "$PSScriptRoot\..\O365\Tasks\Get-O365Status.ps1"

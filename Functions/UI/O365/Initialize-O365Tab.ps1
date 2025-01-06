@@ -39,6 +39,14 @@ function Initialize-O365Tab {
         # Initially disable execution controls until connected
         $script:btnRunO365.IsEnabled = $false
         $script:chkO365Status.IsEnabled = $false
+        $script:chkConvertShared.IsEnabled = $false
+        $script:chkSetForwarding.IsEnabled = $false
+        $script:chkAutoReply.IsEnabled = $false
+        $script:chkRemoveTeams.IsEnabled = $false
+        $script:chkTransferTeams.IsEnabled = $false
+        $script:chkRemoveSharePoint.IsEnabled = $false
+        $script:chkReassignLicense.IsEnabled = $false
+        $script:chkDisableProducts.IsEnabled = $false
 
         if ($null -eq $script:btnConnectO365) {
             throw "Failed to find btnConnectO365 control"
@@ -62,6 +70,18 @@ function Initialize-O365Tab {
         if (Get-AppSetting -SettingName "DemoMode") {
             $script:btnConnectO365.Content = "Connect to O365 (Demo)"
             $script:O365Connected = $false
+
+            # Add demo products
+            $products = Get-O365Products
+            foreach ($product in $products) {
+                $script:lstProducts.Items.Add($product)
+            }
+        }
+        else {
+            $script:btnConnectO365.Content = "Connect to O365"
+            $script:O365Connected = $false
+            $script:lstProducts.Items.Clear()
+            $script:lstProducts.Items.Add("Please connect to O365 first...")
         }
         # Add AD users to forwarding dropdown
         Update-ForwardingUserList
@@ -70,31 +90,14 @@ function Initialize-O365Tab {
         # Initialize license target combobox
         Update-LicenseTargetList
 
-        # Initialize products listbox
-        $products = Get-O365Products
-        foreach ($product in $products) {
-            $script:lstProducts.Items.Add($product)
-        }
-
         # Add click handler for connect button
         $script:btnConnectO365.Add_Click({
             if (Get-AppSetting -SettingName "DemoMode") {
-                $script:O365Connected = $true
-                $script:btnConnectO365.IsEnabled = $false
-                $script:chkO365Status.IsEnabled = $true
-                $script:btnRunO365.IsEnabled = $true
-                $script:chkConvertShared.IsEnabled = $true
-                $script:chkSetForwarding.IsEnabled = $true
-                $script:chkAutoReply.IsEnabled = $true
-                $script:chkRemoveTeams.IsEnabled = $true
-                $script:chkTransferTeams.IsEnabled = $true
-                $script:cmbTeamsOwner.IsEnabled = $true
-                $script:chkRemoveSharePoint.IsEnabled = $true
-                $script:chkReassignLicense.IsEnabled = $true
-                $script:chkDisableProducts.IsEnabled = $true
+                EnableO365Controls
                 $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
                 return
             }
+            
             try {
                 $script:txtO365Results.Text = "Checking Microsoft Graph module..."
 
@@ -104,50 +107,27 @@ function Initialize-O365Tab {
                     Install-Module Microsoft.Graph -Force -AllowClobber -Scope CurrentUser -ErrorAction Stop
                 }
 
-                # Import the module
+                # Import the module and connect
                 $script:txtO365Results.Text = "Importing Microsoft Graph module..."
                 Import-Module Microsoft.Graph.Authentication -ErrorAction Stop
 
                 $script:txtO365Results.Text = "Connecting to Microsoft Graph...`nPlease watch for a popup browser window for authentication."
-                
-                # Connect using interactive login
                 Connect-MgGraph -Scopes "User.Read.All", "Group.Read.All" -ErrorAction Stop
 
+                # Clear and populate the products list
+                $script:lstProducts.Items.Clear()
+                $products = Get-O365Products
+                foreach ($product in $products) {
+                    $script:lstProducts.Items.Add($product)
+                }
+
+                EnableO365Controls
                 $script:txtO365Results.Text = "Successfully connected to Microsoft Graph!`nReady to perform O365 operations."
-                
-                # Enable execution controls after successful connection
-                $script:btnRunO365.IsEnabled = $true
-                $script:chkO365Status.IsEnabled = $true
-                $script:btnConnectO365.IsEnabled = $false
-                $script:chkConvertShared.IsEnabled = $true
-                $script:chkSetForwarding.IsEnabled = $true
-                $script:chkAutoReply.IsEnabled = $true
-                $script:chkRemoveTeams.IsEnabled = $true
-                $script:chkTransferTeams.IsEnabled = $true
-                $script:cmbTeamsOwner.IsEnabled = $true
-                $script:chkRemoveSharePoint.IsEnabled = $true
-                $script:chkReassignLicense.IsEnabled = $true
-                $script:chkDisableProducts.IsEnabled = $true
-                $script:O365Connected = $true
             }
             catch {
                 $script:txtO365Results.Text = "Error connecting to Microsoft Graph: $($_.Exception.Message)"
                 Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "O365-Connection"
-                
-                # Ensure controls remain disabled on error
-                $script:btnRunO365.IsEnabled = $false
-                $script:chkO365Status.IsEnabled = $false
-                $script:chkConvertShared.IsEnabled = $false
-                $script:chkSetForwarding.IsEnabled = $false
-                $script:chkAutoReply.IsEnabled = $false
-                $script:txtForwardingEmail.IsEnabled = $false
-                $script:chkRemoveTeams.IsEnabled = $false
-                $script:chkTransferTeams.IsEnabled = $false
-                $script:cmbTeamsOwner.IsEnabled = $false
-                $script:chkRemoveSharePoint.IsEnabled = $false
-                $script:chkReassignLicense.IsEnabled = $false
-                $script:chkDisableProducts.IsEnabled = $false
-                $script:O365Connected = $false
+                DisableO365Controls
             }
         })
 
@@ -162,4 +142,36 @@ function Initialize-O365Tab {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "O365-TabInit"
         throw
     }
+}
+
+# Helper function to enable controls
+function EnableO365Controls {
+    $script:O365Connected = $true
+    $script:btnConnectO365.IsEnabled = $false
+    $script:btnRunO365.IsEnabled = $true
+    $script:chkO365Status.IsEnabled = $true
+    $script:chkConvertShared.IsEnabled = $true
+    $script:chkSetForwarding.IsEnabled = $true
+    $script:chkAutoReply.IsEnabled = $true
+    $script:chkRemoveTeams.IsEnabled = $true
+    $script:chkTransferTeams.IsEnabled = $true
+    $script:chkRemoveSharePoint.IsEnabled = $true
+    $script:chkReassignLicense.IsEnabled = $true
+    $script:chkDisableProducts.IsEnabled = $true
+}
+
+# Helper function to disable controls
+function DisableO365Controls {
+    $script:O365Connected = $false
+    $script:btnConnectO365.IsEnabled = $true
+    $script:btnRunO365.IsEnabled = $false
+    $script:chkO365Status.IsEnabled = $false
+    $script:chkConvertShared.IsEnabled = $false
+    $script:chkSetForwarding.IsEnabled = $false
+    $script:chkAutoReply.IsEnabled = $false
+    $script:chkRemoveTeams.IsEnabled = $false
+    $script:chkTransferTeams.IsEnabled = $false
+    $script:chkRemoveSharePoint.IsEnabled = $false
+    $script:chkReassignLicense.IsEnabled = $false
+    $script:chkDisableProducts.IsEnabled = $false
 }
