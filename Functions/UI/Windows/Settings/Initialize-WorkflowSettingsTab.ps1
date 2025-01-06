@@ -463,19 +463,72 @@ function Save-CurrentWorkflow {
     )
     try {
         $settings = Get-AppSetting
+        Write-Host "Starting save workflow..."
 
         # Get enabled tasks
         $enabledTasks = [System.Collections.ArrayList]@()
         foreach($task in $script:lstSelectedTasks.Items) {
+            Write-Host "Adding task to enabled tasks: $($task.Id)"
             $enabledTasks.Add($task.Id) | Out-Null
         }
+
+        # Capture task settings from the panel
+        $taskSettings = @{}
+
+        # Loop through selected tasks to ensure we capture settings for each enabled task
+        foreach($task in $script:lstSelectedTasks.Items) {
+            Write-Host "Processing task: $($task.Id) - $($task.DisplayName)"
+            
+            # Find the TextBox for this task
+            $taskHeader = $script:pnlTaskSettings.Children | 
+                Where-Object { $_ -is [System.Windows.Controls.TextBlock] -and $_.Text -eq $task.DisplayName }
+
+            if ($taskHeader) {
+                Write-Host "Found header for task: $($taskHeader.Text)"
+                
+                # Get all controls after this header until the next header or end
+                $controls = $script:pnlTaskSettings.Children | 
+                    Where-Object { $script:pnlTaskSettings.Children.IndexOf($_) -gt $script:pnlTaskSettings.Children.IndexOf($taskHeader) }
+
+                foreach ($control in $controls) {
+                    if ($control -is [System.Windows.Controls.TextBox]) {
+                        Write-Host "Found TextBox with value: $($control.Text) for task: $($task.Id)"
+                        
+                        switch ($task.Id) {
+                            "SetForwarding" {
+                                $taskSettings[$task.Id] = @{
+                                    KeepForwardingDays = [int]$control.Text
+                                }
+                                Write-Host "Saved forwarding days: $($control.Text)"
+                            }
+                            "SetAutoReply" {
+                                $taskSettings[$task.Id] = @{
+                                    Message = $control.Text
+                                }
+                                Write-Host "Saved auto-reply message"
+                            }
+                            "SetExpiration" {
+                                $taskSettings[$task.Id] = @{
+                                    DaysAfterOffboarding = [int]$control.Text
+                                }
+                                Write-Host "Saved expiration days: $($control.Text)"
+                            }
+                        }
+                        break  # Only process the first TextBox after the header
+                    }
+                }
+            }
+        }
+
+        Write-Host "Final task settings:"
+        Write-Host ($taskSettings | ConvertTo-Json -Depth 5)
 
         # Create new workflow configuration
         $newWorkflow = @{
             Name = $script:txtWorkflowName.Text
             Description = $script:txtWorkflowDescription.Text
             EnabledTasks = $enabledTasks.ToArray()
-            TaskSettings = @{}  # Add task settings collection here
+            TaskSettings = $taskSettings
             LastModified = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
         }
 
