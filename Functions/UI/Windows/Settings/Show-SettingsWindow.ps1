@@ -21,6 +21,7 @@ function Show-SettingsWindow {
         $txtDefaultDomain = $settingsWindow.FindName("txtDefaultDomain")
         $txtAutoReplyTemplate = $settingsWindow.FindName("txtAutoReplyTemplate")
         $btnSaveSettings = $settingsWindow.FindName("btnSaveSettings")
+        $chkUseLDAPS = $SettingsWindow.FindName("chkUseLDAPS")
         $btnClose = $settingsWindow.FindName("btnClose")
         $txtSettingsStatus = $settingsWindow.FindName("txtSettingsStatus")
 
@@ -31,6 +32,7 @@ function Show-SettingsWindow {
         # Apply settings to UI
         $chkDemoMode.IsChecked = $settings.DemoMode
         $chkUseADModule.IsChecked = $settings.UseADModule
+        $chkUseLDAPS.IsChecked = $settings.UseLDAPS
 
         # Only populate text fields if they have values in settings
         if (![string]::IsNullOrWhiteSpace($settings.DefaultDomain)) {

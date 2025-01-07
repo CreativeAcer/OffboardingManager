@@ -4,6 +4,7 @@ $script:AppSettings = $null
 $settingsTemplate = @{
     DemoMode = $false
     UseADModule = $true
+    UseLDAPS = $false
     DefaultDomain = $env:USERDNSDOMAIN
     AutoReplyTemplate = "I am currently unavailable..."
     LoggingEnabled = $true

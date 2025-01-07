@@ -55,21 +55,49 @@ function Update-UserList {
                         }
                     }
                     else {
-                        $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential
-                        $filter = "(&(objectClass=user)(!userAccountControl:1.2.840.113556.1.4.803:=2)(!(userAccountControl:1.2.840.113556.1.4.803:=16))(mail=*))"
-            
-                        if ($SearchText) {
-                            $filter = "(&(objectClass=user)(!userAccountControl:1.2.840.113556.1.4.803:=2)(!(userAccountControl:1.2.840.113556.1.4.803:=16))(mail=*)(userPrincipalName=*$SearchText*))"
+                        try {
+                            $useLDAPS = Get-AppSetting -SettingName "UseLDAPS"
+                            $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential -UseLDAPS $useLDAPS
+                            
+                            $filter = "(&(objectClass=user)(!userAccountControl:1.2.840.113556.1.4.803:=2)(!(userAccountControl:1.2.840.113556.1.4.803:=16))(mail=*))"
+                            
+                            if ($SearchText) {
+                                $filter = "(&(objectClass=user)(!userAccountControl:1.2.840.113556.1.4.803:=2)(!(userAccountControl:1.2.840.113556.1.4.803:=16))(mail=*)(userPrincipalName=*$SearchText*))"
+                            }
+                        
+                            Write-Host "Using LDAP filter: $filter"
+                            
+                            $script:Users = Get-LDAPUsers -Directory $directory -SearchFilter $filter
+                            
+                            $ListBox.Items.Clear()
+                            foreach ($User in $script:Users) {
+                                if ($directory.IsLDAPS) {
+                                    # Handle System.DirectoryServices.Protocols response
+                                    $attributes = $User.Attributes
+                                    if ($attributes["userPrincipalName"]) {
+                                        $ListBox.Items.Add($attributes["userPrincipalName"][0])
+                                    }
+                                }
+                                else {
+                                    # Handle standard DirectorySearcher response
+                                    if ($User.Properties["userPrincipalName"]) {
+                                        $ListBox.Items.Add($User.Properties["userPrincipalName"][0])
+                                    }
+                                }
+                            }
                         }
-            
-                        Write-Host "Using LDAP filter: $filter"
-                        
-                        $script:Users = Get-LDAPUsers -Directory $directory -SearchFilter $filter
-                        
-                        $ListBox.Items.Clear()
-                        foreach ($User in $script:Users) {
-                            if ($User.Properties["userPrincipalName"]) {
-                                $ListBox.Items.Add($User.Properties["userPrincipalName"][0])
+                        catch {
+                            Write-Host "Failed to update user list: $($_.Exception.Message)"
+                            throw
+                        }
+                        finally {
+                            if ($directory -and $directory.Connection) {
+                                try {
+                                    [System.Runtime.InteropServices.Marshal]::ReleaseComObject($directory.Connection)
+                                }
+                                catch {
+                                    Write-Host "Warning: Connection cleanup error: $($_.Exception.Message)"
+                                }
                             }
                         }
 
