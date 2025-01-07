@@ -24,6 +24,6 @@
         }
     }
     
-    Write-Host "Using LDAP for directory access"
+    Write-Host "Using LDAP(S) for directory access"
     return $true
 }

@@ -16,7 +16,8 @@ function Update-SelectedUser {
                 $script:SelectedUser = Get-ADUser -Credential $Credential -Filter "UserPrincipalName -eq '$UserPrincipalName'" -Properties *
             }
             else {
-                $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential
+                $useLDAPS = Get-AppSetting -SettingName "UseLDAPS"
+                $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential -UseLDAPS $useLDAPS
                 $filter = "(&(objectClass=user)(userPrincipalName=$UserPrincipalName))"
                 $script:SelectedUser = Get-LDAPUsers -Directory $directory -SearchFilter $filter | Select-Object -First 1
             }

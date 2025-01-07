@@ -16,6 +16,7 @@
                              }
                          ],
     "UseADModule":  false,
+    "UseLDAPS":  false,
     "DemoMode":  true,
     "LogPath":  "Logs/error_log.txt",
     "LoggingEnabled":  true,

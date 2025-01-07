@@ -50,6 +50,7 @@ function Save-Settings {
         $txtDefaultDomain = $Window.FindName("txtDefaultDomain")
         $txtAutoReplyTemplate = $Window.FindName("txtAutoReplyTemplate")  
         $txtSettingsStatus = $Window.FindName("txtSettingsStatus")
+        $chkUseLDAPS = $Window.FindName("chkUseLDAPS")
 
         # Get current settings
         $currentSettings = Get-AppSetting
@@ -58,6 +59,7 @@ function Save-Settings {
         $settings = @{
             DemoMode = $chkDemoMode.IsChecked
             UseADModule = $chkUseADModule.IsChecked
+            UseLDAPS = $chkUseLDAPS.IsChecked
             DefaultDomain = if (![string]::IsNullOrWhiteSpace($txtDefaultDomain.Text)) {
                 $txtDefaultDomain.Text
             } else {

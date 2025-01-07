@@ -62,7 +62,8 @@ $($User.MemberOf | ForEach-Object { "- $_" } | Out-String)
 "@
     }
     else {
-        $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential
+        $useLDAPS = Get-AppSetting -SettingName "UseLDAPS"
+        $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential -UseLDAPS $useLDAPS
         $filter = "(&(objectClass=user)(userPrincipalName=$UserPrincipalName))"
         $User = Get-LDAPUsers -Directory $directory -SearchFilter $filter | Select-Object -First 1
         

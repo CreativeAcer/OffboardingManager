@@ -45,3 +45,46 @@ function Load-LdapLibrary {
         throw "Unsupported environment: $Environment"
     }
 }
+
+function Initialize-LDAPAssemblies {
+    try {
+        Write-Host "Checking LDAP assemblies..."
+        
+        # Check .NET Framework version
+        $dotNetVersion = [System.Environment]::Version
+        Write-Host "Detected .NET version: $dotNetVersion"
+        
+        if ($dotNetVersion.Major -lt 4) {
+            throw ".NET Framework 4.0 or higher is required for LDAP operations"
+        }
+
+        # Try to load the assembly if not already loaded
+        $ldapAssembly = [System.AppDomain]::CurrentDomain.GetAssemblies() | 
+                        Where-Object { $_.FullName -like "System.DirectoryServices.Protocols*" }
+        
+        if (-not $ldapAssembly) {
+            Write-Host "Loading System.DirectoryServices.Protocols assembly..."
+            try {
+                Add-Type -AssemblyName System.DirectoryServices.Protocols
+                Write-Host "Successfully loaded LDAP assemblies"
+            }
+            catch {
+                throw "Failed to load System.DirectoryServices.Protocols assembly: $($_.Exception.Message)"
+            }
+        }
+        else {
+            Write-Host "LDAP assemblies already loaded"
+        }
+
+        # Verify we can access the types we need
+        $null = [System.DirectoryServices.Protocols.LdapConnection]
+        $null = [System.DirectoryServices.Protocols.SearchRequest]
+        
+        return $true
+    }
+    catch {
+        Write-Host "Failed to initialize LDAP assemblies: $($_.Exception.Message)"
+        Write-Host "This might affect LDAPS functionality"
+        return $false
+    }
+}

@@ -137,6 +137,9 @@
                                     Content="Use AD Module" 
                                     Foreground="$($colors.Text)"
                                     Margin="0,0,0,10"/>
+                        <CheckBox Name="chkUseLDAPS" 
+                                    Content="Use LDAPS Connection" 
+                                    Margin="0,0,0,10" />
                         <TextBlock Text="Default Domain:"
                                     Foreground="$($colors.Text)"/>
                         <TextBox Name="txtDefaultDomain" 

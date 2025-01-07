@@ -23,6 +23,8 @@ The tool automatically adapts to your system architecture:
 - ✅ **x86 (32-bit)**: Full AD PowerShell module support
 - ✅ **ARM64**: LDAP-based access (Windows 11 ARM)
 
+Use of LDAPS can be set in settings
+
 ## Features
 - 🖥️ Modern WPF interface with sleek styling
 - 🔒 Secure authentication for both AD and O365

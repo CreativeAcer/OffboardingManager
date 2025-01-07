@@ -106,7 +106,8 @@
             } else {
                 try {
                     # Use Get-LDAPConnection for authentication
-                    $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential
+                    $useLDAPS = Get-AppSetting -SettingName "UseLDAPS"
+                    $directory = Get-LDAPConnection -DomainController $script:DomainController -Credential $Credential -UseLDAPS $useLDAPS
                     
                     Update-LoadingMessage -LoadingWindow $loadingWindow -Message "Connection successful..."
                     Start-Sleep -Milliseconds 500

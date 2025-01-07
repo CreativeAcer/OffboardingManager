@@ -124,8 +124,7 @@ if ($currentVersion -lt $minVersion) {
 try {
     $psEnvironment = Check-PowerShellVersion
     Write-Host "Running on PowerShell $psEnvironment"
-    # Load-LdapLibrary -Environment $psEnvironment
-    # Proceed with your script logic here
+    $script:UseProtocolsForLDAPS = Initialize-LDAPAssemblies
     Write-Host "Environment validated. Proceeding with script execution..." -ForegroundColor Green
 } catch {
     Write-Error $_.Exception.Message
