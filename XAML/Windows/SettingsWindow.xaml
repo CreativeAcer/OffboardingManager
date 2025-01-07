@@ -4,6 +4,8 @@
         Height="900" 
         Width="1000"
         WindowStartupLocation="CenterScreen"
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="CanMinimize"
         Background="$($colors.Background)">
         <Window.Resources>
         <Style TargetType="TextBox">

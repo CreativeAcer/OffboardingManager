@@ -1,15 +1,24 @@
 function Initialize-SettingsTab {
     param (
-        [System.Windows.Window]$Window
+        [System.Windows.Window]$Window,
+        [System.Windows.Window]$LoginWindow
     )
     
     try {
+        # Store window references in script scope
+        $script:settingsWindow = $Window
+        $script:loginWindow = $LoginWindow
+
+        Write-Host "Initialize-SettingsTab - Window is null: $($null -eq $Window)"
+        Write-Host "Initialize-SettingsTab - LoginWindow is null: $($null -eq $LoginWindow)"
+
         # Get control references
         $script:chkDemoMode = $Window.FindName("chkDemoMode")
         $script:chkUseADModule = $Window.FindName("chkUseADModule")
         $script:txtDefaultDomain = $Window.FindName("txtDefaultDomain")
         $script:txtAutoReplyTemplate = $Window.FindName("txtAutoReplyTemplate")
         $script:btnSaveSettings = $Window.FindName("btnSaveSettings")
+        $script:btnClose = $Window.FindName("btnClose")
         $script:txtSettingsStatus = $Window.FindName("txtSettingsStatus")
 
         # Initialize workflow settings
@@ -25,14 +34,28 @@ function Initialize-SettingsTab {
             $script:txtAutoReplyTemplate.Text = $settings.AutoReplyTemplate
         }
 
-        Write-Host "Settings Tab initialization completed"e
+        Write-Host "Settings Tab initialization completed"
 
         # Add save handler
         $script:btnSaveSettings.Add_Click({
-            Save-Settings -Window $Window -LoginWindow $LoginWindow
+            Write-Host "Save button clicked"
+            Write-Host "settingsWindow is null: $($null -eq $script:settingsWindow)"
+            Write-Host "loginWindow is null: $($null -eq $script:loginWindow)"
+            
+            if ($script:settingsWindow -and $script:loginWindow) {
+                Save-Settings -Window $script:settingsWindow -LoginWindow $script:loginWindow
+            } else {
+                Write-Host "Cannot save settings - window reference lost"
+                throw "Window reference is null"
+            }
+        })
+
+        $script:btnClose.Add_Click({
+            $script:settingsWindow.Close()
         })
     }
     catch {
+        Write-Host "Error in Initialize-SettingsTab: $($_.Exception.Message)"
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Settings-TabInit"
     }
 }
@@ -96,15 +119,19 @@ function Save-Settings {
         if ($null -ne $txtSettingsStatus) {
             $txtSettingsStatus.Text = "Settings saved successfully at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
         }
+        Write-Host "Settings saved successfully at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
         
         # Update application settings
         $script:DemoMode = $settings.DemoMode
         $script:UseADModule = $settings.UseADModule
     }
     catch {
-        if ($null -ne $txtSettingsStatus) {
+        Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Save-Settings"
+        
+        if ($txtSettingsStatus) {
             $txtSettingsStatus.Text = "Error saving settings: $($_.Exception.Message)"
         }
-        Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Save-Settings"
+        Write-Host "Error saving settings: $($_.Exception.Message)"
+        throw
     }
 }

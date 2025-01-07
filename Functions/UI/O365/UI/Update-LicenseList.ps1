@@ -9,9 +9,15 @@ function Update-LicenseTargetList {
             }
         }
         else {
-            foreach($item in $script:Users) {
-                if ($item.Properties["userPrincipalName"]) {
-                    $script:cmbLicenseTarget.Items.Add($item.Properties["userPrincipalName"][0])
+            if (Get-AppSetting -SettingName "UseADModule") {
+                foreach($item in $script:Users) {
+                    $script:cmbLicenseTarget.Items.Add($item.UserPrincipalName)
+                }
+            } else {
+                foreach($item in $script:Users) {
+                    if ($item.Properties["userPrincipalName"]) {
+                        $script:cmbLicenseTarget.Items.Add($item.Properties["userPrincipalName"][0])
+                    }
                 }
             }
         }

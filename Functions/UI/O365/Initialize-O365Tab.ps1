@@ -7,7 +7,6 @@ function Update-O365Dropdowns {
     # Initialize license target combobox
     Update-LicenseTargetList
 }
-
 function Initialize-O365Tab {
     param (
         [System.Windows.Window]$Window,

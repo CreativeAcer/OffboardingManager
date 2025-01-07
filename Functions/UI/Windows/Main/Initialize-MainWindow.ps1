@@ -67,6 +67,7 @@ function Initialize-MainWindowControls {
             Show-UserDetails -UserPrincipalName $script:lstUsers.SelectedItem -TextBlock $script:txtUserInfo -Credential $Credential
         }
     })
+
     
     # Initial data load
     Write-Host "Populating initial user list..."
