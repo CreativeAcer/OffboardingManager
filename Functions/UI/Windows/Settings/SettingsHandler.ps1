@@ -20,6 +20,7 @@ function Initialize-SettingsTab {
         $script:btnSaveSettings = $Window.FindName("btnSaveSettings")
         $script:btnClose = $Window.FindName("btnClose")
         $script:txtSettingsStatus = $Window.FindName("txtSettingsStatus")
+        $script:chkUseLDAPS = $Window.FindName("chkUseLDAPS")
 
         # Initialize workflow settings
         Write-Host "Initializing workflow settings tab..."
@@ -32,6 +33,7 @@ function Initialize-SettingsTab {
             $script:chkUseADModule.IsChecked = $settings.UseADModule
             $script:txtDefaultDomain.Text = $settings.DefaultDomain
             $script:txtAutoReplyTemplate.Text = $settings.AutoReplyTemplate
+            $script:chkUseLDAPS.IsChecked = $settings.UseLDAPS
         }
 
         Write-Host "Settings Tab initialization completed"
@@ -39,8 +41,6 @@ function Initialize-SettingsTab {
         # Add save handler
         $script:btnSaveSettings.Add_Click({
             Write-Host "Save button clicked"
-            Write-Host "settingsWindow is null: $($null -eq $script:settingsWindow)"
-            Write-Host "loginWindow is null: $($null -eq $script:loginWindow)"
             
             if ($script:settingsWindow -and $script:loginWindow) {
                 Save-Settings -Window $script:settingsWindow -LoginWindow $script:loginWindow
