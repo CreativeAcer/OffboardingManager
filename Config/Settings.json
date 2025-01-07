@@ -16,8 +16,12 @@
                              }
                          ],
     "UseADModule":  false,
+<<<<<<< HEAD
     "UseLDAPS":  false,
     "DemoMode":  false,
+=======
+    "DemoMode":  true,
+>>>>>>> 4c38d945c3a9538da6d2e26af8c20f4f4cb0cb47
     "LogPath":  "Logs/error_log.txt",
     "LoggingEnabled":  true,
     "AutoReplyTemplate":  "Please contact xyz",
