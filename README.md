@@ -11,6 +11,21 @@
     <img src="./Docs/Images/MainWindow.png" alt="AD User Offboarding Tool" width="800"/>
 </div>
 
+## Table of Contents
+- [Architecture Support](#architecture-support)
+- [Features](#features)
+- [Demo Mode](#demo-mode)
+- [Screenshots](#screenshots)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Development Status](#development-status)
+- [Backlog](#backlog)
+- [Contributing](#contributing)
+- [Usage](#usage)
+- [Reporting System](#reporting-system)
+- [Project Structure](#project-structure)
+- [Acknowledgments](#acknowledgments)
+
 ## About
 A PowerShell-based GUI tool for managing user offboarding in both Active Directory and Office 365 environments. Designed to work across multiple Windows architectures including x86, x64, and ARM. Features a demo mode for testing and training purposes.
 
