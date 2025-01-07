@@ -133,11 +133,11 @@ Screenshots may be outdated due to continuous development!
 git clone https://github.com/CreativeAcer/OffboardingManager.git
 
 # Navigate to the directory
-cd ADUserOffboarding
+cd OffboardingManager
 
 # Optional: Create desktop shortcut
 .\Create-Shortcut.bat
-- runs Create-OffboardingShortcut.ps1
+# This will automatically create a shortcut on your desktop for you
 ```
 
 ## Development Status
