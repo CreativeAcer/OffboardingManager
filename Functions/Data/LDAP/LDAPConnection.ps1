@@ -11,9 +11,12 @@
     try {
         Write-Host "Connecting with DC: $($DomainController)"
         $networkCred = $Credential.GetNetworkCredential()
+
+        # Convert domain to DC format
+        $dcPath = "DC=" + ($networkCred.Domain.Split('.') -join ',DC=')
         
         if ($UseLDAPS) {
-            $ldapPath = "LDAPS://$DomainController"
+            $ldapPath = "LDAPS://$DomainController/$dcPath"
             $authType = [System.DirectoryServices.AuthenticationTypes]::Secure -bor 
                         [System.DirectoryServices.AuthenticationTypes]::Sealing -bor 
                         [System.DirectoryServices.AuthenticationTypes]::Signing -bor
