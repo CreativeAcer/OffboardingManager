@@ -20,9 +20,15 @@ function Create-OffboardingShortcut {
         }
         
         $launchScript = Join-Path -Path $scriptDir -ChildPath "Launch-Offboarding.ps1"
+        $iconPath = Join-Path -Path $scriptDir -ChildPath "Docs\Icon\offboarding-icon.ico"
+
         
         if (-not (Test-Path $launchScript)) {
             throw "Launch script not found at: $launchScript"
+        }
+        if (-not (Test-Path $iconPath)) {
+            Write-Warning "Custom icon not found at: $iconPath, using default PowerShell icon"
+            $iconPath = "powershell.exe,0"
         }
 
         Write-Host "Creating shortcut..."
@@ -39,7 +45,7 @@ function Create-OffboardingShortcut {
         $shortcut.TargetPath = "powershell.exe"
         $shortcut.Arguments = "-ExecutionPolicy Bypass -NoProfile -WindowStyle Hidden -File `"$launchScript`""
         $shortcut.WorkingDirectory = $scriptDir
-        $shortcut.IconLocation = "powershell.exe,0"
+        $shortcut.IconLocation = $iconPath
         $shortcut.Description = "AD User Offboarding Tool"
         
         # Save and verify
