@@ -49,7 +49,8 @@
             }
             
             Write-Host "Executing LDAPS search..."
-            $response = $ldapConnection.SendRequest($searchRequest)
+            $timeSpan = New-Object System.TimeSpan(0, 0, 30)  # 30 seconds timeout
+            $response = $ldapConnection.SendRequest($searchRequest, $timeSpan)
             Write-Host "Search completed successfully"
             
             return $response.Entries

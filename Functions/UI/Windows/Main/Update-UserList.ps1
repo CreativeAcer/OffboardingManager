@@ -65,7 +65,7 @@ function Update-UserList {
                                 $filter = "(&(objectClass=user)(!userAccountControl:1.2.840.113556.1.4.803:=2)(!(userAccountControl:1.2.840.113556.1.4.803:=16))(mail=*)(userPrincipalName=*$SearchText*))"
                             }
                         
-                            Write-Host "Using LDAP filter: $filter"
+                            Write-Host "Using LDAPS filter: $filter"
                             
                             $script:Users = Get-LDAPUsers -Directory $directory -SearchFilter $filter
                             
