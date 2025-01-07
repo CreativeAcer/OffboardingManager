@@ -1,3 +1,13 @@
+function Update-O365Dropdowns {
+    Write-Host "Refreshing O365 dropdowns..."
+    # Add AD users to forwarding dropdown
+    Update-ForwardingUserList
+    # Add AD users to teamsowner dropdown
+    Update-TeamsOwnerList
+    # Initialize license target combobox
+    Update-LicenseTargetList
+}
+
 function Initialize-O365Tab {
     param (
         [System.Windows.Window]$Window,
@@ -83,12 +93,7 @@ function Initialize-O365Tab {
             $script:lstProducts.Items.Clear()
             $script:lstProducts.Items.Add("Please connect to O365 first...")
         }
-        # Add AD users to forwarding dropdown
-        Update-ForwardingUserList
-        # Add AD users to teamsowner dropdown
-        Update-TeamsOwnerList
-        # Initialize license target combobox
-        Update-LicenseTargetList
+        Update-O365Dropdowns
 
         # Add click handler for connect button
         $script:btnConnectO365.Add_Click({

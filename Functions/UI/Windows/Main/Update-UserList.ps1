@@ -103,6 +103,10 @@ function Update-UserList {
 
                     }
                 }
+                if ($script:txtO365Results) {  # Check if O365 tab is initialized
+                    Write-Host "Updating O365 dropdowns after user list update..."
+                    Update-O365Dropdowns
+                }
             }
             catch {
                 Write-Error "Failed to update user list: $_"
