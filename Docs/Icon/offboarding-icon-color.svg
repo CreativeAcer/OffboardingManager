@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="248" fill="#2D3748" stroke="#FBBA07" stroke-width="16"/>
+  
+  <!-- Modern user silhouette -->
+  <g transform="translate(140, 120) scale(0.9)">
+    <!-- Head -->
+    <circle cx="128" cy="96" r="64" fill="#FBBA07"/>
+    
+    <!-- Body with shoulders -->
+    <path d="
+      M 128 176
+      C 48 176 0 230 0 300
+      L 256 300
+      C 256 230 208 176 128 176
+      Z" 
+      fill="#FBBA07"/>
+  </g>
+  
+  <!-- Exit arrow -->
+  <g transform="translate(270, 256)">
+    <path 
+      d="M 0 0 H 100 M 100 0 L 60 -30 M 100 0 L 60 30" 
+      stroke="#FC8181" 
+      stroke-width="24" 
+      fill="none" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"/>
+  </g>
+</svg>
