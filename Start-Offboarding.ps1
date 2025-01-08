@@ -74,12 +74,13 @@ Initialize-AppSettings
 . "$script:BasePath\Functions\UI\Windows\Main\MainWindow.ps1"
 . "$script:BasePath\Functions\UI\Windows\Settings\Initialize-WorkflowSettingsTab.ps1"
 . "$script:BasePath\Functions\UI\Windows\Settings\Show-SettingsWindow.ps1"
-. "$script:BasePath\Functions\UI\Windows\Settings\SettingsHandler.ps1"
 . "$script:BasePath\Functions\UI\Windows\Settings\WorkflowTaskSettings.ps1"
+. "$script:BasePath\Functions\UI\Windows\Reports\Initialize-ReportsTab.ps1"
 
 # Import functions
 . "$script:BasePath\Functions\UI\Services\O365\MailboxManagement.ps1"
 . "$script:BasePath\Functions\UI\Services\O365\TeamsManagement.ps1"
+. "$script:BasePath\Functions\UI\Handlers\SettingsHandler.ps1"
 . "$script:BasePath\Functions\UI\Handlers\OnPremHandlers.ps1"
 . "$script:BasePath\Functions\UI\Handlers\O365Handlers.ps1"
 . "$script:BasePath\Functions\UI\Handlers\ReportHandlers.ps1"

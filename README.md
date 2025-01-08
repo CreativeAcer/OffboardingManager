@@ -257,8 +257,6 @@ Feel free to submit issues, fork the repository and create pull requests for any
 ## Project Structure
 ```plaintext
 /ADUserOffboarding/
-├── CODE_OF_CONDUCT.md
-├── CONTRIBUTING.md
 ├── Create-FolderstructureReport.ps1
 ├── Create-OffboardingShortcut.ps1
 ├── Create-Shortcut.bat
@@ -272,7 +270,13 @@ Feel free to submit issues, fork the repository and create pull requests for any
 │   ├── Fonts.ps1
 │   ├── Settings.json
 │   └── Settings.ps1
+├── Database/
 ├── Docs/
+│   ├── Icon/
+│   │   ├── offboarding-icon-color.ico
+│   │   ├── offboarding-icon-color.svg
+│   │   ├── offboarding-icon.ico
+│   │   └── offboarding-icon.svg
 │   └── Images/
 │   │   ├── Login.png
 │   │   ├── MainWindow.png
@@ -305,7 +309,8 @@ Feel free to submit issues, fork the repository and create pull requests for any
 │   │   ├── Handlers/
 │   │   │   ├── O365Handlers.ps1
 │   │   │   ├── OnPremHandlers.ps1
-│   │   │   └── ReportHandlers.ps1
+│   │   │   ├── ReportHandlers.ps1
+│   │   │   └── SettingsHandler.ps1
 │   │   ├── O365/
 │   │   │   ├── Initialize-O365Tab.ps1
 │   │   │   ├── Start-O365Tasks.ps1
@@ -338,9 +343,10 @@ Feel free to submit issues, fork the repository and create pull requests for any
 │   │   │   │   ├── Show-UserDetails.ps1
 │   │   │   │   ├── Update-SelectedUser.ps1
 │   │   │   │   └── Update-UserList.ps1
+│   │   │   ├── Reports/
+│   │   │   │   └── Initialize-ReportsTab.ps1
 │   │   │   └── Settings/
 │   │   │   │   ├── Initialize-WorkflowSettingsTab.ps1
-│   │   │   │   ├── SettingsHandler.ps1
 │   │   │   │   ├── Show-SettingsWindow.ps1
 │   │   │   │   └── WorkflowTaskSettings.ps1
 │   │   ├── Workflow/
@@ -359,12 +365,9 @@ Feel free to submit issues, fork the repository and create pull requests for any
 │   │   │   └── Save-WorkflowConfiguration.ps1
 │   │   ├── Tasks/
 │   │   │   └── Get-WorkflowTasks.ps1
+├── Lib/
 ├── Logs/
-│   ├── error_log.txt
-│   ├── OffboardingActivities/
-│   │   ├── 20241227.log
-│   │   └── 20241231.log
-├── Reports/
+│   └── OffboardingActivities/
 └── XAML/
     ├── Components/
     │   └── LoadingWindow.xaml
@@ -372,7 +375,6 @@ Feel free to submit issues, fork the repository and create pull requests for any
         ├── LoginWindow.xaml
         ├── MainWindow.xaml
         └── SettingsWindow.xaml
-
 ```
 ## Acknowledgments
 - PowerShell Community for inspiration and examples
