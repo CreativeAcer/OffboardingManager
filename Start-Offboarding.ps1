@@ -30,6 +30,12 @@ try {
 . "$PSScriptRoot\Functions\Utilities\PathUtils.ps1"
 $currentPath = Get-BasePath
 $script:BasePath = Split-Path -Parent (Split-Path -Parent $currentPath)  # Move two folders higher
+
+# Import Core functions
+. "$script:BasePath\Functions\Core\Environment.ps1"
+. "$script:BasePath\Functions\Core\Logging\Write-ActivityLog.ps1"
+. "$script:BasePath\Functions\Core\Logging\Write-ErrorLog.ps1"
+. "$script:BasePath\Functions\Core\Dependencies\DotNetVersionCheck.ps1"
  
 # Import Data functions
 . "$script:BasePath\Functions\Data\Mock\MockData.ps1"
@@ -59,11 +65,6 @@ Initialize-AppSettings
 # Import workflow UI
 . "$script:BasePath\Functions\UI\Workflow\Initialize-WorkflowTab.ps1"
 
-# Import Core functions
-. "$script:BasePath\Functions\Core\Environment.ps1"
-. "$script:BasePath\Functions\Core\Logging\Write-ActivityLog.ps1"
-. "$script:BasePath\Functions\Core\Dependencies\DotNetVersionCheck.ps1"
-
 # Import Shared functions
 . "$script:BasePath\Functions\UI\Shared\XamlHelper.ps1"
 . "$script:BasePath\Functions\UI\Shared\LoadingScreen.ps1"
@@ -87,30 +88,6 @@ Initialize-AppSettings
 
 
 #. "$script:BasePath\Functions\UI\EasterEgg.ps1"
-
-# Error handling function
-function Write-ErrorLog {
-    param(
-        [string]$ErrorMessage,
-        [string]$Location
-    )
-    
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logMessage = "[$timestamp] ERROR in $Location`: $ErrorMessage"
-    
-    # Ensure log directory exists
-    $logDir = Join-Path $script:BasePath "Logs"
-    if (-not (Test-Path $logDir)) {
-        New-Item -ItemType Directory -Path $logDir | Out-Null
-    }
-    
-    # Write to log file
-    $logFile = Join-Path $logDir "error_log.txt"
-    $logMessage | Out-File -FilePath $logFile -Append
-    
-    # Also write to console
-    Write-Host $logMessage -ForegroundColor Red
-}
 
 # Version check
 $minVersion = [Version]"5.1"
