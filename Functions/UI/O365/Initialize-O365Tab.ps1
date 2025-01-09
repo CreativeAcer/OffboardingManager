@@ -96,23 +96,23 @@ function Initialize-O365Tab {
 
         # Add click handler for connect button
         $script:btnConnectO365.Add_Click({
-        try {
-            # Call Connect-O365 function for initial connection
-            Connect-O365
+            try {
+                # Call Connect-O365 function for initial connection
+                Connect-O365
 
-            # Only update products list if connection was successful
-            if ($script:O365Connected) {
-                $script:lstProducts.Items.Clear()
-                $products = Get-O365Products
-                foreach ($product in $products) {
-                    $script:lstProducts.Items.Add($product)
+                # Only update products list if connection was successful
+                if ($script:O365Connected) {
+                    $script:lstProducts.Items.Clear()
+                    $products = Get-O365Products
+                    foreach ($product in $products) {
+                        $script:lstProducts.Items.Add($product)
+                    }
                 }
             }
-        }
-        catch {
-            Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "O365-ButtonClick"
-            DisableO365Controls
-        }
+            catch {
+                Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "O365-ButtonClick"
+                DisableO365Controls
+            }
         })
 
         # Add click handler for execute button

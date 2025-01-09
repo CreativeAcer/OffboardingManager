@@ -1,23 +1,28 @@
 function Connect-O365 {
     try {
-        if (Get-AppSetting -SettingName "DemoMode") {
-            Enable-O365Controls
-            $script:O365Connected = $true
-            $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
-            return
-        }
-        
-        $script:txtO365Results.Text = "Checking Microsoft Graph module..."
-        $script:O365Connected = $false
-
+        # if (Get-AppSetting -SettingName "DemoMode") {
+        #     Enable-O365Controls
+        #     $script:O365Connected = $true
+        #     $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
+        #     return
+        # }
+        # If Microsoft Graph module is not installed
         if (-not (Get-Module -ListAvailable -Name Microsoft.Graph)) {
             $script:btnConnectO365.IsEnabled = $false
-            $script:txtO365Results.Text = "Installing Microsoft Graph module... This may take a few minutes."
+            $script:txtO365Results.Text = "Installing Microsoft Graph module... This may take a few minutes.`nPlease wait..."
+
+            # Check if async operation is in progress
+            if ($script:asyncOperationInProgress) {
+                $script:txtO365Results.Text = "Please wait for the current operation to complete."
+                return
+            }
 
             # Create counters in script scope
             $script:elapsedSeconds = 0
-            $script:currentStatus = "Starting installation process..."
-            
+
+            # Set flag for async operation in progress
+            $script:asyncOperationInProgress = $true
+
             # Create runspace pool
             $runspacePool = [runspacefactory]::CreateRunspacePool(1, 1)
             $runspacePool.Open()
@@ -26,30 +31,54 @@ function Connect-O365 {
             $powershell = [powershell]::Create().AddScript({
                 # Enable verbose output
                 $VerbosePreference = 'Continue'
-                $messages = @()
-
+                
+                # Create a temporary log file
+                $logFile = Join-Path $env:TEMP "MGInstallLog.txt"
+                
+                # Clear existing log file if it exists
+                if (Test-Path $logFile) {
+                    Remove-Item $logFile -Force
+                }
+                
+                # Log the start of the process
+                "Starting installation process at $(Get-Date)" | Out-File $logFile
+                
+                # Check and install NuGet provider if needed
+                "Checking NuGet provider..." | Out-File $logFile -Append
                 try {
-                    # Check and install NuGet provider if needed
-                    $messages += "Checking NuGet provider..."
                     $nugetProvider = Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue
                     if (-not $nugetProvider -or $nugetProvider.Version -lt [version]"2.8.5.201") {
-                        $messages += "Installing NuGet provider..."
+                        "Installing NuGet provider..." | Out-File $logFile -Append
                         Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser -ErrorAction Stop | Out-Null
-                        $messages += "NuGet provider installed successfully"
+                        "NuGet provider installed successfully" | Out-File $logFile -Append
                     } else {
-                        $messages += "NuGet provider already installed"
+                        "NuGet provider already installed" | Out-File $logFile -Append
                     }
-
-                    $messages += "Beginning Microsoft Graph module installation..."
-                    Install-Module Microsoft.Graph -Force -AllowClobber -Scope CurrentUser -SkipPublisherCheck -ErrorAction Stop -Verbose 4>&1 | 
-                        ForEach-Object { $messages += $_.Message }
-                    
-                    $messages += "Installation completed successfully"
-                    return $messages
                 }
                 catch {
-                    $messages += "Error: $($_.Exception.Message)"
+                    "Error installing NuGet provider: $($_.Exception.Message)" | Out-File $logFile -Append
                     throw
+                }
+                
+                "Beginning Microsoft Graph module installation..." | Out-File $logFile -Append
+                
+                # Capture the installation process with verbose output
+                try {
+                    $result = Install-Module Microsoft.Graph -Force -AllowClobber -SkipPublisherCheck -Scope CurrentUser -ErrorAction Stop -Verbose 4>&1 | 
+                        ForEach-Object {
+                            $_.Message | Out-File -Append $logFile
+                            $_.Message
+                        }
+                    "Installation completed successfully" | Out-File $logFile -Append
+                }
+                catch {
+                    "Installation failed: $($_.Exception.Message)" | Out-File $logFile -Append
+                    throw
+                }
+                
+                return @{
+                    Status = "Installation completed"
+                    Log = Get-Content $logFile
                 }
             })
             $powershell.RunspacePool = $runspacePool
@@ -57,95 +86,88 @@ function Connect-O365 {
             # Start async operation
             $asyncResult = $powershell.BeginInvoke()
 
-            # Create timer for UI updates
+            # Timer for UI updates
             $timer = New-Object System.Windows.Threading.DispatcherTimer
             $timer.Interval = [TimeSpan]::FromSeconds(1)
             
             $timer.Add_Tick({
                 $script:elapsedSeconds++
-                
-                # Check if the operation is completed
-                if ($asyncResult.IsCompleted) {
-                    $timer.Stop()
-                    
-                    try {
-                        $result = $powershell.EndInvoke($asyncResult)
+                try {
+                    # Check if the operation is completed
+                    if ($asyncResult.IsCompleted) {
+                        $timer.Stop()
                         
-                        $script:txtO365Results.Dispatcher.Invoke({
-                            $script:txtO365Results.Text = "Microsoft Graph module installed successfully."
-                        })
-                        
-                        # Continue with module import and connection
-                        $script:txtO365Results.Dispatcher.Invoke({
-                            $script:txtO365Results.Text = "Importing Microsoft Graph module..."
-                        })
-                        Import-Module Microsoft.Graph.Authentication -ErrorAction Stop
+                        try {
+                            $result = $powershell.EndInvoke($asyncResult)
+                            $script:txtO365Results.Dispatcher.Invoke({
+                                $script:txtO365Results.Text = "Microsoft Graph module installed successfully."
+                            })
+                            
+                            # Continue with module import and connection
+                            $script:txtO365Results.Dispatcher.Invoke({
+                                $script:txtO365Results.Text = "Importing Microsoft Graph module..."
+                            })
+                            Import-Module Microsoft.Graph.Authentication -ErrorAction Stop
 
-                        $script:txtO365Results.Dispatcher.Invoke({
-                            $script:txtO365Results.Text = "Connecting to Microsoft Graph...`nPlease watch for a popup browser window for authentication."
-                        })
-                        Connect-MgGraph -Scopes "User.Read.All", "Group.Read.All" -ErrorAction Stop
+                            $script:txtO365Results.Dispatcher.Invoke({
+                                $script:txtO365Results.Text = "Connecting to Microsoft Graph...`nPlease watch for a popup browser window for authentication."
+                            })
+                            Connect-MgGraph -Scopes "User.Read.All", "Group.Read.All" -ErrorAction Stop
 
-                        $script:txtO365Results.Dispatcher.Invoke({
-                            $script:txtO365Results.Text = "Successfully connected to Microsoft Graph!`nReady to perform O365 operations."
-                        })
-                        $script:O365Connected = $true
-                        Enable-O365Controls
+                            $script:txtO365Results.Dispatcher.Invoke({
+                                $script:txtO365Results.Text = "Successfully connected to Microsoft Graph!`nReady to perform O365 operations."
+                            })
+                            $script:O365Connected = $true
+                            Enable-O365Controls
+                        }
+                        catch {
+                            $script:txtO365Results.Dispatcher.Invoke({
+                                $script:txtO365Results.Text = "Error: $($_.Exception.Message)"
+                            })
+                        }
+                        finally {
+                            # Set flag to false when done
+                            $script:asyncOperationInProgress = $false
+                            # Cleanup
+                            $powershell.Dispose()
+                            $runspacePool.Close()
+                            $runspacePool.Dispose()
+                        }
+                        return
                     }
-                    catch {
-                        $script:O365Connected = $false
-                        Disable-O365Controls
+
+                    # If not completed, update the status
+                    $logFile = Join-Path $env:TEMP "MGInstallLog.txt"
+                    if (Test-Path $logFile) {
+                        $lastLines = Get-Content $logFile -Tail 5
+                        $script:txtO365Results.Dispatcher.Invoke({
+                            $script:txtO365Results.Text = "Installing Microsoft Graph module...`nThis may take a few minutes.`nTime elapsed: $script:elapsedSeconds seconds`n`nLatest status:`n$($lastLines -join "`n")"
+                        })
+                    }
+
+                    # Add timeout check
+                    if ($script:elapsedSeconds -gt 600) { # 10 minutes timeout
+                        $timer.Stop()
+                        $powershell.Stop()
+                        
+                        $script:txtO365Results.Dispatcher.Invoke({
+                            $script:txtO365Results.Text = "Installation timed out after 10 minutes.`nPlease try installing manually using:`n`nInstall-Module Microsoft.Graph -Force -Verbose"
+                        })
+                        
                         $script:btnConnectO365.IsEnabled = $true
-                        $script:txtO365Results.Dispatcher.Invoke({
-                            $script:txtO365Results.Text = "Error: $($_.Exception.Message)"
-                        })
-                    }
-                    finally {
+                        
+                        # Cleanup
                         $powershell.Dispose()
                         $runspacePool.Close()
                         $runspacePool.Dispose()
                     }
-                    return
-                }
-
-                # Get the latest messages
-                try {
-                    $messages = $powershell.Streams.Verbose.ReadAll()
-                    if ($messages) {
-                        $latestMessages = $messages | Select-Object -Last 3
-                        $script:txtO365Results.Dispatcher.Invoke({
-                            $script:txtO365Results.Text = "Installing Microsoft Graph module...`nTime elapsed: $script:elapsedSeconds seconds`n`nLatest status:`n$($latestMessages -join "`n")"
-                        })
-                    } else {
-                        $script:txtO365Results.Dispatcher.Invoke({
-                            $script:txtO365Results.Text = "Installing Microsoft Graph module...`nTime elapsed: $script:elapsedSeconds seconds"
-                        })
-                    }
                 } catch {
+                    # If we can't read the log, just show the timer
                     $script:txtO365Results.Dispatcher.Invoke({
-                        $script:txtO365Results.Text = "Installing Microsoft Graph module...`nTime elapsed: $script:elapsedSeconds seconds"
+                        $script:txtO365Results.Text = "Installing Microsoft Graph module...`nThis may take a few minutes.`nTime elapsed: $script:elapsedSeconds seconds"
                     })
-                }
-
-                # Add timeout check
-                if ($script:elapsedSeconds -gt 600) { # 10 minutes timeout
-                    $timer.Stop()
-                    $powershell.Stop()
-                    
-                    $script:txtO365Results.Dispatcher.Invoke({
-                        $script:txtO365Results.Text = "Installation timed out after 10 minutes.`nPlease try installing manually using:`n`nInstall-Module Microsoft.Graph -Force -Verbose"
-                    })
-                    
-                    $script:btnConnectO365.IsEnabled = $true
-                    
-                    # Cleanup
-                    $powershell.Dispose()
-                    $runspacePool.Close()
-                    $runspacePool.Dispose()
                 }
             })
-
-            # Start the timer
             $timer.Start()
         }
         else {
@@ -165,7 +187,7 @@ function Connect-O365 {
         $script:O365Connected = $false
         Disable-O365Controls
         $script:btnConnectO365.IsEnabled = $true
-        $script:txtO365Results.Text = "Error connecting to Microsoft Graph: $($_.Exception.Message)"
+        $script:txtO365Results.Text = "Error connecting to Microsoft Graph: $($_.Exception.Message) - Please install the module manually"
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "O365-Connection"
     }
 }
