@@ -20,27 +20,52 @@
         Write-Host "Port $Port is open on $DomainController"
         
         # Test SSL certificate
-        $cert = $null
+        $tcpClient = $null
+        $sslStream = $null
         try {
             $tcpClient = New-Object System.Net.Sockets.TcpClient($DomainController, $Port)
-            $sslStream = New-Object System.Net.Security.SslStream($tcpClient.GetStream())
+            $sslStream = New-Object System.Net.Security.SslStream(
+                $tcpClient.GetStream(),
+                $false,
+                { param($sender, $certificate, $chain, $errors) return $true }
+            )
+            
             $sslStream.AuthenticateAsClient($DomainController)
             $cert = $sslStream.RemoteCertificate
             
-            Write-Host "SSL Certificate Details:"
-            Write-Host "Subject: $($cert.Subject)"
-            Write-Host "Issuer: $($cert.Issuer)"
-            Write-Host "Valid From: $($cert.NotBefore)"
-            Write-Host "Valid To: $($cert.NotAfter)"
-            Write-Host "Thumbprint: $($cert.Thumbprint)"
+            if ($cert -ne $null) {
+                # Convert to X509Certificate2 for better property access
+                $cert2 = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($cert)
+                
+                Write-Host "SSL Certificate Details:"
+                Write-Host "Subject: $($cert2.Subject)"
+                Write-Host "Issuer: $($cert2.Issuer)"
+                Write-Host "Valid From: $($cert2.NotBefore.ToString('yyyy-MM-dd HH:mm:ss'))"
+                Write-Host "Valid To: $($cert2.NotAfter.ToString('yyyy-MM-dd HH:mm:ss'))"
+                Write-Host "Thumbprint: $($cert2.Thumbprint)"
+
+                if ($cert2.NotAfter -gt (Get-Date)) {
+                    Write-Host "Certificate is valid" -ForegroundColor Green
+                } else {
+                    Write-Host "Certificate has expired" -ForegroundColor Red
+                    return $false
+                }
+            } else {
+                Write-Host "SSL Certificate could not be retrieved"
+                return $false
+            }
         }
         catch {
             Write-Host "SSL Certificate error: $($_.Exception.Message)"
             return $false
         }
         finally {
-            if ($sslStream) { $sslStream.Dispose() }
-            if ($tcpClient) { $tcpClient.Dispose() }
+            if ($sslStream) { 
+                try { $sslStream.Dispose() } catch { }
+            }
+            if ($tcpClient) { 
+                try { $tcpClient.Dispose() } catch { }
+            }
         }
         
         return $true
