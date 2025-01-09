@@ -1,11 +1,11 @@
 function Connect-O365 {
     try {
-        # if (Get-AppSetting -SettingName "DemoMode") {
-        #     Enable-O365Controls
-        #     $script:O365Connected = $true
-        #     $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
-        #     return
-        # }
+        if (Get-AppSetting -SettingName "DemoMode") {
+            Enable-O365Controls
+            $script:O365Connected = $true
+            $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
+            return
+        }
         # If Microsoft Graph module is not installed
         if (-not (Get-Module -ListAvailable -Name Microsoft.Graph)) {
             $script:btnConnectO365.IsEnabled = $false
