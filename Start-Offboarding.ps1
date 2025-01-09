@@ -89,6 +89,10 @@ Initialize-AppSettings
 
 #. "$script:BasePath\Functions\UI\EasterEgg.ps1"
 
+# Show loading screen for initial setup
+$loadingWindow = Show-LoadingScreen -Message "Initializing environment..."
+$loadingWindow.Show()
+
 # Version check
 $minVersion = [Version]"5.1"
 $currentVersion = $PSVersionTable.PSVersion
@@ -117,9 +121,9 @@ try {
     if (Test-Environment) {
         Write-Host "Environment check passed."
         
-        # Show loading screen for initial setup
-        $loadingWindow = Show-LoadingScreen -Message "Initializing environment..."
-        $loadingWindow.Show()
+        # # Show loading screen for initial setup
+        # $loadingWindow = Show-LoadingScreen -Message "Initializing environment..."
+        # $loadingWindow.Show()
         
         try {
             # Show login dialog

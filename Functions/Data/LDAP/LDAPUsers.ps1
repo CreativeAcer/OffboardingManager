@@ -8,7 +8,7 @@
     try {
         if ($Directory.IsLDAPS) {
             Write-Host "Using System.DirectoryServices.Protocols for LDAPS..."
-            
+
             # Extract server name from path
             $serverName = $Directory.Connection.Path -replace 'LDAPS://', ''
             Write-Host "Server name: $serverName"
@@ -20,25 +20,30 @@
 
             # Create LDAP identifier
             $identifier = New-Object System.DirectoryServices.Protocols.LdapDirectoryIdentifier($serverName, 636)
-            
+
             # Create network credential
             $networkCred = New-Object System.Net.NetworkCredential($username, $password)
-            
+
             # Create and configure LDAP connection
             $ldapConnection = New-Object System.DirectoryServices.Protocols.LdapConnection($identifier)
             $ldapConnection.Credential = $networkCred
             $ldapConnection.AuthType = [System.DirectoryServices.Protocols.AuthType]::Negotiate
             $ldapConnection.SessionOptions.ProtocolVersion = 3
             $ldapConnection.SessionOptions.SecureSocketLayer = $true
-            
+
             Write-Host "Created LDAPS connection, attempting search..."
+
+            # Get domain from credentials and construct DC path
+            $domain = $Directory.Credentials.GetNetworkCredential().Domain
+            $domainDN = "DC=" + ($domain.Split('.') -join ',DC=')
+            Write-Host "Using search base: $domainDN"
 
             # Create the search request
             $searchRequest = New-Object System.DirectoryServices.Protocols.SearchRequest
-            $searchRequest.DistinguishedName = ""  # Root
+            $searchRequest.DistinguishedName = $domainDN
             $searchRequest.Filter = $SearchFilter
             $searchRequest.Scope = [System.DirectoryServices.Protocols.SearchScope]::Subtree
-            
+
             # Add attributes to retrieve
             @(
                 "userPrincipalName", "displayName", "mail", "department",
@@ -47,12 +52,12 @@
             ) | ForEach-Object {
                 $searchRequest.Attributes.Add($_) | Out-Null
             }
-            
+
             Write-Host "Executing LDAPS search..."
             $timeSpan = New-Object System.TimeSpan(0, 0, 30)  # 30 seconds timeout
             $response = $ldapConnection.SendRequest($searchRequest, $timeSpan)
             Write-Host "Search completed successfully"
-            
+
             return $response.Entries
         }
         else {
@@ -69,6 +74,11 @@
         }
     }
     catch {
+        $ldapError = $_ -as [System.DirectoryServices.Protocols.LdapException]
+        if ($ldapError) {
+            Write-Host "LDAP Error: $($ldapError.ServerErrorMessage)"
+            Write-Host "LDAP Error Code: $($ldapError.ErrorCode)"
+        }
         Write-Host "Error in Get-LDAPUsers: $($_.Exception.Message)"
         Write-Host "Stack trace: $($_.ScriptStackTrace)"
         throw
