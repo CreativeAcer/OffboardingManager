@@ -25,8 +25,29 @@ function Set-LicenseReassignment {
             
             foreach ($license in $userLicenses) {
                 # Comment out actual commands
-                #Set-MgUserLicense -UserId $TargetUser -AddLicenses @{SkuId = $license.SkuId} -RemoveLicenses @()
-                #Set-MgUserLicense -UserId $UserPrincipalName -AddLicenses @() -RemoveLicenses @($license.SkuId)
+                # Import the required Microsoft Graph modules
+                # Import-Module Microsoft.Graph.Users
+                # Import-Module Microsoft.Graph.Users.Actions
+                # Import-Module Microsoft.Graph.Identity.DirectoryManagement
+
+                # # Connect to Microsoft Graph if not already connected
+                # if (!(Get-MgContext)) {
+                #     Connect-MgGraph -Scopes "User.ReadWrite.All", "Directory.ReadWrite.All"
+                # }
+
+                # # Assign license to target user and remove from original user
+                # try {
+                #     # Add license to target user
+                #     Set-MgUserLicense -UserId $TargetUser -AddLicenses @{SkuId = $license.SkuId} -RemoveLicenses @()
+                #     Write-Host "Successfully assigned license to target user: $TargetUser"
+
+                #     # Remove license from original user
+                #     Set-MgUserLicense -UserId $UserPrincipalName -AddLicenses @() -RemoveLicenses @($license.SkuId)
+                #     Write-Host "Successfully removed license from original user: $UserPrincipalName"
+                # }
+                # catch {
+                #     Write-Error "Failed to process license transfer: $_"
+                # }
                 $results += "[SIMULATION] Would transfer license $($license.SkuPartNumber) to $TargetUser"
             }
             
@@ -60,23 +81,49 @@ function Disable-UserProducts {
             return "[DEMO] Would disable products: $($ProductsToDisable -join ', ')"
         }
         else {
-            $results = @()
-            # Get current license assignments
-            $userLicenses = Get-MgUserLicenseDetail -UserId $UserPrincipalName
+            # Import the required Microsoft Graph modules
+            # Import-Module Microsoft.Graph.Users
+            # Import-Module Microsoft.Graph.Users.Actions
+            # Import-Module Microsoft.Graph.Identity.DirectoryManagement
+
+            # # Connect to Microsoft Graph if not already connected
+            # if (!(Get-MgContext)) {
+            #     Connect-MgGraph -Scopes "User.ReadWrite.All", "Directory.ReadWrite.All"
+            # }
+
+            # $results = @()
+
+            # # Get current license assignments
+            # $userLicenses = Get-MgUserLicenseDetail -UserId $UserPrincipalName
             
-            foreach ($product in $ProductsToDisable) {
-                # Comment out actual commands
-                #$license = $userLicenses | Where-Object { $_.SkuPartNumber -eq $product }
-                #if ($license) {
-                #    $disabledPlans = $license.ServicePlans | ForEach-Object { $_.ServicePlanId }
-                #    Set-MgUserLicense -UserId $UserPrincipalName -AddLicenses @{
-                #        SkuId = $license.SkuId
-                #        DisabledPlans = $disabledPlans
-                #    } -RemoveLicenses @()
-                #}
-                $results += "[SIMULATION] Would disable product: $product"
-            }
-            
+            # foreach ($product in $ProductsToDisable) {
+            #     try {
+            #         $license = $userLicenses | Where-Object { $_.SkuPartNumber -eq $product }
+                    
+            #         if ($license) {
+            #             # Get all service plans to disable
+            #             $disabledPlans = $license.ServicePlans | ForEach-Object { $_.ServicePlanId }
+                        
+            #             # Update license with all plans disabled
+            #             Set-MgUserLicense -UserId $UserPrincipalName -AddLicenses @{
+            #                 SkuId = $license.SkuId
+            #                 DisabledPlans = $disabledPlans
+            #             } -RemoveLicenses @()
+                        
+            #             $results += "Successfully disabled all services for product: $product"
+            #             Write-Host "Disabled all services for product: $product"
+            #         }
+            #         else {
+            #             $results += "Product not found in user's licenses: $product"
+            #             Write-Warning "Product not found in user's licenses: $product"
+            #         }
+            #     }
+            #     catch {
+            #         $results += "Error processing product $product : $_"
+            #         Write-Error "Failed to process product $product : $_"
+            #     }
+            # }
+                     
             Write-ActivityLog -UserEmail $UserPrincipalName -Action "Product Disable" -Result "Simulation" -Platform "O365"
             return $results -join "`n"
         }
@@ -151,8 +198,17 @@ function Get-O365Products {
             if (-not $script:O365Connected) {
                 return @("Please connect to O365 first...")
             }
+            # Import the required Microsoft Graph module
+            Import-Module Microsoft.Graph.Identity.DirectoryManagement
+
+            # Connect to Microsoft Graph if not already connected
+            if (!(Get-MgContext)) {
+                Connect-MgGraph -Scopes "Directory.Read.All"
+            }
+            # Get all subscribed SKUs and return their part numbers
             $skus = Get-MgSubscribedSku
             return $skus | Select-Object -ExpandProperty SkuPartNumber
+            
         }
     }
     catch {

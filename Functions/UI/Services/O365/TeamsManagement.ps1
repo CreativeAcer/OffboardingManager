@@ -14,10 +14,35 @@ function Remove-UserFromTeams {
         }
         else {
             # Get user's Teams memberships
-            #$teams = Get-Team -User $UserPrincipalName
-            #foreach ($team in $teams) {
-            #    Remove-TeamUser -GroupId $team.GroupId -User $UserPrincipalName
-            #}
+            # Import the required Microsoft Graph modules
+            # Import-Module Microsoft.Graph.Teams
+            # Import-Module Microsoft.Graph.Groups
+
+            # # Connect to Microsoft Graph if not already connected
+            # if (!(Get-MgContext)) {
+            #     Connect-MgGraph -Scopes "Team.ReadWrite.All", "User.Read.All", "Group.ReadWrite.All"
+            # }
+
+            # # Get all teams the user is a member of
+            # $teams = Get-MgUserJoinedTeam -UserId $UserPrincipalName
+
+            # # Remove user from each team
+            # foreach ($team in $teams) {
+            #     try {
+            #         # Get the user's membership ID
+            #         $membershipId = (Get-MgTeamMember -TeamId $team.Id | 
+            #             Where-Object { $_.UserId -eq $UserPrincipalName }).Id
+                    
+            #         if ($membershipId) {
+            #             # Remove the user from the team
+            #             Remove-MgTeamMember -TeamId $team.Id -ConversationMemberId $membershipId
+            #             Write-Host "Removed user from team: $($team.DisplayName)"
+            #         }
+            #     }
+            #     catch {
+            #         Write-Warning "Failed to remove user from team $($team.DisplayName): $_"
+            #     }
+            # }
             Write-ActivityLog -UserEmail $UserPrincipalName -Action "Teams Removal" -Result "Simulation" -Platform "O365"
             return "[SIMULATION] Would remove user from all Teams groups"
         }
@@ -49,13 +74,35 @@ function Set-TeamsOwnershipTransfer {
         }
         else {
             # Get teams where user is owner
-            #$ownedTeams = Get-Team -User $UserPrincipalName | Where-Object { 
-            #    (Get-TeamUser -GroupId $_.GroupId -Role Owner).User -contains $UserPrincipalName 
-            #}
-            #foreach ($team in $ownedTeams) {
-            #    Add-TeamUser -GroupId $team.GroupId -User $NewOwner -Role Owner
-            #    Remove-TeamUser -GroupId $team.GroupId -User $UserPrincipalName
-            #}
+            # Import the required Microsoft Graph modules
+            # Import-Module Microsoft.Graph.Teams
+            # Import-Module Microsoft.Graph.Groups
+
+            # # Connect to Microsoft Graph if not already connected
+            # if (!(Get-MgContext)) {
+            #     Connect-MgGraph -Scopes "Team.ReadWrite.All", "User.Read.All", "Group.ReadWrite.All"
+            # }
+
+            # # Get teams owned by the user
+            # $ownedTeams = Get-MgUserJoinedTeam -UserId $UserPrincipalName | Where-Object {
+            #     (Get-MgTeamMember -TeamId $_.Id | Where-Object Role -eq 'owner').UserId -contains $UserPrincipalName
+            # }
+
+            # # Transfer ownership for each team
+            # foreach ($team in $ownedTeams) {
+            #     # Add new owner
+            #     $params = @{
+            #         "@odata.type" = "#microsoft.graph.aadUserConversationMember"
+            #         Roles = @("owner")
+            #         UserId = $NewOwner
+            #     }
+            #     New-MgTeamMember -TeamId $team.Id -BodyParameter $params
+
+            #     # Remove old owner
+            #     $oldOwnerMemberId = (Get-MgTeamMember -TeamId $team.Id | 
+            #         Where-Object { $_.UserId -eq $UserPrincipalName }).Id
+            #     Remove-MgTeamMember -TeamId $team.Id -ConversationMemberId $oldOwnerMemberId
+            # }
             Write-ActivityLog -UserEmail $UserPrincipalName -Action "Teams Ownership Transfer" -Result "Simulation" -Platform "O365"
             return "[SIMULATION] Would transfer Teams ownership to: $NewOwner"
         }
@@ -81,10 +128,35 @@ function Remove-SharePointPermissions {
         }
         else {
             # Get SharePoint sites
-            #$sites = Get-SPOSite
-            #foreach ($site in $sites) {
-            #    Remove-SPOUser -Site $site.Url -LoginName $UserPrincipalName
-            #}
+            # Connect to Microsoft Graph if not already connected
+            # if (!(Get-MgContext)) {
+            #     Connect-MgGraph -Scopes "Sites.FullControl.All", "Directory.Read.All"
+            # }
+
+            # # Get all SharePoint sites
+            # $sites = Get-MgSite -All
+
+            # # Remove user from each site
+            # foreach ($site in $sites) {
+            #     try {
+            #         # Get the user's site permissions
+            #         $siteUsers = Get-MgSitePermission -SiteId $site.Id
+                    
+            #         # Find the user's permission ID
+            #         $userPermission = $siteUsers | Where-Object { 
+            #             $_.Roles.AdditionalProperties.value.userPrincipalName -eq $UserPrincipalName 
+            #         }
+                    
+            #         if ($userPermission) {
+            #             # Remove the user's permission
+            #             Remove-MgSitePermission -SiteId $site.Id -PermissionId $userPermission.Id
+            #             Write-Host "Removed user from site: $($site.WebUrl)"
+            #         }
+            #     }
+            #     catch {
+            #         Write-Warning "Failed to process site $($site.WebUrl): $_"
+            #     }
+            # }
             Write-ActivityLog -UserEmail $UserPrincipalName -Action "SharePoint Permissions Removal" -Result "Simulation" -Platform "O365"
             return "[SIMULATION] Would remove SharePoint permissions"
         }

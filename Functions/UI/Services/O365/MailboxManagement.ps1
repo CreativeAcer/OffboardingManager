@@ -14,7 +14,30 @@ function Convert-ToSharedMailbox {
         }
         else {
             # Comment out actual command for now
-            #Set-Mailbox -Identity $UserPrincipalName -Type Shared
+            # Import the required Microsoft Graph module
+            # Import-Module Microsoft.Graph.Users
+
+            # # Connect to Microsoft Graph if not already connected
+            # if (!(Get-MgContext)) {
+            #     Connect-MgGraph -Scopes "User.ReadWrite.All"
+            # }
+
+            # # Parameters for converting the mailbox to shared
+            # $params = @{
+            #     AccountEnabled = $false
+            #     MailboxSettings = @{
+            #         MessagePayloadRestricted = $true
+            #     }
+            # }
+
+            # # Convert user mailbox to shared
+            # try {
+            #     Update-MgUser -UserId $UserPrincipalName -BodyParameter $params
+            #     Write-Host "Successfully converted mailbox to shared for user: $UserPrincipalName"
+            # }
+            # catch {
+            #     Write-Error "Failed to convert mailbox to shared: $_"
+            # }
             Write-ActivityLog -UserEmail $UserPrincipalName -Action "Convert to Shared Mailbox" -Result "Simulation" -Platform "O365"
             return "[SIMULATION] Would convert mailbox to shared"
         }
@@ -46,7 +69,37 @@ function Set-MailboxForwarding {
         }
         else {
             # Comment out actual command for now
-            #Set-Mailbox -Identity $UserPrincipalName -ForwardingAddress $ForwardingEmail -DeliverToMailboxAndForward $true
+            # Import the required Microsoft Graph module
+            # Import-Module Microsoft.Graph.Users
+
+            # # Connect to Microsoft Graph if not already connected
+            # if (!(Get-MgContext)) {
+            #     Connect-MgGraph -Scopes "User.ReadWrite.All"
+            # }
+
+            # # Parameters for setting up email forwarding
+            # $params = @{
+            #     MailboxSettings = @{
+            #         AutomaticRepliesSetting = @{
+            #             ExternalReplyMessage = ""
+            #             InternalReplyMessage = ""
+            #         }
+            #         ForwardingSettings = @{
+            #             ForwardingSmtpAddress = $ForwardingEmail
+            #             ForwardingEnabled = $true
+            #             KeepCopy = $true  # This is equivalent to DeliverToMailboxAndForward
+            #         }
+            #     }
+            # }
+
+            # # Set up email forwarding
+            # try {
+            #     Update-MgUser -UserId $UserPrincipalName -BodyParameter $params
+            #     Write-Host "Successfully set up email forwarding for user: $UserPrincipalName to: $ForwardingEmail"
+            # }
+            # catch {
+            #     Write-Error "Failed to set up email forwarding: $_"
+            # }
             Write-ActivityLog -UserEmail $UserPrincipalName -Action "Set Mail Forwarding" -Result "Simulation - Forward to: $ForwardingEmail" -Platform "O365"
             return "[SIMULATION] Would set forwarding to: $ForwardingEmail"
         }
@@ -78,7 +131,36 @@ function Set-MailboxAutoReply {
         }
         else {
             # Comment out actual command for now
-            #Set-MailboxAutoReplyConfiguration -Identity $UserPrincipalName -AutoReplyState Enabled -InternalMessage $AutoReplyMessage -ExternalMessage $AutoReplyMessage
+            # Import the required Microsoft Graph module
+            # Import-Module Microsoft.Graph.Users
+
+            # # Connect to Microsoft Graph if not already connected
+            # if (!(Get-MgContext)) {
+            #     Connect-MgGraph -Scopes "User.ReadWrite.All"
+            # }
+
+            # # Parameters for setting up auto-reply
+            # $params = @{
+            #     MailboxSettings = @{
+            #         AutomaticRepliesSetting = @{
+            #             Status = "AlwaysEnabled"  # Equivalent to AutoReplyState Enabled
+            #             ExternalReplyMessage = $AutoReplyMessage
+            #             InternalReplyMessage = $AutoReplyMessage
+            #             ScheduledStartDateTime = $null
+            #             ScheduledEndDateTime = $null
+            #             ExternalAudience = "All"  # Replies to all external senders
+            #         }
+            #     }
+            # }
+
+            # # Set up auto-reply
+            # try {
+            #     Update-MgUser -UserId $UserPrincipalName -BodyParameter $params
+            #     Write-Host "Successfully configured auto-reply for user: $UserPrincipalName"
+            # }
+            # catch {
+            #     Write-Error "Failed to configure auto-reply: $_"
+            # }
             Write-ActivityLog -UserEmail $UserPrincipalName -Action "Set Auto-Reply" -Result "Simulation" -Platform "O365"
             return "[SIMULATION] Would set auto-reply message to: $AutoReplyMessage"
         }
