@@ -191,34 +191,81 @@ function Connect-O365 {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "O365-Connection"
     }
 }
-
+#Dispatchers to perform update on main thread again
 function Enable-O365Controls {
     $script:O365Connected = $true
-    $script:btnConnectO365.IsEnabled = $false
-    $script:chkO365Status.IsEnabled = $true
-    $script:btnRunO365.IsEnabled = $true
-    $script:chkConvertShared.IsEnabled = $true
-    $script:chkSetForwarding.IsEnabled = $true
-    $script:chkAutoReply.IsEnabled = $true
-    $script:chkRemoveTeams.IsEnabled = $true
-    $script:chkTransferTeams.IsEnabled = $true
-    $script:cmbTeamsOwner.IsEnabled = $true
-    $script:chkRemoveSharePoint.IsEnabled = $true
-    $script:chkReassignLicense.IsEnabled = $true
-    $script:chkDisableProducts.IsEnabled = $true
+    $script:btnConnectO365.Dispatcher.Invoke({
+        $script:btnConnectO365.IsEnabled = $false
+    })
+    $script:chkO365Status.Dispatcher.Invoke({
+        $script:chkO365Status.IsEnabled = $true
+    })
+    $script:btnRunO365.Dispatcher.Invoke({
+        $script:btnRunO365.IsEnabled = $true
+    })
+    $script:chkConvertShared.Dispatcher.Invoke({
+        $script:chkConvertShared.IsEnabled = $true
+    })
+    $script:chkSetForwarding.Dispatcher.Invoke({
+        $script:chkSetForwarding.IsEnabled = $true
+    })
+    $script:chkAutoReply.Dispatcher.Invoke({
+        $script:chkAutoReply.IsEnabled = $true
+    })
+    $script:chkRemoveTeams.Dispatcher.Invoke({
+        $script:chkRemoveTeams.IsEnabled = $true
+    })
+    $script:chkTransferTeams.Dispatcher.Invoke({
+        $script:chkTransferTeams.IsEnabled = $true
+    })
+    $script:cmbTeamsOwner.Dispatcher.Invoke({
+        $script:cmbTeamsOwner.IsEnabled = $true
+    })
+    $script:chkRemoveSharePoint.Dispatcher.Invoke({
+        $script:chkRemoveSharePoint.IsEnabled = $true
+    })
+    $script:chkReassignLicense.Dispatcher.Invoke({
+        $script:chkReassignLicense.IsEnabled = $true
+    })
+    $script:chkDisableProducts.Dispatcher.Invoke({
+        $script:chkDisableProducts.IsEnabled = $true
+    })
 }
 
 function Disable-O365Controls {
     $script:O365Connected = $false
-    $script:btnRunO365.IsEnabled = $false
-    $script:chkO365Status.IsEnabled = $false
-    $script:chkConvertShared.IsEnabled = $false
-    $script:chkSetForwarding.IsEnabled = $false
-    $script:chkAutoReply.IsEnabled = $false
-    $script:chkRemoveTeams.IsEnabled = $false
-    $script:chkTransferTeams.IsEnabled = $false
-    $script:cmbTeamsOwner.IsEnabled = $false
-    $script:chkRemoveSharePoint.IsEnabled = $false
-    $script:chkReassignLicense.IsEnabled = $false
-    $script:chkDisableProducts.IsEnabled = $false
+    $script:btnRunO365.Dispatcher.Invoke({
+        $script:btnRunO365.IsEnabled = $false
+    })
+    $script:chkO365Status.Dispatcher.Invoke({
+        $script:chkO365Status.IsEnabled = $false
+    })
+    $script:chkConvertShared.Dispatcher.Invoke({
+        $script:chkConvertShared.IsEnabled = $false
+    })
+    $script:chkSetForwarding.Dispatcher.Invoke({
+        $script:chkSetForwarding.IsEnabled = $false
+    })
+    $script:chkAutoReply.Dispatcher.Invoke({
+        $script:chkAutoReply.IsEnabled = $false
+    })
+    $script:chkRemoveTeams.Dispatcher.Invoke({
+        $script:chkRemoveTeams.IsEnabled = $false
+    })
+    $script:chkTransferTeams.Dispatcher.Invoke({
+        $script:chkTransferTeams.IsEnabled = $false
+    })
+    $script:cmbTeamsOwner.Dispatcher.Invoke({
+        $script:cmbTeamsOwner.IsEnabled = $false
+    })
+    $script:chkRemoveSharePoint.Dispatcher.Invoke({
+        $script:chkRemoveSharePoint.IsEnabled = $false
+    })
+    $script:chkReassignLicense.Dispatcher.Invoke({
+        $script:chkReassignLicense.IsEnabled = $false
+    })
+    $script:chkDisableProducts.Dispatcher.Invoke({
+        $script:chkDisableProducts.IsEnabled = $false
+    })
 }
+
