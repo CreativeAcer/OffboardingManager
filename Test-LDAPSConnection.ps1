@@ -1,4 +1,4 @@
-﻿function Get-DomainController-ForTest {
+﻿function Get-DomainController {
     try {
         # Try method 1: Environment variable
         $dc = $env:LOGONSERVER -replace '\\',''
@@ -34,10 +34,10 @@
     }
 }
 
-function Test-LDAPS {
+function Test-LDAPSConnection {
     param(
         [Parameter(Mandatory=$false)]
-        [string]$DomainController = (Get-DomainController-ForTest)
+        [string]$DomainController = (Get-DomainController)
     )
 
     try {
@@ -49,10 +49,9 @@ function Test-LDAPS {
         }
 
         Write-Host "Testing connection to Domain Controller: $DomainController"
-        $LDAPSPort = 636
+        $LDAPSPort = 636  # Define LDAPS port
 
         # Test 1: Basic port connectivity
-        $tcpClient = $null
         try {
             Write-Host "`nTesting LDAPS port connectivity..."
             $tcpClient = New-Object System.Net.Sockets.TcpClient
@@ -76,7 +75,6 @@ function Test-LDAPS {
         }
 
         # Test 2: LDAPS Binding
-        $directoryEntry = $null
         try {
             Write-Host "`nTesting LDAPS binding..."
             $ldapPath = "LDAPS://$DomainController"
@@ -94,9 +92,7 @@ function Test-LDAPS {
             Write-Host "  Path: $($directoryEntry.Path)"
             Write-Host "  Name: $name"
 
-            # Test 3: SSL Certificate
-            $tcpClient = $null
-            $sslStream = $null
+            # Test 3: SSL Certificate (only if binding successful)
             try {
                 Write-Host "`nTesting SSL Certificate..."
                 $tcpClient = New-Object System.Net.Sockets.TcpClient($DomainController, $LDAPSPort)
@@ -112,7 +108,7 @@ function Test-LDAPS {
                 if ($cert -ne $null) {
                     # Convert to X509Certificate2 for better property access
                     $cert2 = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($cert)
-                    
+    
                     Write-Host "Certificate details:" -ForegroundColor Cyan
                     Write-Host "  Subject: $($cert2.Subject)"
                     Write-Host "  Issuer: $($cert2.Issuer)"
@@ -128,32 +124,25 @@ function Test-LDAPS {
                 } else {
                     Write-Host "✗ SSL Certificate is null or could not be retrieved" -ForegroundColor Red
                 }
-            }
-            catch {
+            } catch {
                 Write-Host "✗ SSL Certificate validation failed: $($_.Exception.Message)" -ForegroundColor Red
-            }
+}
             finally {
-                if ($sslStream) {
-                    try { $sslStream.Dispose() } catch { }
+                if ($sslStream -ne $null) {
+                    try { $sslStream.Dispose() } catch { Write-Host "Error disposing SslStream: $($_.Exception.Message)" }
                 }
-                if ($tcpClient) {
-                    try { $tcpClient.Dispose() } catch { }
+                if ($tcpClient -ne $null) {
+                    try { $tcpClient.Dispose() } catch { Write-Host "Error disposing TcpClient: $($_.Exception.Message)" }
                 }
             }
+
         }
         catch {
             Write-Host "✗ LDAPS binding failed: $($_.Exception.Message)" -ForegroundColor Red
         }
         finally {
             if ($directoryEntry) {
-                try {
-                    [System.Runtime.Interopservices.Marshal]::ReleaseComObject($directoryEntry) | Out-Null
-                    [System.GC]::Collect()
-                    [System.GC]::WaitForPendingFinalizers()
-                }
-                catch {
-                    Write-Host "Note: Clean-up of DirectoryEntry completed with non-critical warnings" -ForegroundColor Yellow
-                }
+                $directoryEntry.Dispose()
             }
         }
     }
@@ -172,5 +161,5 @@ if ([string]::IsNullOrEmpty($dc)) {
     Write-Host "Please provide a Domain Controller name." -ForegroundColor Yellow
 } else {
     Write-Host "Testing LDAPS for Domain Controller: $dc"
-    Test-LDAPS -DomainController $dc
+    Test-LDAPSConnection -DomainController $dc
 }

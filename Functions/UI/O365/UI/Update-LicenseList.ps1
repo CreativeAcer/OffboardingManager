@@ -28,7 +28,7 @@ function Update-LicenseTargetList {
 
                 foreach($user in $script:Users) {
                     if ($user.UserPrincipalName) {
-                        Write-Host "Adding UPN: $($user.UserPrincipalName)"
+                        #Write-Host "Adding UPN: $($user.UserPrincipalName)"
                         $script:cmbLicenseTarget.Items.Add($user.UserPrincipalName)
                     }
                 }
