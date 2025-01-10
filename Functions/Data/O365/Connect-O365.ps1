@@ -173,33 +173,11 @@ function Install-O365Module {
 function Connect-O365 {
     try {
         Write-Host "Starting Connect-O365 function..."
-        if (Get-AppSetting -SettingName "DemoMode") {
-            Enable-O365Controls
-            $script:O365Connected = $true
-            $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
-            return
-        }
         # Validate UI controls
         if ($null -eq $script:txtO365Results -or 
             $null -eq $script:btnConnectO365) {
             throw "UI controls not properly initialized"
         }
-
-        # Check if already connected
-        try {
-            $context = Get-MgContext
-            if ($null -ne $context) {
-                Write-Host "Already connected to Microsoft Graph"
-                $script:txtO365Results.Text = "Successfully connected to Microsoft Graph!`nReady to perform O365 operations."
-                $script:O365Connected = $true
-                Enable-O365Controls
-                return
-            }
-        }
-        catch {
-            Write-Host "Not connected to Microsoft Graph, proceeding with connection..."
-        }
-
         # Create controls hashtable
         $controls = @{
             'O365Status' = $script:chkO365Status
@@ -220,6 +198,12 @@ function Connect-O365 {
 
         Write-Host "Checking if Microsoft Graph module is available..."
         $ui.UpdateStatus("Checking Microsoft Graph module...")
+        if (Get-AppSetting -SettingName "DemoMode") {
+            $ui.EnableControls()
+            $script:O365Connected = $true
+            $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
+            return
+        }
 
         if (-not (Get-Module -ListAvailable -Name Microsoft.Graph)) {
             Write-Host "Module not found, starting installation..."
@@ -254,12 +238,25 @@ function Connect-O365 {
         $ui.UpdateStatus("Importing Microsoft Graph module...")
         Import-Module Microsoft.Graph.Authentication -ErrorAction Stop
 
-        $ui.UpdateStatus("Connecting to Microsoft Graph...`nPlease watch for a popup browser window for authentication.")
-        $authResult = Connect-MgGraph -Scopes "User.ReadWrite.All", "Directory.ReadWrite.All", "Team.ReadWrite.All", "Group.ReadWrite.All", "Sites.FullControl.All" -ErrorAction Stop
+        # Check if already connected
+        try {
+            $context = Get-MgContext
+            if ($null -ne $context) {
+                Write-Host "Already connected to Microsoft Graph"
+                $script:O365Connected = $true
+                $ui.UpdateStatus("Successfully connected to Microsoft Graph!`nReady to perform O365 operations.")
+                $ui.EnableControls()
+                return
+            }else{
+                #Connect to graph
+                $ui.UpdateStatus("Connecting to Microsoft Graph...`nPlease watch for a popup browser window for authentication.")
+                $authResult = Connect-MgGraph -Scopes "User.ReadWrite.All", "Directory.ReadWrite.All", "Team.ReadWrite.All", "Group.ReadWrite.All", "Sites.FullControl.All" -ErrorAction Stop
+            }
+        }
+        catch {
+            Write-Host "Not connected to Microsoft Graph, proceeding with connection..."
+        }
 
-        $script:O365Connected = $true
-        $ui.UpdateStatus("Successfully connected to Microsoft Graph!`nReady to perform O365 operations.")
-        $ui.EnableControls()
     }
     catch {
         Write-Host "Error in Connect-O365: $($_.Exception.Message)"
