@@ -173,12 +173,12 @@ function Install-O365Module {
 function Connect-O365 {
     try {
         Write-Host "Starting Connect-O365 function..."
-        # if (Get-AppSetting -SettingName "DemoMode") {
-        #     Enable-O365Controls
-        #     $script:O365Connected = $true
-        #     $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
-        #     return
-        # }
+        if (Get-AppSetting -SettingName "DemoMode") {
+            Enable-O365Controls
+            $script:O365Connected = $true
+            $script:txtO365Results.Text = "Connected to O365 (Demo Mode)"
+            return
+        }
         # Validate UI controls
         if ($null -eq $script:txtO365Results -or 
             $null -eq $script:btnConnectO365) {
