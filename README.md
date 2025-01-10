@@ -256,7 +256,7 @@ Feel free to submit issues, fork the repository and create pull requests for any
 
 ## Project Structure
 ```plaintext
-/ADUserOffboarding/
+\ADUserOffboarding\
 ├── Create-FolderstructureReport.ps1
 ├── Create-OffboardingShortcut.ps1
 ├── Create-Shortcut.bat
@@ -265,12 +265,12 @@ Feel free to submit issues, fork the repository and create pull requests for any
 ├── LICENSE
 ├── README.md
 ├── Start-Offboarding.ps1
+├── Test-LDAPSConnection.ps1
 ├── Config/
 │   ├── Colors.ps1
 │   ├── Fonts.ps1
 │   ├── Settings.json
 │   └── Settings.ps1
-├── Database/
 ├── Docs/
 │   ├── Icon/
 │   │   ├── offboarding-icon-color.ico
@@ -291,7 +291,8 @@ Feel free to submit issues, fork the repository and create pull requests for any
 │   │   ├── Dependencies/
 │   │   │   └── DotNetVersionCheck.ps1
 │   │   ├── Logging/
-│   │   │   └── Write-ActivityLog.ps1
+│   │   │   ├── Write-ActivityLog.ps1
+│   │   │   └── Write-Errorlog.ps1
 │   ├── Data/
 │   │   ├── ADModule/
 │   │   │   ├── ADConnection.ps1
@@ -302,7 +303,10 @@ Feel free to submit issues, fork the repository and create pull requests for any
 │   │   ├── Mock/
 │   │   │   └── MockData.ps1
 │   │   └── O365/
-│   │   │   └── Connect-O365.ps1
+│   │   │   ├── Connect-MgGraphWithDeviceCode.ps1
+│   │   │   ├── Connect-O365.ps1
+│   │   │   ├── Show-DeviceCodeInstructions.ps1
+│   │   │   └── Start-AuthenticationProcess.ps1
 │   ├── Reports/
 │   ├── UI/
 │   │   ├── EasterEgg.ps1
@@ -342,11 +346,13 @@ Feel free to submit issues, fork the repository and create pull requests for any
 │   │   │   │   ├── MainWindow.ps1
 │   │   │   │   ├── Show-UserDetails.ps1
 │   │   │   │   ├── Update-SelectedUser.ps1
-│   │   │   │   └── Update-UserList.ps1
+│   │   │   │   ├── Update-UserList.ps1
+│   │   │   │   └── Filter-UserList.ps1
 │   │   │   ├── Reports/
 │   │   │   │   └── Initialize-ReportsTab.ps1
 │   │   │   └── Settings/
 │   │   │   │   ├── Initialize-WorkflowSettingsTab.ps1
+│   │   │   │   ├── SettingsHandler.ps1
 │   │   │   │   ├── Show-SettingsWindow.ps1
 │   │   │   │   └── WorkflowTaskSettings.ps1
 │   │   ├── Workflow/
@@ -365,16 +371,20 @@ Feel free to submit issues, fork the repository and create pull requests for any
 │   │   │   └── Save-WorkflowConfiguration.ps1
 │   │   ├── Tasks/
 │   │   │   └── Get-WorkflowTasks.ps1
-├── Lib/
 ├── Logs/
-│   └── OffboardingActivities/
+│   ├── error_log.txt
+│   ├── OffboardingActivities/
+│   │   └── 20250107.log
+├── Reports/
 └── XAML/
     ├── Components/
+    │   ├── DeviceCodeWindow.xaml
     │   └── LoadingWindow.xaml
     └── Windows/
         ├── LoginWindow.xaml
         ├── MainWindow.xaml
         └── SettingsWindow.xaml
+
 ```
 ## Acknowledgments
 - PowerShell Community for inspiration and examples

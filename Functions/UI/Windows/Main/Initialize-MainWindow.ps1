@@ -58,7 +58,7 @@ function Initialize-MainWindowControls {
 
     # Set up event handlers
     $script:txtSearch.Add_TextChanged({
-        Update-UserList -SearchText $script:txtSearch.Text -ListBox $script:lstUsers -Credential $Credential
+        Filter-UserList -SearchText $script:txtSearch.Text -ListBox $script:lstUsers
     })
     
     $script:lstUsers.Add_SelectionChanged({
@@ -100,25 +100,4 @@ function Initialize-Tabs {
     Write-Host "Initializing Reports tab..."
     Update-LoadingMessage -LoadingWindow $LoadingWindow -Message "Initializing Reports components..."
     Initialize-ReportsTab -Window $Window -Credential $Credential
-}
-
-function Set-MainWindowEventHandlers {
-    param (
-        [System.Windows.Window]$Window,
-        [hashtable]$Controls,
-        [System.Management.Automation.PSCredential]$Credential
-    )
-    
-    Write-Host "Setting up event handlers..."
-    
-    $Controls.Search.Add_TextChanged({
-        Update-UserList -SearchText $Controls.Search.Text -ListBox $Controls.UserList -Credential $Credential
-    })
-    
-    $Controls.UserList.Add_SelectionChanged({
-        if ($Controls.UserList.SelectedItem) {
-            Update-SelectedUser -UserPrincipalName $Controls.UserList.SelectedItem -Credential $Credential
-            Show-UserDetails -UserPrincipalName $Controls.UserList.SelectedItem -TextBlock $Controls.UserInfo -Credential $Credential
-        }
-    })
 }

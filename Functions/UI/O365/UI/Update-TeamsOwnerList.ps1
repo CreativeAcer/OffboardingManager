@@ -28,7 +28,7 @@ function Update-TeamsOwnerList {
 
                 foreach($user in $script:Users) {
                     if ($user.UserPrincipalName) {
-                        Write-Host "Adding UPN: $($user.UserPrincipalName)"
+                        #Write-Host "Adding UPN: $($user.UserPrincipalName)"
                         $script:cmbTeamsOwner.Items.Add($user.UserPrincipalName)
                     }
                 }

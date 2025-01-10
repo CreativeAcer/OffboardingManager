@@ -1,6 +1,7 @@
 ﻿# Import sub-components
 . "$PSScriptRoot\Initialize-MainWindow.ps1"
 . "$PSScriptRoot\Update-UserList.ps1"
+. "$PSScriptRoot\Filter-UserList.ps1"
 . "$PSScriptRoot\Update-SelectedUser.ps1"
 . "$PSScriptRoot\Show-UserDetails.ps1"
 

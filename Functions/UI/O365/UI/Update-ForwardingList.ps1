@@ -28,7 +28,7 @@ function Update-ForwardingUserList {
 
                 foreach($user in $script:Users) {
                     if ($user.UserPrincipalName) {
-                        Write-Host "Adding UPN: $($user.UserPrincipalName)"
+                        #Write-Host "Adding UPN: $($user.UserPrincipalName)"
                         $script:cmbForwardingUser.Items.Add($user.UserPrincipalName)
                     }
                 }
