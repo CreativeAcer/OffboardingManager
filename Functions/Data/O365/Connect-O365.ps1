@@ -255,7 +255,7 @@ function Connect-O365 {
         Import-Module Microsoft.Graph.Authentication -ErrorAction Stop
 
         $ui.UpdateStatus("Connecting to Microsoft Graph...`nPlease watch for a popup browser window for authentication.")
-        $authResult = Connect-MgGraph -Scopes "User.Read.All", "Group.Read.All" -ErrorAction Stop
+        $authResult = Connect-MgGraph -Scopes "User.ReadWrite.All", "Directory.ReadWrite.All", "Team.ReadWrite.All", "Group.ReadWrite.All", "Sites.FullControl.All" -ErrorAction Stop
 
         $script:O365Connected = $true
         $ui.UpdateStatus("Successfully connected to Microsoft Graph!`nReady to perform O365 operations.")
