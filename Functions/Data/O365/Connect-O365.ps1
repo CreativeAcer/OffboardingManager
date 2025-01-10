@@ -250,7 +250,14 @@ function Connect-O365 {
             }else{
                 #Connect to graph
                 $ui.UpdateStatus("Connecting to Microsoft Graph...`nPlease watch for a popup browser window for authentication.")
-                $authResult = Connect-MgGraph -Scopes "User.ReadWrite.All", "Directory.ReadWrite.All", "Team.ReadWrite.All", "Group.ReadWrite.All", "Sites.FullControl.All" -ErrorAction Stop
+                $scopes = @(
+                    "User.ReadWrite.All",
+                    "Directory.ReadWrite.All",
+                    "TeamSettings.ReadWrite.All",
+                    "Group.ReadWrite.All",
+                    "Sites.FullControl.All"
+                )
+                $authResult = Connect-MgGraph -Scopes $scopes -ErrorAction Stop
             }
         }
         catch {
