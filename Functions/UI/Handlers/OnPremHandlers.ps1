@@ -20,9 +20,9 @@ function Initialize-OnPremTab {
     # $chkMoveToDisabledOu.Content = "Move to Disabled OU"
 
     # Add tooltip descriptions
-    $chkDisableAcc.ToolTip = "Disables the user's Active Directory account"
-    $chkRemMemberShips.ToolTip = "Removes user from all AD groups except Domain Users"
-    $chkMoveToDisabledOu.ToolTip = "Moves the user account to the Disabled Users OU"
+    $script:chkDisableAcc.ToolTip = "Disables the user's Active Directory account"
+    $script:chkRemMemberShips.ToolTip = "Removes user from all AD groups except Domain Users"
+    $script:chkMoveToDisabledOu.ToolTip = "Moves the user account to the Disabled Users OU"
 
     # Add click handler for the run button
     $script:btnRunOnPrem.Add_Click({
@@ -217,7 +217,7 @@ function Remove-UserGroups {
     Write-Host "[SIMULATION]: Would remove group memberships for: $UserPrincipalName"
     if (Get-AppSetting -SettingName "DemoMode") {
         try {
-            Write-ActivityLog -UserEmail $UserPrincipalName -Action "Group Membership Backup" -Result "Groups to remove: $($groups -join '; ')" -Platform "OnPrem"
+            Write-ActivityLog -UserEmail $UserPrincipalName -Action "Group Membership Backup" -Result "Demo mode - group removal simulated" -Platform "OnPrem"
             return "[SIMULATION]: Would remove group memberships for: $UserPrincipalName"
         }
         catch {
@@ -279,8 +279,10 @@ function Move-UserToDisabledOU {
  
     Write-Host "SIMULATION: Would move user to Disabled OU: $UserPrincipalName"
  
-    # You should customize this OU path for your environment
-    $disabledOU = "OU=Disabled Users,DC=yourdomain,DC=com"
+    $disabledOU = Get-AppSetting -SettingName "DisabledOU"
+    if ([string]::IsNullOrEmpty($disabledOU)) {
+        $disabledOU = "OU=Disabled Users,DC=yourdomain,DC=com"
+    }
  
     if (Get-AppSetting -SettingName "DemoMode") {
         try {

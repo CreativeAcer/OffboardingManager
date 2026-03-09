@@ -15,7 +15,7 @@ function Write-ErrorLog {
     
     # Write to log file
     $logFile = Join-Path $logDir "error_log.txt"
-    $logMessage | Out-File -FilePath $logFile -Append
+    $logMessage | Out-File -FilePath $logFile -Append -Encoding UTF8
     
     # Also write to console
     Write-Host $logMessage -ForegroundColor Red

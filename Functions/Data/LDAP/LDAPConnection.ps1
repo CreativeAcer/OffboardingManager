@@ -112,22 +112,29 @@ function Get-LDAPConnection {
                             [System.DirectoryServices.AuthenticationTypes]::Signing -bor
                             [System.DirectoryServices.AuthenticationTypes]::SecureSocketsLayer
 
-                # Create callback to ignore certificate validation
+                # Temporarily bypass certificate validation for LDAPS DirectoryEntry binding only.
+                # Save the original callback and restore it immediately after the connection test.
+                $originalCallback = [System.Net.ServicePointManager]::ServerCertificateValidationCallback
                 $callback = [System.Net.Security.RemoteCertificateValidationCallback]{
                     param($sender, $certificate, $chain, $sslPolicyErrors)
                     return $true
                 }
                 [System.Net.ServicePointManager]::ServerCertificateValidationCallback = $callback
 
-                $directoryEntry = New-Object System.DirectoryServices.DirectoryEntry(
-                    $ldapPath, 
-                    "$($networkCred.Domain)\$($networkCred.Username)",
-                    $Credential.GetNetworkCredential().Password,
-                    $authType
-                )
-                
-                # Test the connection
-                $null = $directoryEntry.NativeObject
+                try {
+                    $directoryEntry = New-Object System.DirectoryServices.DirectoryEntry(
+                        $ldapPath,
+                        "$($networkCred.Domain)\$($networkCred.Username)",
+                        $Credential.GetNetworkCredential().Password,
+                        $authType
+                    )
+
+                    # Test the connection
+                    $null = $directoryEntry.NativeObject
+                }
+                finally {
+                    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = $originalCallback
+                }
                 Write-Host "LDAPS connection successful"
                 
                 return @{

@@ -7,6 +7,7 @@ $settingsTemplate = @{
     UseLDAPS = $false
     DefaultDomain = $env:USERDNSDOMAIN
     AutoReplyTemplate = "I am currently unavailable..."
+    DisabledOU = "OU=Disabled Users,DC=yourdomain,DC=com"
     LoggingEnabled = $true
     LogPath = "Logs/error_log.txt"
     LicenseTemplates = @(
@@ -109,10 +110,11 @@ function Update-AppSettings {
     try {
         # If the $NewSettings is a PSCustomObject, convert it to a hashtable
         if ($NewSettings -is [PSCustomObject]) {
-            $NewSettings = @{}  # Start with an empty hashtable
+            $converted = @{}
             foreach ($property in $NewSettings.PSObject.Properties) {
-                $NewSettings[$property.Name] = $property.Value
+                $converted[$property.Name] = $property.Value
             }
+            $NewSettings = $converted
         }
 
         # Validate if $NewSettings is now a hashtable

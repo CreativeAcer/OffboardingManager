@@ -31,15 +31,14 @@ function Set-LicenseReassignment {
 
             $results = @()
             # Get user's current licenses
-            $userLicenses = Get-MgUserLicenseDetail -UserId $UserPrincipalName
-            
-            foreach ($license in $userLicenses) {
-                # Comment out actual commands
+            # $userLicenses = Get-MgUserLicenseDetail -UserId $UserPrincipalName
+
+            # foreach ($license in $userLicenses) {
                 # try {
                 #     # Add license to target user
                 #     Set-MgUserLicense -UserId $TargetUser -AddLicenses @{SkuId = $license.SkuId} -RemoveLicenses @()
                 #     $results +=  "Successfully assigned license to target user: $TargetUser"
-                
+
                 #     # Remove license from original user
                 #     Set-MgUserLicense -UserId $UserPrincipalName -AddLicenses @() -RemoveLicenses @($license.SkuId)
                 #     $results +=  "Successfully removed license from original user: $UserPrincipalName"
@@ -47,8 +46,8 @@ function Set-LicenseReassignment {
                 # catch {
                 #     Write-Error "Failed to process license transfer: $_"
                 # }
-                $results += "[SIMULATION] Would transfer license $($license.SkuPartNumber) to $TargetUser"
-            }
+            # }
+            $results += "[SIMULATION] Would transfer licenses from $UserPrincipalName to $TargetUser"
             
             Write-ActivityLog -UserEmail $UserPrincipalName -Action "License Reassignment" -Result "Simulation - Target: $TargetUser" -Platform "O365"
             return $results -join "`n"
@@ -92,23 +91,22 @@ function Disable-UserProducts {
 
             $results = @()
             # Get current license assignments
-            $userLicenses = Get-MgUserLicenseDetail -UserId $UserPrincipalName
-            
+            # $userLicenses = Get-MgUserLicenseDetail -UserId $UserPrincipalName
+
             foreach ($product in $ProductsToDisable) {
-                # Comment out actual commands
                 # try {
                 #     $license = $userLicenses | Where-Object { $_.SkuPartNumber -eq $product }
-                    
+
                 #     if ($license) {
                 #         # Get all service plans to disable
                 #         $disabledPlans = $license.ServicePlans | ForEach-Object { $_.ServicePlanId }
-                        
+
                 #         # Update license with all plans disabled
                 #         Set-MgUserLicense -UserId $UserPrincipalName -AddLicenses @{
                 #             SkuId = $license.SkuId
                 #             DisabledPlans = $disabledPlans
                 #         } -RemoveLicenses @()
-                        
+
                 #         $results += "Successfully disabled all services for product: $product"
                 #         Write-Host "Disabled all services for product: $product"
                 #     }

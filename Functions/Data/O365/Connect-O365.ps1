@@ -258,6 +258,9 @@ function Connect-O365 {
                     "Sites.FullControl.All"
                 )
                 $authResult = Connect-MgGraph -Scopes $scopes -ErrorAction Stop
+                $script:O365Connected = $true
+                $ui.UpdateStatus("Successfully connected to Microsoft Graph!`nReady to perform O365 operations.")
+                $ui.EnableControls()
             }
         }
         catch {

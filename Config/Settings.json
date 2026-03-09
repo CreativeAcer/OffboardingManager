@@ -21,6 +21,7 @@
     "LogPath":  "Logs/error_log.txt",
     "LoggingEnabled":  true,
     "AutoReplyTemplate":  "Please contact xyz",
+    "DisabledOU":  "OU=Disabled Users,DC=yourdomain,DC=com",
     "DefaultDomain":  "company.be",
     "WorkflowConfigurations":  {
                                    "Configurations":  {
