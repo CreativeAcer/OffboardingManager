@@ -40,6 +40,7 @@
     })
     
     $btnLogin.Add_Click({
+        $loadingWindow = $null
         try {
             # Get values from form
             $script:Domain = $txtDomain.Text.Trim()

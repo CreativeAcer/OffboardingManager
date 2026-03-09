@@ -19,9 +19,9 @@ Add-Type -AssemblyName System.DirectoryServices.AccountManagement
 
 #Check if a previous proces is running
 try {
-    if (Get-Process -Name "powershell" -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -eq "AD User Offboarding" -or $_.MainWindowTitle -eq "AD User Offboarding (DEMO MODE)"}) {
-        Stop-Process -Name "powershell" -Force
-    }
+    Get-Process -Name "powershell" -ErrorAction SilentlyContinue |
+        Where-Object { $_.MainWindowTitle -eq "AD User Offboarding" -or $_.MainWindowTitle -eq "AD User Offboarding (DEMO MODE)" } |
+        ForEach-Object { Stop-Process -Id $_.Id -Force }
 } catch {
     Write-Host "No previous instance found"
 }
@@ -98,6 +98,7 @@ $minVersion = [Version]"5.1"
 $currentVersion = $PSVersionTable.PSVersion
 
 if ($currentVersion -lt $minVersion) {
+    $loadingWindow.Close()
     $message = "This script requires PowerShell version $minVersion or higher. Current version is $currentVersion"
     [System.Windows.MessageBox]::Show($message, "Version Error", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
     exit
@@ -134,8 +135,8 @@ try {
             if (Show-LoginDialog) {
                 Write-Host "Login successful."
                 if (Get-AppSetting -SettingName "DemoMode") {
-                    # Create a dummy credential for demo mode
-                    $securePassword = ConvertTo-SecureString "DemoPassword" -AsPlainText -Force
+                    # Create an empty credential for demo mode — no real password needed
+                    $securePassword = [System.Security.SecureString]::new()
                     $Credential = New-Object System.Management.Automation.PSCredential("DemoUser", $securePassword)
                 }
                 else {

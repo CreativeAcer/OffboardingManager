@@ -6,13 +6,21 @@ function Initialize-OnPremTab {
     )
     
     # Get control references
-    $script:chkDisableAcc = $Window.FindName("chkDisableAcc")
-    $script:chkRemMemberShips = $Window.FindName("chkRemMemberShips")
+    $script:chkDisableAcc       = $Window.FindName("chkDisableAcc")
+    $script:chkRemMemberShips   = $Window.FindName("chkRemMemberShips")
     $script:chkMoveToDisabledOu = $Window.FindName("chkMoveToDisabledOu")
-    $script:chkScheduleDisable = $Window.FindName("chkScheduleDisable")
-    $script:dpDisableDate = $Window.FindName("dpDisableDate")
-    $script:btnRunOnPrem = $Window.FindName("btnRunOnPrem")
-    $script:txtOnPremResults = $Window.FindName("txtOnPremResults")
+    $script:chkScheduleDisable  = $Window.FindName("chkScheduleDisable")
+    $script:dpDisableDate       = $Window.FindName("dpDisableDate")
+    $script:btnRunOnPrem        = $Window.FindName("btnRunOnPrem")
+    $script:txtOnPremResults    = $Window.FindName("txtOnPremResults")
+
+    if ($null -eq $script:chkDisableAcc)       { throw "Failed to find chkDisableAcc control" }
+    if ($null -eq $script:chkRemMemberShips)   { throw "Failed to find chkRemMemberShips control" }
+    if ($null -eq $script:chkMoveToDisabledOu) { throw "Failed to find chkMoveToDisabledOu control" }
+    if ($null -eq $script:chkScheduleDisable)  { throw "Failed to find chkScheduleDisable control" }
+    if ($null -eq $script:dpDisableDate)       { throw "Failed to find dpDisableDate control" }
+    if ($null -eq $script:btnRunOnPrem)        { throw "Failed to find btnRunOnPrem control" }
+    if ($null -eq $script:txtOnPremResults)    { throw "Failed to find txtOnPremResults control" }
 
     # Configure checkboxes with task descriptions
     # $chkDisableAcc.Content = "Disable AD Account"
@@ -119,6 +127,9 @@ function Start-OnPremTasks {
             $disableDate = $script:dpDisableDate.SelectedDate
             if (-not $disableDate) {
                 throw "No disable date selected"
+            }
+            if ($disableDate -lt (Get-Date).Date) {
+                throw "Expiration date cannot be in the past"
             }
 
             $result = Set-AccountExpiration -UserPrincipalName $userPrincipalName -ExpirationDate $disableDate -Credential $Credential

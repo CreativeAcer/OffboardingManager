@@ -264,7 +264,8 @@ function Connect-O365 {
             }
         }
         catch {
-            Write-Host "Not connected to Microsoft Graph, proceeding with connection..."
+            Write-Host "Get-MgContext check failed: $($_.Exception.Message) — proceeding with fresh connection."
+            Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "O365-GetMgContext"
         }
 
     }

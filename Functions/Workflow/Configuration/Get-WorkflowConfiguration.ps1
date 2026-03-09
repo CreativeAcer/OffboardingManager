@@ -27,10 +27,21 @@ function Get-CurrentWorkflowConfiguration {
     try {
         $settings = Get-AppSetting
         $lastUsed = $settings.WorkflowConfigurations.LastUsed
-        
+
+        # Normalise Configurations to a hashtable — PSCustomObject (from JSON) does not
+        # support indexer access [$key] or the .Values property.
+        $configs = $settings.WorkflowConfigurations.Configurations
+        if ($configs -is [PSCustomObject]) {
+            $configHash = @{}
+            foreach ($prop in $configs.PSObject.Properties) {
+                $configHash[$prop.Name] = $prop.Value
+            }
+            $configs = $configHash
+        }
+
         if ([string]::IsNullOrEmpty($lastUsed)) {
             # Return first available configuration if no last used
-            $config = $settings.WorkflowConfigurations.Configurations.Values | Select-Object -First 1
+            $config = $configs.Values | Select-Object -First 1
             if ($config) {
                 return $config
             }
@@ -50,8 +61,8 @@ function Get-CurrentWorkflowConfiguration {
                 LastModified = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
             }
         }
-        
-        return $settings.WorkflowConfigurations.Configurations[$lastUsed]
+
+        return $configs[$lastUsed]
     }
     catch {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Get-CurrentWorkflowConfiguration"

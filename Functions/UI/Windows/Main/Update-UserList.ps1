@@ -77,13 +77,14 @@ function Update-UserList {
                             $rawUsers = Get-LDAPUsers -Directory $directory -SearchFilter $filter
                             Write-Host "Retrieved $(if ($rawUsers) { $rawUsers.Count } else { '0' }) users"
                             
-                            # Convert users to a consistent format
-                            $script:Users = @()
+                            # Convert users to a consistent format.
+                            # Use a List to avoid O(n²) array reallocation on each += .
+                            $userList = [System.Collections.Generic.List[object]]::new()
                             foreach ($user in $rawUsers) {
                                 if ($directory.IsLDAPS) {
                                     # Handle System.DirectoryServices.Protocols response
                                     if ($user.Attributes["userPrincipalName"]) {
-                                        $convertedUser = @{
+                                        $userList.Add(@{
                                             UserPrincipalName = $user.Attributes["userPrincipalName"][0]
                                             DisplayName = if ($user.Attributes["displayName"]) { $user.Attributes["displayName"][0] } else { "" }
                                             Email = if ($user.Attributes["mail"]) { $user.Attributes["mail"][0] } else { "" }
@@ -91,14 +92,13 @@ function Update-UserList {
                                             Title = if ($user.Attributes["title"]) { $user.Attributes["title"][0] } else { "" }
                                             Attributes = $user.Attributes
                                             IsLDAPS = $true
-                                        }
-                                        $script:Users += $convertedUser
+                                        })
                                     }
                                 }
                                 else {
                                     # Handle standard DirectorySearcher response
                                     if ($user.Properties["userPrincipalName"]) {
-                                        $convertedUser = @{
+                                        $userList.Add(@{
                                             UserPrincipalName = $user.Properties["userPrincipalName"][0]
                                             DisplayName = if ($user.Properties["displayName"]) { $user.Properties["displayName"][0] } else { "" }
                                             Email = if ($user.Properties["mail"]) { $user.Properties["mail"][0] } else { "" }
@@ -106,11 +106,11 @@ function Update-UserList {
                                             Title = if ($user.Properties["title"]) { $user.Properties["title"][0] } else { "" }
                                             Properties = $user.Properties
                                             IsLDAPS = $false
-                                        }
-                                        $script:Users += $convertedUser
+                                        })
                                     }
                                 }
                             }
+                            $script:Users = $userList.ToArray()
                             
                             Write-Host "Converted $(if ($script:Users) { $script:Users.Count } else { '0' }) users to normalized format"
                             
@@ -157,10 +157,13 @@ function Update-UserList {
         Write-ErrorLog -ErrorMessage $_.Exception.Message -Location "Update-UserList"
     }
     finally {
-        if ($loadingWindow) {
+        if ($loadingWindow -and $null -ne $script:mainWindow) {
             $script:mainWindow.Dispatcher.Invoke([Action]{
                 $loadingWindow.Close()
             })
         }
-    }    
+        elseif ($loadingWindow) {
+            $loadingWindow.Close()
+        }
+    }
 }

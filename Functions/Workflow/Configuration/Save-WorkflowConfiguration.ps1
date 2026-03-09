@@ -27,35 +27,26 @@ function Save-WorkflowConfiguration {
             TaskSettings = $TaskSettings
             LastModified = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
         }
-        #TESTING THIS
-        # Add or update configuration
+        # Normalise Configurations to a hashtable so add/update is uniform.
+        # PSCustomObject (from JSON) does not support direct key assignment.
         if ($settings.WorkflowConfigurations.Configurations -is [PSCustomObject]) {
-            # If it's a PSCustomObject, check if the configuration exists
-            if ($settings.WorkflowConfigurations.Configurations.PSObject.Properties.Match($Name)) {
-                # Remove the old configuration if it exists
-                $settings.WorkflowConfigurations.Configurations.PSObject.Properties.Remove($Name)
+            $configHash = @{}
+            foreach ($prop in $settings.WorkflowConfigurations.Configurations.PSObject.Properties) {
+                $configHash[$prop.Name] = $prop.Value
             }
-
-            # Add the new configuration
-            $settings.WorkflowConfigurations.Configurations | Add-Member -MemberType NoteProperty -Name $Name -Value $newConfig
-        } else {
-            # If it's a hashtable, directly add or update the configuration
-            $settings.WorkflowConfigurations.Configurations[$Name] = $newConfig
+            $settings.WorkflowConfigurations.Configurations = $configHash
         }
 
-        
         # Add or update configuration
-        #$settings.WorkflowConfigurations.Configurations[$Name] = $newConfig
-        
+        $settings.WorkflowConfigurations.Configurations[$Name] = $newConfig
+
         # Set as last used if requested or if it's the only configuration
         if ($SetAsDefault -or $settings.WorkflowConfigurations.Configurations.Count -eq 1) {
             $settings.WorkflowConfigurations.LastUsed = $Name
         }
-        # Save settings
-        Update-AppSettings -NewSettings $settings
 
         # Save settings
-        #Update-AppSettings -NewSettings $settings
+        Update-AppSettings -NewSettings $settings
         
         return "Workflow configuration '$Name' saved successfully"
     }

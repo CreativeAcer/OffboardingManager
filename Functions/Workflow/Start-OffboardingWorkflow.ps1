@@ -22,12 +22,18 @@ function Start-OffboardingWorkflow {
         $userEmail = if (Get-AppSetting -SettingName "DemoMode") {
             $UserPrincipalName
         }
+        elseif ($script:UseADModule) {
+            $adUser = Get-ADUser -Identity $UserPrincipalName -Properties mail -ErrorAction Stop
+            if ($null -eq $adUser) { throw "AD user '$UserPrincipalName' not found" }
+            $adUser.mail
+        }
         else {
-            if ($script:UseADModule) {
-                (Get-ADUser -Identity $UserPrincipalName -Properties mail).mail
-            } else {
-                $script:SelectedUser.Properties["mail"][0]
-            }
+            if ($null -eq $script:SelectedUser) { throw "No user selected" }
+            $script:SelectedUser.Properties["mail"][0]
+        }
+
+        if ([string]::IsNullOrEmpty($userEmail)) {
+            throw "Could not resolve email address for '$UserPrincipalName'"
         }
 
         Write-ActivityLog -UserEmail $userEmail -Action "Workflow Started" -Result "Starting workflow: $($workflow.Name)" -Platform "Workflow"
@@ -42,8 +48,15 @@ function Start-OffboardingWorkflow {
                 Update-LoadingMessage -LoadingWindow $loadingWindow -Message "Executing task: $($task.DisplayName)..."
                 
                 try {
-                    # Get task-specific settings
-                    $taskSettings = $workflow.TaskSettings[$taskId]
+                    # Get task-specific settings.
+                    # TaskSettings on a PSCustomObject (from JSON) requires property access, not indexer.
+                    if ($workflow.TaskSettings -is [PSCustomObject]) {
+                        $tsProp = $workflow.TaskSettings.PSObject.Properties[$taskId]
+                        $taskSettings = if ($tsProp) { $tsProp.Value } else { $null }
+                    }
+                    else {
+                        $taskSettings = $workflow.TaskSettings[$taskId]
+                    }
                     
                     # Build parameters
                     $params = @{
@@ -55,10 +68,18 @@ function Start-OffboardingWorkflow {
                         $params["Credential"] = $Credential
                     }
                     
-                    # Add task-specific parameters from settings
-                    if($taskSettings) {
-                        foreach($key in $taskSettings.Keys) {
-                            $params[$key] = $taskSettings[$key]
+                    # Add task-specific parameters from settings.
+                    # TaskSettings may be a PSCustomObject (loaded from JSON) or a hashtable.
+                    if ($taskSettings) {
+                        if ($taskSettings -is [PSCustomObject]) {
+                            foreach ($prop in $taskSettings.PSObject.Properties) {
+                                $params[$prop.Name] = $prop.Value
+                            }
+                        }
+                        else {
+                            foreach ($key in $taskSettings.Keys) {
+                                $params[$key] = $taskSettings[$key]
+                            }
                         }
                     }
 

@@ -15,41 +15,39 @@ function Generate-Reports {
             return
         }
 
+        # Validate date selections before parsing
+        if ($null -eq $script:dpStartDate.SelectedDate) {
+            $script:txtReportResults.Text = "Please select a start date."
+            return
+        }
+        if ($null -eq $script:dpEndDate.SelectedDate) {
+            $script:txtReportResults.Text = "Please select an end date."
+            return
+        }
+
         # Get user-selected parameters and normalize date ranges
         $startDate = [datetime]::ParseExact($script:dpStartDate.SelectedDate.ToString("yyyy-MM-dd 00:00:00"), "yyyy-MM-dd HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
         $endDate = [datetime]::ParseExact($script:dpEndDate.SelectedDate.ToString("yyyy-MM-dd 23:59:59"), "yyyy-MM-dd HH:mm:ss", [System.Globalization.CultureInfo]::InvariantCulture)
+
+        if ($startDate -gt $endDate) {
+            $script:txtReportResults.Text = "Start date must be before end date."
+            return
+        }
+
         $format = $script:cmbReportFormat.SelectedItem.Content
         $results = @()
 
-        # Dynamically determine the base path and move two folders higher
-        $BasePath = $PSScriptRoot
-        if (-not $BasePath) {
-            $BasePath = Split-Path -Parent $MyInvocation.MyCommand.Path
-        }
-        $BasePath = Split-Path -Parent (Split-Path -Parent $BasePath)  # Move two folders higher
-        Write-Output "BasePath resolved to: $BasePath"
+        # Use the authoritative base path established at startup
+        $BasePath = $script:BasePath
 
         # Ensure the reports directory exists
         $reportsPath = Join-Path -Path $BasePath -ChildPath "Reports"
         if (-not (Test-Path $reportsPath)) {
             New-Item -ItemType Directory -Path $reportsPath -Force | Out-Null
-            Write-Output "Created reports directory: $reportsPath"
         }
 
         # Generate a timestamp for report files
         $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-
-        # Retrieve log files and process them
-        $logFilesPath = Join-Path -Path $BasePath -ChildPath "Logs"
-        $logFiles = Get-ChildItem -Path $logFilesPath -Filter "*.log"
-
-        foreach ($file in $logFiles) {
-            Write-Output "Processing file: $($file.FullName)"
-            foreach ($line in (Get-Content -Path $file.FullName -Encoding UTF8)) {
-                Write-Output "Processing line: $line"
-                # Add your line processing logic here
-            }
-        }
 
         # Generate reports based on user selection
         if ($script:chkOffboardingReport.IsChecked) {
@@ -164,6 +162,10 @@ $($licenseData | ForEach-Object {
     else {
 
     try {
+        if (-not $script:O365Connected) {
+            throw "Not connected to O365. Please connect before generating a license report."
+        }
+
         Write-Host "Retrieving license information for user: $UserPrincipalName"
         $licenseData = @()
 
@@ -222,15 +224,15 @@ $($licenseData | ForEach-Object {
 function Generate-OffboardingReport {
     param (
         [DateTime]$StartDate,
-        [DateTime]$EndDate
+        [DateTime]$EndDate,
+        [string]$Format = "csv",
+        [string]$Timestamp = (Get-Date -Format "yyyyMMdd_HHmmss")
     )
 
     try {
         Write-Host "Generating offboarding report..."
-        
-        $BasePath = Get-BasePath
-        $BasePath = Split-Path -Parent (Split-Path -Parent $BasePath) # Move two folders higher
-        $logPath = Join-Path $BasePath "Logs/OffboardingActivities"
+
+        $logPath = Join-Path $script:BasePath "Logs\OffboardingActivities"
         Write-Host $logPath
         $activities = @()
 
@@ -304,31 +306,25 @@ $($activities | ForEach-Object {
 
 function Export-ReportData {
     try {
-        # Dynamically determine the base path and move two folders higher
-        $BasePath = $PSScriptRoot
-        if (-not $BasePath) {
-            $BasePath = Split-Path -Parent $MyInvocation.MyCommand.Path
-        }
-        $BasePath = Split-Path -Parent (Split-Path -Parent $BasePath)  # Move two folders higher
-        $reportDirectory = Join-Path $BasePath "Reports"
+        $reportDirectory = Join-Path $script:BasePath "Reports"
 
         if (-not (Test-Path $reportDirectory)) {
             New-Item -ItemType Directory -Path $reportDirectory -Force | Out-Null
         }
 
         $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-        $format = $script:cmbReportFormat.SelectedItem
+        $format = $script:cmbReportFormat.SelectedItem.Content.ToString().ToLower()
 
         # Export Offboarding Report if available
         if ($script:currentOffboardingReport) {
-            $offboardingReportPath = Join-Path $reportDirectory "OffboardingReport_$timestamp.$($format.ToLower())"
+            $offboardingReportPath = Join-Path $reportDirectory "OffboardingReport_$timestamp.$format"
             $script:currentOffboardingReport.Data | Export-Csv -Path $offboardingReportPath -NoTypeInformation
             $script:txtReportResults.Text += "`nOffboarding report exported to: $offboardingReportPath"
         }
 
         # Export License Report if available
         if ($script:currentLicenseReport) {
-            $licenseReportPath = Join-Path $reportDirectory "LicenseReport_$timestamp.$($format.ToLower())"
+            $licenseReportPath = Join-Path $reportDirectory "LicenseReport_$timestamp.$format"
             $script:currentLicenseReport.Data | Export-Csv -Path $licenseReportPath -NoTypeInformation
             $script:txtReportResults.Text += "`nLicense report exported to: $licenseReportPath"
         }
