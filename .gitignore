@@ -45,3 +45,13 @@ Desktop.ini
 *.psproj
 *.suo
 *.user
+
+# Ruflo local secrets and runtime data
+.env
+.env.local
+.env.*.local
+.claude-flow/data/
+.claude-flow/logs/
+.claude-flow/sessions/
+ruvector.db
+.swarm/
